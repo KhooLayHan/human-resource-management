@@ -2,7 +2,6 @@ package org.bhel.hrm.common.utils;
 
 import org.bhel.hrm.server.config.Configuration;
 
-import javax.swing.*;
 import java.util.Base64;
 
 /**
@@ -10,9 +9,7 @@ import java.util.Base64;
  * For academic demonstration purposes only.
  */
 public class SimpleSecurity {
-//    private static final String SECRET_KEY = "BHEL_HRM_SECRET_KEY_2026";
-
-    private static Configuration configuration;
+    private static final Configuration configuration = new Configuration();
 
     private SimpleSecurity() {
         throw new UnsupportedOperationException("SimpleSecurity is a utility class and should not be instantiated.");
@@ -29,7 +26,11 @@ public class SimpleSecurity {
     }
 
     private static byte[] xorWithKey(byte[] data) {
-        byte[] keyBytes = configuration.getSecretKey().getBytes();
+        String secretKey = configuration.getSecretKey();
+        if (secretKey == null || secretKey.isEmpty())
+            throw new IllegalStateException("Secret key is not configured.");
+
+        byte[] keyBytes = secretKey.getBytes();
         byte[] output = new byte[data.length];
 
         for (int i = 0; i < data.length; i++)

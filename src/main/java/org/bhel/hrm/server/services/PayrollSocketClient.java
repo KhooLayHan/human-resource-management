@@ -6,6 +6,7 @@ import org.bhel.hrm.server.domain.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLSocketFactory;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -21,15 +22,15 @@ public class PayrollSocketClient {
 
     public PayrollSocketClient(Configuration configuration) {
         this.configuration = configuration;
-        this.host = configuration.getRMIHost();
-        this.port = Integer.parseInt(configuration.getRMIPort());
+        this.host = configuration.getPayrollHost();
+        this.port = Integer.parseInt(configuration.getPayrollPort());
     }
 
     /**
      * Notifies the PRS about a new employee registration.
      * @param employee The newly registered employee.
      */
-    public void notifyNewEmployee(Employee employee) {
+    public boolean notifyNewEmployee(Employee employee) {
         String message = String.format("ACTION=NEW_HIRE;ID=%d;FIRST_NAME=%s;LAST_NAME=%s",
             employee.getId(), employee.getFirstName(), employee.getLastName());
 
@@ -37,15 +38,20 @@ public class PayrollSocketClient {
         logger.info("Sending new hire notification to PRS for employee ID: {}", employee.getId());
 
         try (
+//            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             Socket socket = new Socket(host, port);
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
         ) {
+            socket.setSoTimeout(5000); // 5 seconds read timeout
+
             // Sends the single line of encrypted data
             writer.println(secureMessage);
             logger.info("Notification sent successfully");
+            return true;
         } catch (Exception e) {
             logger.error("Failed to send notification to PRS at {}:{}. Is the PayrollServer running?",
                 host, port, e);
+            return false;
         }
     }
 }

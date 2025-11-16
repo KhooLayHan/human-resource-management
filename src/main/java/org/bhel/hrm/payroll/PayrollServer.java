@@ -1,7 +1,7 @@
 package org.bhel.hrm.payroll;
 
 import org.bhel.hrm.common.utils.SimpleSecurity;
-import org.bhel.hrm.server.config.ApplicationContext;
+import org.bhel.hrm.server.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +19,7 @@ public class PayrollServer {
     private static final Logger logger = LoggerFactory.getLogger(PayrollServer.class);
 
     public static void main(String[] args) {
-        ApplicationContext applicationContext = ApplicationContext.get();
-        int payrollPort = Integer.parseInt(applicationContext.getConfiguration().getPayrollPort());
+        int payrollPort = Integer.parseInt(new Configuration().getPayrollPort());
 
         logger.info("Payroll System (PRS) Server is starting on port {}", payrollPort);
 
@@ -40,6 +39,10 @@ public class PayrollServer {
 
                     // Reads one line of data as the secure message
                     String receivedData = reader.readLine();
+                    if (receivedData == null) {
+                        logger.warn("Received empty payload from HRM system; closing connection.");
+                        continue;
+                    }
                     logger.info("Received raw data: {}", receivedData);
 
                     String decryptedData = SimpleSecurity.decrypt(receivedData);
@@ -48,7 +51,6 @@ public class PayrollServer {
             }
         } catch (Exception e) {
             logger.error("Payroll server error: {}", e.getMessage(), e);
-            e.printStackTrace();
         }
     }
 }
