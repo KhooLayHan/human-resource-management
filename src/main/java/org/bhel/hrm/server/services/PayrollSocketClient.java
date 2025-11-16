@@ -38,7 +38,8 @@ public class PayrollSocketClient {
         logger.info("Sending new hire notification to PRS for employee ID: {}", employee.getId());
 
         try (
-//            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            // Consider using SSLSocketFactory for SSL/TLS encrypted socket in the future.
+            // Known security limitation and planned for future enhancement
             Socket socket = new Socket(host, port);
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
         ) {
