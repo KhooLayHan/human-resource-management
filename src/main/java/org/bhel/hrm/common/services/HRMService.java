@@ -13,9 +13,6 @@ import java.util.List;
  * all available remote operations. All data transfers are handled via DTOs.
  */
 public interface HRMService extends Remote {
-    // A unique name to reference the service from the RMI registry.
-    String SERVICE_NAME = "HRMService";
-
     // --- 1. Authentication & User Management ---
 
     /**
