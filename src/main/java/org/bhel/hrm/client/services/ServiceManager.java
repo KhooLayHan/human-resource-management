@@ -1,6 +1,7 @@
 package org.bhel.hrm.client.services;
 
 import org.bhel.hrm.common.services.HRMService;
+import org.bhel.hrm.server.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ public class ServiceManager {
     private static final Logger logger = LoggerFactory.getLogger(ServiceManager.class);
 
     private HRMService hrmService;
+    private final Configuration configuration;
     private boolean connected = false;
     private final String host;
     private final int port;
@@ -23,15 +25,16 @@ public class ServiceManager {
      * Creates a new ServiceManager with default connection settings.
      */
     public ServiceManager() {
-        this("localhost", 1099);
+        this(new Configuration());
     }
 
     /**
      * Creates a new ServiceManager with custom connection settings.
      */
-    public ServiceManager(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public ServiceManager(Configuration configuration) {
+        this.configuration = configuration;
+        this.host = configuration.getRMIHost();
+        this.port = Integer.parseInt(configuration.getRMIPort());
 
         connect();
     }
@@ -42,7 +45,7 @@ public class ServiceManager {
     private void connect() {
         try {
             Registry registry = LocateRegistry.getRegistry(host, port);
-            this.hrmService = (HRMService) registry.lookup(HRMService.SERVICE_NAME);
+            this.hrmService = (HRMService) registry.lookup(configuration.getRMIServiceName());
             this.connected = true;
 
             logger.info("Successfully connected to the RMI service at {}:{}.", host, port);

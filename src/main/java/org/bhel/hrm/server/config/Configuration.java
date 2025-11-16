@@ -32,6 +32,30 @@ public class Configuration {
         return properties.getProperty("app.environment", "production");
     }
 
+    public String getSecretKey() {
+        return properties.getProperty("app.secret.key");
+    }
+
+    public String getPayrollHost() {
+        return properties.getProperty("payroll.host");
+    }
+
+    public String getPayrollPort() {
+        return properties.getProperty("payroll.port");
+    }
+
+    public String getRMIHost() {
+        return properties.getProperty("rmi.host");
+    }
+
+    public String getRMIPort() {
+        return properties.getProperty("rmi.port");
+    }
+
+    public String getRMIServiceName() {
+        return properties.getProperty("rmi.service.name");
+    }
+
     public String getDbUrl() {
         // jdbc:mysql://localhost:3306/hrm_db?useSSL=false&serverTimezone=UTC
         return String.format("%s:%s://%s:%s/%s?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
