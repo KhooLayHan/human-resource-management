@@ -15,7 +15,7 @@ import org.bhel.hrm.server.services.UserService;
  * components, i.e. services, DAOs, managers, of the application.
  * It follows the Singleton pattern to ensure only one context exists.
  */
-public class ApplicationContext {
+public class    ApplicationContext {
     private static final ApplicationContext INSTANCE = new ApplicationContext();
 
     private final Configuration configuration;

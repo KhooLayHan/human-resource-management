@@ -420,5 +420,26 @@ public final class DatabaseManager {
                     ON DELETE RESTRICT
             )
         """);
+        // Inside DatabaseManager.createHRMTables()
+
+// 8. Training Enrollments Table (Many-to-Many Join Table)
+        stmt.execute("""
+    CREATE TABLE IF NOT EXISTS training_enrollments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        employee_id INT NOT NULL,
+        course_id INT NOT NULL,
+        enrollment_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        status VARCHAR(50) NOT NULL DEFAULT 'ENROLLED', -- e.g., ENROLLED, COMPLETED
+        
+        CONSTRAINT fk_enrollment_employee_id
+            FOREIGN KEY (employee_id) REFERENCES employees(id)
+            ON DELETE CASCADE,
+        CONSTRAINT fk_enrollment_course_id
+            FOREIGN KEY (course_id) REFERENCES training_courses(id)
+            ON DELETE CASCADE,
+        -- An employee can only be enrolled in the same course once
+        UNIQUE KEY uk_employee_course (employee_id, course_id)
+    )
+""");
     }
 }

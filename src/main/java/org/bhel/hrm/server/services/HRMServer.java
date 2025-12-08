@@ -126,13 +126,34 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
-    public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException {
-        return List.of();
+    public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException, HRMException {
+        logger.debug("RMI Call: getAllTrainingCourses()");
+        try {
+            return trainingService.getAllCourses();
+        } catch (Exception e) {
+            exceptionHandler.handle(e, "getAllTrainingCourses");
+            return null;
+        }
     }
 
     @Override
-    public void enrollInTraining(int employeeId, int courseId) throws RemoteException {
-        throw new RemoteException("not yet implemented");
+    public void saveTrainingCourse(TrainingCourseDTO courseDTO) throws RemoteException, HRMException {
+        logger.info("RMI Call: saveTrainingCourse for '{}'", courseDTO.title());
+        try {
+            trainingService.createOrUpdateCourse(courseDTO);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, "saveTrainingCourse: " + courseDTO.title());
+        }
+    }
+
+    @Override
+    public void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException {
+        logger.info("RMI Call: enrollInTraining (Emp: {}, Course: {})", employeeId, courseId);
+        try {
+            trainingService.enrollEmployee(employeeId, courseId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, "enrollInTraining");
+        }
     }
 
     @Override

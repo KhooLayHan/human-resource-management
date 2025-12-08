@@ -3,6 +3,9 @@ package org.bhel.hrm.server.mapper;
 import org.bhel.hrm.common.dtos.TrainingCourseDTO;
 import org.bhel.hrm.server.domain.TrainingCourse;
 
+import java.util.List;
+
+
 public final class TrainingCourseMapper {
     private TrainingCourseMapper() {
         throw new UnsupportedOperationException("This class TrainingCourseMapper is a utility class; it should not be instantiated.");
@@ -13,11 +16,11 @@ public final class TrainingCourseMapper {
             return null;
 
         return new TrainingCourseDTO(
-            domain.getId(),
-            domain.getTitle(),
-            domain.getDescription(),
-            domain.getDurationInHours(),
-            domain.getDepartment()
+                domain.getId(),
+                domain.getTitle(),
+                domain.getDescription(),
+                domain.getDurationInHours(),
+                domain.getDepartment()
         );
     }
 
@@ -26,11 +29,15 @@ public final class TrainingCourseMapper {
             return null;
 
         return new TrainingCourse(
-            dto.id(),
-            dto.title(),
-            dto.description(),
-            dto.durationInHours(),
-            dto.department()
+                dto.id(),
+                dto.title(),
+                dto.description(),
+                dto.durationInHours(),
+                dto.department()
         );
+
     }
 }
+
+
+
