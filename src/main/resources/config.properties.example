@@ -1,11 +1,11 @@
 # Application Environment (e.g. development, staging, production)
-app.environment=
+app.environment=development
 
 # MySQL Database Connection
 db.connection=mysql
 db.driver=jdbc
-db.user=
-db.password=
+db.user=user
+db.password=password
 db.host=localhost
 db.port=3306
-db.name=
+db.name=hrm_db

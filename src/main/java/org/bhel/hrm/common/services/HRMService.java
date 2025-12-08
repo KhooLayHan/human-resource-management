@@ -1,6 +1,7 @@
 package org.bhel.hrm.common.services;
 
 import org.bhel.hrm.common.dtos.*;
+import org.bhel.hrm.common.exceptions.HRMException;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -22,45 +23,50 @@ public interface HRMService extends Remote {
      *
      * @param username The user's username.
      * @param password The user's raw password.
-     * @return A UserDTO if authentication is successful, otherwise null.
-     * @throws RemoteException if a communication-related error occurs.
+     * @return A {@link UserDTO} if authentication is successful
+     * @throws RemoteException If a communication-related error occurs.
+     * @throws HRMException If an authentication-related business rule is violated
      */
-    UserDTO authenticateUser(String username, String password) throws RemoteException;
+    UserDTO authenticateUser(String username, String password) throws RemoteException, HRMException;
 
     // --- 2. Employee Management (Primarily for HR Staff) ---
 
     /**
      * Registers a new employee, creating their user account and profile in one atomic operation.
      *
-     * @param registrationData A DTO containing all required details for the new user and employee.
-     * @throws RemoteException if registration fails (e.g., username already exists) or a communication error occurs.
+     * @param registrationData A {@link NewEmployeeRegistrationDTO} containing all required details for the new user and employee, not null
+     * @throws RemoteException If a communication error occurs
+     * @throws HRMException If registration fails (e.g., username already exists) or business rules are violated
      */
-    void registerNewEmployee(NewEmployeeRegistrationDTO registrationData) throws RemoteException;
+    void registerNewEmployee(NewEmployeeRegistrationDTO registrationData) throws RemoteException, HRMException;
 
     /**
      * Retrieves a list of all employees in the system.
      *
-     * @return A List of EmployeeDTOs.
-     * @throws RemoteException if a communication-related error occurs.
+     * @return A list of {@link EmployeeDTO}'s; empty if no employees exist, not null
+     * @throws RemoteException If a communication-related error occurs
+     * @throws HRMException If a business logic error occurs
      */
-    List<EmployeeDTO> getAllEmployees() throws RemoteException;
+    List<EmployeeDTO> getAllEmployees() throws RemoteException, HRMException;
 
     /**
      * Retrieves the full profile details for a single employee.
      *
-     * @param employeeId The ID of the employee to fetch.
-     * @return An EmployeeDTO containing the employee's details.
-     * @throws RemoteException if the employee is not found or a communication error occurs.
+     * @param employeeId The ID of the employee to fetch; must be positive
+     * @return An {@link EmployeeDTO} containing the employee's details, not null
+     * @throws RemoteException If a communication error occurs
+     * @throws HRMException If the employee is not found or another business rule is violated
      */
-    EmployeeDTO getEmployeeById(int employeeId) throws RemoteException;
+    EmployeeDTO getEmployeeById(int employeeId) throws RemoteException, HRMException;
 
     /**
      * Updates the profile information for an existing employee.
      *
-     * @param employeeDTO The DTO containing the updated information. The ID must be valid.
-     * @throws RemoteException if the update fails or a communication error occurs.
+     * @param employeeDTO The DTO containing updated information; must include a valid ID, not null
+     * @throws RemoteException If the update fails or a communication error occurs
+     * @throws HRMException If the employee ID is invalid or data validation fails
      */
-    void updateEmployeeProfile(EmployeeDTO employeeDTO) throws RemoteException;
+    void updateEmployeeProfile(EmployeeDTO employeeDTO) throws RemoteException, HRMException;
 
     // --- 3. Leave Management (For Employees and HR) ---
 
@@ -136,6 +142,4 @@ public interface HRMService extends Remote {
      * @throws RemoteException if enrollment fails or a communication error occurs.
      */
     void enrollInBenefitPlan(int employeeId, int planId) throws RemoteException;
-
-    // TODO: Add any additional remote methods you need here.
 }

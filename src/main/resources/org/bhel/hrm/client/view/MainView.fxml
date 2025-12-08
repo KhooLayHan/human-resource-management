@@ -1,46 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.scene.text.Font?>
 <BorderPane fx:id="mainPane" prefHeight="720.0" prefWidth="1280.0"
-            stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@../css/style.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.bhel.hrm.client.controllers.MainController">
 
     <!-- LEFT: Vertical Navigation Bar -->
     <left>
-        <VBox alignment="TOP_CENTER" spacing="10.0" styleClass="sidebar">
-            <Label text="BHEL HRM" styleClass="sidebar-title" />
-            <Separator prefWidth="180.0"/>
+        <VBox fx:id="sidebar" alignment="TOP_CENTER" spacing="10.0"
+              styleClass="sidebar" minWidth="200" prefWidth="200">
 
-            <!-- Navigation Buttons will be dynamically added here based on user role -->
+            <!-- Sidebar Header -->
+            <VBox alignment="CENTER" spacing="5">
+                <Label text="BHEL HRM" styleClass="sidebar-title"/>
+                <Separator prefWidth="180.0"/>
+            </VBox>
+
+            <!-- Navigation Buttons (dynamically added based on user role) -->
             <VBox fx:id="navigationVBox" spacing="8.0"/>
 
-            <Pane VBox.vgrow="ALWAYS"/> <!-- This pushes the logout button to the bottom -->
+            <!-- Spacer to push logout button to the bottom -->
+            <Pane VBox.vgrow="ALWAYS"/>
 
-            <Button fx:id="logoutButton" text="Logout" onAction="#handleLogout" maxWidth="Infinity" styleClass="login-button" />
+            <!-- Logout Button -->
+            <Button fx:id="logoutButton" text="Logout"
+                    onAction="#handleLogout" maxWidth="Infinity"
+                    styleClass="logout-button">
+                <tooltip>
+                    <Tooltip text="Logout (Ctrl+L)"/>
+                </tooltip>
+            </Button>
+
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
         </VBox>
     </left>
 
     <!-- CENTER: Main Content Area -->
     <center>
-        <!-- This StackPane will hold the dynamically loaded pages -->
         <StackPane fx:id="contentArea" styleClass="content-area">
-            <!-- A placeholder label -->
-            <Label text="Welcome! Please select an option from the menu." />
+            <!-- Initial placeholder -->
+            <Label text="Welcome! Please select an option from the menu."/>
         </StackPane>
     </center>
 
     <!-- BOTTOM: Status Bar -->
     <bottom>
-        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="status-bar"
-              style="-fx-padding: 5; -fx-border-width: 1 0 0 0; -fx-border-color: #d0d0d0;">
-            <Label text="Logged in as:"/>
-            <Label fx:id="loggedInUserLabel" text="[Username]" style="-fx-font-weight: bold;"/>
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              styleClass="status-bar">
+
+            <!-- User Info -->
+            <HBox spacing="5">
+                <Label text="Logged in as:"/>
+                <Label fx:id="loggedInUserLabel" text="[Username]"
+                       styleClass="user-info"/>
+            </HBox>
+
+            <Separator orientation="VERTICAL"/>
+
+            <!-- Connection Status -->
+            <HBox spacing="5" fx:id="connectionStatusBox">
+                <Label fx:id="connectionStatusIcon" text="●"
+                       styleClass="connection-status-connected"/>
+                <Label fx:id="connectionStatusLabel" text="Connected"/>
+            </HBox>
+
+            <!-- Spacer -->
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Current View Label -->
+            <Label fx:id="currentViewLabel" text="Dashboard"
+                   styleClass="current-view"/>
+
+            <Separator orientation="VERTICAL"/>
+
+            <!-- Current Time -->
+            <Label fx:id="currentTimeLabel" text="--:--:--"/>
+
+            <padding>
+                <Insets top="5" right="10" bottom="5" left="10"/>
+            </padding>
         </HBox>
     </bottom>
 </BorderPane>

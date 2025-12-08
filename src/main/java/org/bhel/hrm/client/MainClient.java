@@ -12,10 +12,10 @@ import java.util.Objects;
 public class MainClient extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
-//        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/org/bhel/hrm/client/view/MainView.fxml")));
-//        primaryStage.setTitle("BHEL – Human Resource Management");
-//        primaryStage.setScene(new Scene(root, 1280, 720));
-//        primaryStage.show();
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/org/bhel/hrm/client/view/MainView.fxml")));
+        primaryStage.setTitle("BHEL – Human Resource Management");
+        primaryStage.setScene(new Scene(root, 1280, 720));
+        primaryStage.show();
     }
 
     public static void main(String[] args) {

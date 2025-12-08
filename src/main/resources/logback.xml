@@ -16,7 +16,7 @@
         </encoder>
     </appender>
 
-    <!-- The root logger directs all logs to the specified appenders -->
+    <!-- The root logger directs all logs to the specified appender -->
     <root level="INFO">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />

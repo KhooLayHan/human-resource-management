@@ -1,0 +1,32 @@
+# Password4J's globals
+global.random.strong=true
+global.banner=false
+global.pepper=
+
+# Message Digest
+hash.md.algorithm=SHA-512
+hash.md.salt.option=append
+
+# PBKDF2
+hash.pbkdf2.algorithm=SHA256
+hash.pbkdf2.iterations=120000
+hash.pbkdf2.length=512
+hash.pbkdf2.delimiter=$
+
+# BCrypt
+hash.bcrypt.minor=b
+hash.bcrypt.rounds=12
+
+# Scrypt
+hash.scrypt.workfactor=65536
+hash.scrypt.resources=8
+hash.scrypt.parallelization=1
+hash.scrypt.derivedKeyLength=64
+
+# Argon2id
+hash.argon2.memory=65536
+hash.argon2.iterations=3
+hash.argon2.length=32
+hash.argon2.parallelism=1
+hash.argon2.type=id
+hash.argon2.version=19

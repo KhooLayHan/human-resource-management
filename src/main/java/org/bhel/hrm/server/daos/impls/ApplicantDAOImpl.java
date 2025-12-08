@@ -1,21 +1,22 @@
 package org.bhel.hrm.server.daos.impls;
 
-import org.bhel.hrm.server.DatabaseManager;
+import org.bhel.hrm.server.config.DatabaseManager;
+import org.bhel.hrm.server.daos.AbstractDAO;
 import org.bhel.hrm.server.daos.ApplicantDAO;
 import org.bhel.hrm.server.domain.Applicant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class ApplicantDAOImpl implements ApplicantDAO {
+public class ApplicantDAOImpl extends AbstractDAO<Applicant> implements ApplicantDAO {
     private static final Logger logger = LoggerFactory.getLogger(ApplicantDAOImpl.class);
 
-    private final DatabaseManager databaseManager;
-
     public ApplicantDAOImpl(DatabaseManager dbManager) {
-        this.databaseManager = dbManager;
+        super(dbManager);
     }
 
     @Override
@@ -35,11 +36,27 @@ public class ApplicantDAOImpl implements ApplicantDAO {
 
     @Override
     public void save(Applicant entity) {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
+    protected void insert(Applicant entity) {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
+    protected void update(Applicant entity) {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
+    protected void setSaveParameters(PreparedStatement stmt, Applicant entity) throws SQLException {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void deleteById(Integer integer) {
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override

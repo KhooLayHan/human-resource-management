@@ -249,4 +249,6 @@ gradle-app.setting
 
 # Configuration files
 config.properties
+psw4j.properties
+!*.properties.example
 .env

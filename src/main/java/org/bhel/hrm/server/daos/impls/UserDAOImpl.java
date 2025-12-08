@@ -1,7 +1,9 @@
 package org.bhel.hrm.server.daos.impls;
 
 import org.bhel.hrm.common.dtos.UserDTO;
-import org.bhel.hrm.server.DatabaseManager;
+import org.bhel.hrm.common.exceptions.DataAccessException;
+import org.bhel.hrm.server.config.DatabaseManager;
+import org.bhel.hrm.server.daos.AbstractDAO;
 import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.domain.User;
 import org.slf4j.Logger;
@@ -11,77 +13,145 @@ import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDAOImpl implements UserDAO {
+public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
     private static final Logger logger = LoggerFactory.getLogger(UserDAOImpl.class);
 
-    private final DatabaseManager dbManager;
+    private final RowMapper<User> rowMapper = result -> new User(
+        result.getInt("id"),
+        result.getString("username"),
+        result.getString("password_hash"),
+        mapRole(result.getObject("role_id", Integer.class))
+    );
 
     public UserDAOImpl(DatabaseManager dbManager) {
-        this.dbManager = dbManager;
+        super(dbManager);
     }
 
     @Override
-    public Optional<User> findById(Integer integer) {
-        return Optional.empty();
+    public Optional<User> findById(Integer id) {
+        String sql = """
+            SELECT
+                id,
+                username,
+                password_hash,
+                role_id
+            FROM
+                users
+            WHERE
+                id = ?
+        """;
+
+        return findOne(sql, stmt -> stmt.setInt(1, id), rowMapper);
     }
 
     @Override
     public List<User> findAll() {
-        return List.of();
+        String sql = """
+            SELECT
+                id,
+                username,
+                password_hash,
+                role_id
+            FROM
+                users
+            ORDER BY
+                username ASC
+        """;
+
+        return findMany(sql, stmt -> {}, rowMapper);
     }
 
     @Override
     public void save(User user) {
-        String sql = (user.getId() == 0)
-                ? "INSERT INTO users (username, password_hash, role_id) VALUES (?, ?, ?)"
-                : "UPDATE users SET username = ?, password_hash = ?, role_id = ? WHERE id = ?";
+        if (user.getId() == 0)
+            insert(user);
+        else
+            update(user);
+    }
 
-        Connection conn;
+    @Override
+    protected void insert(User user) {
+        String sql = """
+            INSERT INTO
+                users (
+                    username,
+                    password_hash,
+                    role_id
+                )
+            VALUES (
+                ?,
+                ?,
+                ?
+            )
+        """;
+
+        Connection conn = null;
+
         try {
-            // NOTE: try-with-resources will automatically call the `.close()` method for any
-            // resource declared within it when the block is exited. Thus, the connection
-            // will fail and crash immediately. Ensure that the connection lifecycle is handled
-            // entirely by DatabaseManager by calling it outside the try-with-resources block.
             conn = dbManager.getConnection();
 
             try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                stmt.setString(1, user.getUsername());
-                stmt.setString(2, user.getPasswordHash());
-                stmt.setInt(3, user.getRole() == UserDTO.Role.HR_STAFF ? 1 : 2);
-
-                if (user.getId() != 0)
-                    stmt.setInt(4, user.getId()); // Set ID for UPDATE clause
-
+                setSaveParameters(stmt, user);
                 stmt.executeUpdate();
 
-                // If INSERT clause, get the generated ID
-                if (user.getId() == 0) {
-                    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                        if (generatedKeys.next())
-                            user.setId(generatedKeys.getInt(1)); // Sets the new ID back on the object
-                    }
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next())
+                        user.setId(generatedKeys.getInt(1)); // Sets the new ID back on the object
                 }
-            } catch (SQLException e) {
-                logger.error("Error inserting new user: {}", user.getUsername(), e);
-            } finally {
-                // IMPORTANT: Only close the connection IF IT'S NOT PART OF A TRANSACTION.
-                // Our DatabaseManager's transaction methods will handle closing.
-                // For simplicity in this structure, we can assume the service layer will close it.
-                // A more advanced implementation would have the DatabaseManager track this.
-                // For now, the key is NOT to auto-close it here.
             }
         } catch (SQLException e) {
-            logger.error("Error inserting new user: {}", user.getUsername(), e);
+            throw new DataAccessException("Error inserting new user: " + user.getUsername(), e);
+        } finally {
+            dbManager.releaseConnection(conn);
         }
     }
 
     @Override
-    public void deleteById(Integer integer) {
+    protected void update(User user) {
+        String sql = """
+            UPDATE
+                users
+            SET
+                username = ?,
+                password_hash = ?,
+                role_id = ?
+            WHERE
+                id = ?
+        """;
+
+        executeUpdate(sql, stmt -> {
+            setSaveParameters(stmt, user);
+            stmt.setInt(4, user.getId());
+        });
+    }
+
+    @Override
+    protected void setSaveParameters(PreparedStatement stmt, User user) throws SQLException {
+        stmt.setString(1, user.getUsername());
+        stmt.setString(2, user.getPasswordHash());
+        stmt.setInt(3, user.getRole() == UserDTO.Role.HR_STAFF ? 1 : 2);
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        String sql = """
+            DELETE FROM
+                users
+            WHERE
+                id = ?
+        """;
+
+        executeUpdate(sql, stmt -> stmt.setInt(1, id));
     }
 
     @Override
     public long count() {
-        String sql = "SELECT COUNT(*) FROM users";
+        String sql = """
+            SELECT
+                COUNT(*)
+            FROM
+                users
+        """;
 
         try (
             Connection conn = dbManager.getConnection();
@@ -90,8 +160,10 @@ public class UserDAOImpl implements UserDAO {
         ) {
             if (result.next())
                 return Math.toIntExact(result.getLong(1));
+
+            logger.info("{}", stmt);
         } catch (SQLException e) {
-            logger.error("Error counting users", e);
+            throw new DataAccessException("Error counting users", e);
         }
 
         return 0;
@@ -99,30 +171,29 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        String sql = "SELECT id, username, password_hash, role_id FROM users WHERE username = ?";
+        String sql = """
+            SELECT
+                id,
+                username,
+                password_hash,
+                role_id
+            FROM
+                users
+            WHERE
+                username = ?
+        """;
 
-        try (Connection conn = dbManager.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
-
-            try (ResultSet result = stmt.executeQuery()) {
-                if (result.next())
-                    return Optional.of(mapRowToUser(result));
-            } catch (SQLException e) {
-                logger.error("Error finding user by username: {}", username, e);
-            }
-        } catch (SQLException e) {
-            logger.error("Error finding user by username: {}", username, e);
-        }
-
-        return Optional.empty();
+        return findOne(sql, stmt -> stmt.setString(1, username), rowMapper);
     }
 
-    private User mapRowToUser(ResultSet result) throws SQLException {
-        return new User(
-            result.getInt("id"),
-            result.getString("username"),
-            result.getString("password_hash"),
-            result.getInt("role_id") == 1 ? UserDTO.Role.HR_STAFF : UserDTO.Role.EMPLOYEE
-        );
+    private static UserDTO.Role mapRole(Integer roleId) {
+        if (roleId == null)
+            throw new IllegalStateException("users.role_id is NULL");
+
+        return switch (roleId) {
+            case 1 -> UserDTO.Role.HR_STAFF;
+            case 2 -> UserDTO.Role.EMPLOYEE;
+            default -> throw new IllegalArgumentException("Unknown users.role_id=" + roleId);
+        };
     }
 }

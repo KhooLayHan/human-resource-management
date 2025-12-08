@@ -29,6 +29,14 @@
     -fx-background-color: #cccccc;
 }
 
+/* Navigation Button Active State */
+.nav-button-active {
+    -fx-background-color: #0078d4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Logout Button Styles */
 .logout-button {
     -fx-background-color: #f8d7da; /* Light red */
 }
@@ -48,13 +56,14 @@
     -fx-font-weight: bold;
     -fx-text-fill: #1a1a1a;
 }
+
 .page-subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: #666666;
     -fx-padding: 0 0 10 0;
 }
 
-/* Primary Button Style */
+/* Button Styles */
 .button-primary {
     -fx-background-color: #007bff;
     -fx-text-fill: white;
@@ -65,12 +74,40 @@
     -fx-background-color: #0056b3;
 }
 
+.button-danger {
+    -fx-background-color: #f8d7da;
+    -fx-text-fill: #721c24;
+}
+
+.button-danger:hover {
+    -fx-background-color: #f5c6cb;
+}
+
 /* Status Bar Styles */
 .status-bar {
     -fx-padding: 5 10 5 10;
     -fx-border-width: 1 0 0 0;
     -fx-border-color: #cccccc;
     -fx-background-color: #f8f8f8;
+}
+
+/* User's Logged In Info */
+.user-info {
+    -fx-font-weight: bold;
+}
+
+/* Connection Status Indicators */
+.connection-status-connected {
+    -fx-text-fill: green;
+}
+
+.connection-status-disconnected {
+    -fx-text-fill: red;
+}
+
+/* User's Current Layout View */
+.current-view {
+    -fx-font-style: italic;
 }
 
 /* TableView Styles */
@@ -81,4 +118,73 @@
 .table-view .column-header .label {
     -fx-text-fill: #333333;
     -fx-font-weight: bold;
+}
+
+/* Login View Styles */
+.login-container {
+    -fx-background-color: #f4f4f4;
+}
+
+.login-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.login-subtitle {
+    -fx-text-fill: #666666;
+    -fx-font-size: 12px;
+}
+
+.login-error-label {
+    -fx-text-fill: red;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.login-forgot-password-hyperlink {
+    -fx-font-size: 11px;
+}
+
+/* Form Styles */
+.form-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Loading Indicator */
+.loading-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Transparent Button (for sidebar toggle) */
+.transparent-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.transparent-button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Error Pane Styles */
+.error-pane {
+    -fx-text-fill: red;
+    -fx-font-size: 14px;
+    -fx-padding: 20px;
+    -fx-background-color: #fff3cd;
+    -fx-border-color: #ffc107;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+/* Employee Management Container */
+.employee-container {
+    -fx-padding: 20px;
+}
+
+/* Employee Form Validation Error */
+.employee-form-error {
+    -fx-font-size: 12px;
+    -fx-padding: 10 0 0 0;
 }

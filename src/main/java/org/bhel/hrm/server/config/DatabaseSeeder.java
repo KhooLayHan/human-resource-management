@@ -1,4 +1,4 @@
-package org.bhel.hrm.server;
+package org.bhel.hrm.server.config;
 
 import net.datafaker.Faker;
 import org.bhel.hrm.common.dtos.UserDTO;
@@ -6,6 +6,7 @@ import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.domain.Employee;
 import org.bhel.hrm.server.domain.User;
+import org.bhel.hrm.server.services.PasswordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class DatabaseSeeder {
             // 1. Creates a default HR Staff user
             User hrUser = new User(
                 "hr_admin",
-                "admin123", // TODO: Replace with a real password hash
+                PasswordService.hashPassword("admin123"),
                 UserDTO.Role.HR_STAFF
             );
             userDAO.save(hrUser);
@@ -61,7 +62,7 @@ public class DatabaseSeeder {
             // 2. Creates a default Employee user
             User employeeUser = new User(
                 "employee",
-                "user123",
+                PasswordService.hashPassword("user123"),
                 UserDTO.Role.EMPLOYEE
             );
             userDAO.save(employeeUser);
@@ -78,7 +79,7 @@ public class DatabaseSeeder {
             for (int i = 0; i < 20; i++) {
                 User randomUser = new User(
                     faker.name().name(),
-                    "password",
+                    PasswordService.hashPassword("password"),
                     UserDTO.Role.EMPLOYEE
                 );
                 userDAO.save(randomUser);

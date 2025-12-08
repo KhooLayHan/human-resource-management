@@ -1,91 +1,162 @@
 package org.bhel.hrm.server.daos.impls;
 
-import org.bhel.hrm.common.dtos.UserDTO;
-import org.bhel.hrm.server.DatabaseManager;
+import org.bhel.hrm.server.config.DatabaseManager;
+import org.bhel.hrm.server.daos.AbstractDAO;
 import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.domain.Employee;
-import org.bhel.hrm.server.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class EmployeeDAOImpl implements EmployeeDAO {
+public class EmployeeDAOImpl extends AbstractDAO<Employee> implements EmployeeDAO {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeDAOImpl.class);
 
-    private final DatabaseManager dbManager;
+    private final RowMapper<Employee> rowMapper = result -> new Employee(
+        result.getInt("id"),
+        result.getInt("user_id"),
+        result.getString("first_name"),
+        result.getString("last_name"),
+        result.getString("ic_passport")
+    );
 
     public EmployeeDAOImpl(DatabaseManager dbManager) {
-        this.dbManager = dbManager;
+        super(dbManager);
     }
 
     @Override
-    public Optional<Employee> findById(Integer integer) {
-        return Optional.empty();
+    public Optional<Employee> findById(Integer id) {
+        String sql = """
+            SELECT
+                id,
+                user_id,
+                first_name,
+                last_name,
+                ic_passport
+            FROM
+                employees
+            WHERE
+                id = ?
+        """;
+
+        return findOne(sql, stmt -> stmt.setInt(1, id), rowMapper);
     }
 
     @Override
     public List<Employee> findAll() {
-        return List.of();
+        String sql = """
+            SELECT
+                id,
+                user_id,
+                first_name,
+                last_name,
+                ic_passport
+            FROM
+                employees
+            ORDER BY
+                last_name, first_name ASC
+        """;
+
+        return findMany(sql, stmt -> {}, rowMapper);
     }
 
     @Override
     public void save(Employee employee) {
-        String sql = (employee.getId() == 0)
-                ? "INSERT INTO employees (user_id, first_name, last_name, ic_passport) VALUES (?, ?, ?, ?)"
-                : "UPDATE employees SET user_id = ?, first_name = ?, last_name = ?, ic_passport = ? WHERE id = ?";
+        if (employee.getId() == 0)
+            insert(employee);
+        else
+            update(employee);
+    }
 
-        Connection conn;
+    @Override
+    protected void insert(Employee employee) {
+        String sql = """
+            INSERT INTO
+                employees (
+                    user_id,
+                    first_name,
+                    last_name,
+                    ic_passport
+                )
+            VALUES (
+                ?,
+                ?,
+                ?,
+                ?
+            )
+        """;
+
+        Connection conn = null;
+
         try {
-            // NOTE: try-with-resources will automatically call the `.close()` method for any
-            // resource declared within it when the block is exited. Thus, the connection
-            // will fail and crash immediately. Ensure that the connection lifecycle is handled
-            // entirely by DatabaseManager by calling it outside the try-with-resources block.
             conn = dbManager.getConnection();
 
             try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                stmt.setInt(1, employee.getUserId());
-                stmt.setString(2, employee.getFirstName());
-                stmt.setString(3, employee.getLastName());
-                stmt.setString(4, employee.getIcPassport());
-
-                if (employee.getId() != 0)
-                    stmt.setInt(5, employee.getId()); // Set ID for UPDATE clause
-
+                setSaveParameters(stmt, employee);
                 stmt.executeUpdate();
 
-                // If INSERT clause, get the generated ID
-                if (employee.getId() == 0) {
-                    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                        if (generatedKeys.next())
-                            employee.setId(generatedKeys.getInt(1)); // Sets the new ID back on the object
-                    }
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next())
+                        employee.setId(generatedKeys.getInt(1)); // Sets the new ID back on the object
                 }
-            } catch (SQLException e) {
-                logger.error("Error inserting new employee: {} {}", employee.getFirstName(), employee.getLastName(), e);
-            } finally {
-                // IMPORTANT: Only close the connection IF IT'S NOT PART OF A TRANSACTION.
-                // Our DatabaseManager's transaction methods will handle closing.
-                // For simplicity in this structure, we can assume the service layer will close it.
-                // A more advanced implementation would have the DatabaseManager track this.
-                // For now, the key is NOT to auto-close it here.
             }
         } catch (SQLException e) {
             logger.error("Error inserting new employee: {} {}", employee.getFirstName(), employee.getLastName(), e);
+        } finally {
+            dbManager.releaseConnection(conn);
         }
     }
 
     @Override
-    public void deleteById(Integer integer) {
+    protected void update(Employee employee) {
+        String sql = """
+            UPDATE
+                employees
+            SET
+                user_id = ?,
+                first_name = ?,
+                last_name = ?,
+                ic_passport = ?
+            WHERE
+                id = ?
+        """;
 
+        executeUpdate(sql, stmt -> {
+            setSaveParameters(stmt, employee);
+            stmt.setInt(5, employee.getId());
+        });
+    }
+
+    @Override
+    protected void setSaveParameters(PreparedStatement stmt, Employee employee) throws SQLException {
+        stmt.setInt(1, employee.getUserId());
+        stmt.setString(2, employee.getFirstName());
+        stmt.setString(3, employee.getLastName());
+        stmt.setString(4, employee.getIcPassport());
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        String sql = """
+            DELETE FROM
+                employees
+            WHERE
+                id = ?
+        """;
+
+        executeUpdate(sql, stmt -> stmt.setInt(1, id));
     }
 
     @Override
     public long count() {
-        String sql = "SELECT COUNT(*) FROM employees";
+        String sql = """
+            SELECT
+                COUNT(*)
+            FROM
+                employees
+        """;
 
         try (
             Connection conn = dbManager.getConnection();
@@ -94,20 +165,12 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         ) {
             if (result.next())
                 return Math.toIntExact(result.getLong(1));
+
+            logger.info("{}", stmt);
         } catch (SQLException e) {
             logger.error("Error counting employees", e);
         }
 
         return 0;
-    }
-
-    private Employee mapRowToEmployee(ResultSet result) throws SQLException {
-        return new Employee(
-            result.getInt("id"),
-            result.getInt("user_id"),
-            result.getString("first_name"),
-            result.getString("last_name"),
-            result.getString("ic_passport")
-        );
     }
 }

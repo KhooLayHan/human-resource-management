@@ -13,7 +13,7 @@ public class Employee {
     public Employee() {}
 
     public Employee(int id, String firstName, String lastName, String icPassport) {
-        this.id = id;
+        this.userId = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.icPassport = icPassport;

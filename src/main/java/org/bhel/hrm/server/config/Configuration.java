@@ -1,5 +1,6 @@
 package org.bhel.hrm.server.config;
 
+import org.bhel.hrm.common.exceptions.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,7 @@ public class Configuration {
 
     private final Properties properties;
 
-    public Configuration() throws ConfigurationException {
+    public Configuration() {
         properties = new Properties();
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {

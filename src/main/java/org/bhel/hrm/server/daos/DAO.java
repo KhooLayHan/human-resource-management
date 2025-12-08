@@ -15,14 +15,14 @@ public interface DAO<T, ID> {
      * Retrieves an entity by its ID.
      *
      * @param id The ID of the entity.
-     * @return An Optional containing the entity if found, otherwise an empty Optional.
+     * @return An {@link Optional} containing the entity if found, otherwise an empty {@link Optional}.
      */
     Optional<T> findById(ID id);
 
     /**
      * Retrieves all entities of this type.
      *
-     * @return A List of all entities.
+     * @return A {@link List} of all entities.
      */
     List<T> findAll();
 

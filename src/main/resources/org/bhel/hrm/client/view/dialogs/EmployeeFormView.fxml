@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20.0" style="-fx-padding: 20px;"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.bhel.hrm.client.controllers.EmployeeFormController">
+
+    <!-- Form Title -->
+    <Label fx:id="titleLabel" text="Add New Employee"
+           styleClass="form-title">
+        <font><Font name="System Bold" size="18.0"/></font>
+    </Label>
+
+    <!-- Form Fields -->
+    <GridPane hgap="10" vgap="15">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="120.0" prefWidth="120.0"/>
+            <ColumnConstraints hgrow="ALWAYS" minWidth="250.0" prefWidth="300.0"/>
+        </columnConstraints>
+
+        <!-- User Account Section -->
+        <Label text="Username: "
+               GridPane.rowIndex="0" GridPane.columnIndex="0"
+               styleClass="user-info"/>
+        <TextField fx:id="usernameField"
+                   promptText="Enter username"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Password: "
+               GridPane.rowIndex="1" GridPane.columnIndex="0"
+               styleClass="user-info"/>
+        <PasswordField fx:id="passwordField"
+                       promptText="Enter password"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Role: "
+               GridPane.rowIndex="2" GridPane.columnIndex="0"
+               styleClass="user-info"/>
+        <ComboBox fx:id="roleComboBox"
+                  promptText="Select role"
+                  GridPane.rowIndex="2" GridPane.columnIndex="1"
+                  maxWidth="Infinity"/>
+
+        <!-- Separator -->
+        <Separator GridPane.rowIndex="3" GridPane.columnSpan="2">
+            <GridPane.margin>
+                <Insets top="5" bottom="5"/>
+            </GridPane.margin>
+        </Separator>
+
+        <!-- Employee Profile Section -->
+        <Label text="First Name: "
+               GridPane.rowIndex="4" GridPane.columnIndex="0"
+               styleClass="user-info"/>
+        <TextField fx:id="firstNameField"
+                   promptText="Enter First Name"
+                   GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Last Name: "
+               GridPane.rowIndex="5" GridPane.columnIndex="0"
+               styleClass="user-info"/>
+        <TextField fx:id="lastNameField"
+                   promptText="Enter Last Name"
+                   GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="IC/Passport: "
+               GridPane.rowIndex="6" GridPane.columnIndex="0"
+               styleClass="user-info"/>
+        <TextField fx:id="icPassportField"
+                   promptText="123456-78-9012"
+                   GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <!-- Validation Error Label -->
+    <Label fx:id="errorLabel"
+           textFill="red"
+           wrapText="true"
+           visible="false"
+           styleClass="employee-form-error"/>
+
+    <!-- Action Buttons -->
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+        <Button fx:id="cancelButton"
+                text="Cancel"
+                onAction="#handleCancel" cancelButton="true"
+                prefWidth="100.0"/>
+        <Button fx:id="saveButton"
+                text="Save"
+                onAction="#handleSave" defaultButton="true"
+                styleClass="button-primary"
+                prefWidth="100.0"/>
+    </HBox>
+</VBox>

@@ -13,11 +13,21 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.8</javafx.version>
+        <mockito.version>5.20.0</mockito.version>
     </properties>
 
-    <!-- JUnit 6 Testing Libraries -->
     <dependencyManagement>
         <dependencies>
+            <!-- Testcontainers: https://github.com/testcontainers/testcontainers-java -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>2.0.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- JUnit: https://github.com/junit-team/junit-framework -->
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
@@ -25,9 +35,19 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- ikonli: https://github.com/kordamp/ikonli -->
+            <dependency>
+                <groupId>org.kordamp.ikonli</groupId>
+                <artifactId>ikonli-bom</artifactId>
+                <version>12.4.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
+    <!-- JUnit: https://github.com/junit-team/junit-framework -->
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -35,44 +55,104 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- MySQL Database Driver -->
+        <!-- MySQL Database Driver: https://github.com/mysql/mysql-connector-j -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>9.4.0</version>
         </dependency>
 
-        <!-- JavaFX GUI Libraries -->
+        <!-- JavaFX: https://github.com/openjdk/jfx -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- Plugin for integrating with SLF4J API -->
+        <!-- SLF4J: https://github.com/qos-ch/slf4j -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>2.0.17</version>
         </dependency>
 
-        <!-- Plugin for implementing the logging engine using Logback Classic -->
+        <!-- Logback: https://github.com/qos-ch/logback -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.5.19</version>
         </dependency>
 
-        <!-- Plugin for generating and seed fake data to the local, development database using DataFaker -->
+        <!-- Datafaker: https://github.com/datafaker-net/datafaker -->
         <dependency>
             <groupId>net.datafaker</groupId>
             <artifactId>datafaker</artifactId>
             <version>2.5.2</version>
+        </dependency>
+
+        <!-- AssertJ: https://github.com/assertj/assertj -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.27.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito: https://github.com/mockito/mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Testcontainers: https://github.com/testcontainers/testcontainers-java -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-mysql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Password4j: https://github.com/Password4j/password4j -->
+        <dependency>
+            <groupId>com.password4j</groupId>
+            <artifactId>password4j</artifactId>
+            <version>1.8.4</version>
+        </dependency>
+
+        <!-- ControlsFX: https://github.com/controlsfx/controlsfx -->
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.2.2</version>
+        </dependency>
+
+        <!-- ikonli: https://github.com/kordamp/ikonli -->
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-materialdesign2-pack</artifactId>
         </dependency>
     </dependencies>
 
@@ -104,52 +184,80 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.4</version>
+                <configuration>
+                    <argLine>
+                        -Xshare:off
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                    </argLine>
+                </configuration>
             </plugin>
 
-            <!-- Plugin for assembling the project -->
+            <!-- Plugin for shading and assembling the project -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.1</version>
                 <executions>
-                    <!-- Execution to build the Server JAR -->
                     <execution>
-                        <id>build-server-jar</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <archive>
-                                <manifest>
-                                    <mainClass>org.bhel.hrm.server.ServerLauncher</mainClass>
-                                </manifest>
-                            </archive>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>hrm-server</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
+                            <transformers>
+                                <!-- This transformer sets the Main-Class in the JAR's manifest -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <!-- For the Client JAR -->
+                                    <mainClass>org.bhel.hrm.client.MainClient</mainClass>
+                                </transformer>
+                                <!-- Appends client files -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <!-- Excludes digital signature files, which become invalid after shading -->
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <!-- A unique classifier for the JAR to distinguish it -->
+                            <finalName>hrm-client</finalName>
                         </configuration>
                     </execution>
-                    <!-- Execution to build the Client JAR -->
+                    <!-- A separate execution for the server -->
                     <execution>
-                        <id>build-client-jar</id>
+                        <id>shade-server</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <archive>
-                                <manifest>
-                                    <mainClass>org.bhel.hrm.client.MainClient</mainClass>
-                                </manifest>
-                            </archive>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>hrm-client</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <!-- For the Server JAR -->
+                                    <mainClass>org.bhel.hrm.server.ServerLauncher</mainClass>
+                                </transformer>
+                                <!-- Appends server files instead -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <!-- Also excludes digital signature files -->
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <finalName>hrm-server</finalName>
                         </configuration>
                     </execution>
                 </executions>

@@ -15,7 +15,7 @@ public interface UserDAO extends DAO<User, Integer> {
      * used for authentication lookups.
      *
      * @param username The username of the user to find.
-     * @return An Optional containing the User if found, otherwise an empty Optional.
+     * @return An {@link Optional} containing the User if found, otherwise an empty Optional.
      */
     Optional<User> findByUsername(String username);
 }

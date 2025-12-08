@@ -13,7 +13,7 @@ public interface JobOpeningDAO extends DAO<JobOpening, Integer> {
      * Finds all job openings that match a specific status (e.g., OPEN).
      *
      * @param status The status to filter by.
-     * @return A List of job openings with the specified status.
+     * @return A {@link List} of job openings with the specified status.
      */
     List<JobOpening> findAllByStatus(JobOpeningDTO.JobStatus status);
 }
