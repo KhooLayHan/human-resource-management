@@ -37,6 +37,10 @@ public final class TrainingCourseMapper {
         );
 
     }
+
+    public static List<TrainingCourseDTO> toDtoList(List<TrainingCourse> all) {
+        return List.of();
+    }
 }
 
 
