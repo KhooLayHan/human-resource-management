@@ -65,8 +65,28 @@ public interface HRMService extends Remote {
      */
     void updateEmployeeProfile(EmployeeDTO employeeDTO) throws RemoteException, HRMException;
 
+    /**
+     * Deletes an employee and their associated user account from the system.
+     * <p>
+     *
+     * <strong>Warning:</strong> This operation is irreversible. All employee data
+     * will be permanently removed from the system.
+     *
+     * @param employeeId The unique identifier of the employee to delete
+     * @throws RemoteException           If a communication error occurs during the remote method call
+     * @throws HRMException              If a business rule violation occurs or the employee is not found
+     */
     void deleteEmployee(int employeeId) throws RemoteException, HRMException;
 
+    /**
+     * Generates a comprehensive yearly report for the specified employee.
+     * <p>
+     *
+     * @param employeeId The unique identifier of the employee for whom to generate the report
+     * @return An {@link EmployeeReportDTO} containing the complete yearly report with generation timestamp
+     * @throws RemoteException If a communication error occurs during the remote method call
+     * @throws HRMException    If a business rule violation occurs or the employee is not found
+     */
     EmployeeReportDTO generateEmployeeReport(int employeeId) throws RemoteException, HRMException;
 
     // --- 3. Leave Management (For Employees and HR) ---

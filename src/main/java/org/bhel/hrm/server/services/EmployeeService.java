@@ -100,6 +100,14 @@ public class EmployeeService {
             employeeDTO.id());
     }
 
+    /**
+     * Deletes an employee and their associated user account in a single transaction.
+     *
+     * @param employeeId The unique identifier of the employee to delete
+     * @throws SQLException                If a database access error occurs during deletion
+     * @throws HRMException                If a business rule violation occurs
+     * @throws ResourceNotFoundException   If no employee exists with the given ID
+     */
     public void deleteEmployeeById(int employeeId) throws SQLException, HRMException {
         Employee employee = employeeDAO.findById(employeeId)
             .orElseThrow(() -> new ResourceNotFoundException(
@@ -119,6 +127,26 @@ public class EmployeeService {
             employeeId);
     }
 
+    /**
+     * Generates a comprehensive yearly report for the specified employee.
+     * <p>
+     * The report includes:
+     * <ul>
+     *   <li>Employee profile information (name, IC/passport, etc.)</li>
+     *   <li>Leave summary (annual leave balance, medical leave taken, etc.)</li>
+     *   <li>Training summary (completed courses and certifications)</li>
+     *   <li>Benefits summary (enrolled benefit plans and coverage)</li>
+     * </ul>
+     * <p>
+     * <strong>Note:</strong> Leave, training, and benefits summaries are currently
+     * stub implementations returning placeholder data. These sections will be populated
+     * with actual data from their respective services in future iterations.
+     *
+     * @param employeeId The unique identifier of the employee for whom to generate the report
+     * @return An {@link EmployeeReportDTO} containing the complete yearly report with timestamp
+     * @throws HRMException              If a business rule violation occurs
+     * @throws ResourceNotFoundException If no employee exists with the given ID
+     */
     public EmployeeReportDTO generateYearlyReport(int employeeId) throws HRMException {
         Employee employee = employeeDAO.findById(employeeId).
             orElseThrow(() -> new ResourceNotFoundException(
