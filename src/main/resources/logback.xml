@@ -19,7 +19,7 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- Daily rollover -->
-            <fileNamePattern>logs/hrm-app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH:-logs}/hrm-app.%d{yyyy-MM-dd}.log</fileNamePattern>
             <!-- Keep 30 days of history -->
             <maxHistory>30</maxHistory>
             <!-- Total size cap -->

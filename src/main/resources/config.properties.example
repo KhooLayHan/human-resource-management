@@ -2,7 +2,7 @@
 app.environment=development
 
 # Application Secret Key
-app.secret.key="BHEL_HRM_SECRET_KEY_2026"
+app.secret.key=BHEL_HRM_SECRET_KEY_2026
 
 # Payroll System (PRS)
 payroll.host=localhost
