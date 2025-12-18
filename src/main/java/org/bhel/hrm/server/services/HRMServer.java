@@ -140,7 +140,10 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             return employeeService.generateYearlyReport(employeeId);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
-            return null;
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
         }
     }
 

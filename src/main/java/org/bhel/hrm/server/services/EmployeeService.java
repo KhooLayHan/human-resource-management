@@ -109,16 +109,16 @@ public class EmployeeService {
      * @throws ResourceNotFoundException   If no employee exists with the given ID
      */
     public void deleteEmployeeById(int employeeId) throws SQLException, HRMException {
-        Employee employee = employeeDAO.findById(employeeId)
-            .orElseThrow(() -> new ResourceNotFoundException(
-                ErrorCode.EMPLOYEE_NOT_FOUND,
-                "Employee",
-                employeeId
-            ));
-
-        int userId = employee.getUserId();
-
         dbManager.executeInTransaction(() -> {
+            Employee employee = employeeDAO.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    ErrorCode.EMPLOYEE_NOT_FOUND,
+                    "Employee",
+                    employeeId
+                ));
+
+            int userId = employee.getUserId();
+
             employeeDAO.deleteById(employeeId);
             userDAO.deleteById(userId);
         });
@@ -166,7 +166,7 @@ public class EmployeeService {
         trainingSummary.add("No training records found");
 
         List<String> benefitsSummary = new ArrayList<>();
-        benefitsSummary.add("No training records found");
+        benefitsSummary.add("Standard health plan");
 
         return new EmployeeReportDTO(
             LocalDateTime.now(),
