@@ -2,6 +2,7 @@ package org.bhel.hrm.common.utils;
 
 import org.bhel.hrm.server.config.Configuration;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
@@ -16,13 +17,13 @@ public class SimpleSecurity {
     }
 
     public static String encrypt(String plainText) {
-        byte[] xorResult = xorWithKey(plainText.getBytes());
+        byte[] xorResult = xorWithKey(plainText.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(xorResult);
     }
 
     public static String decrypt(String encryptedBase64) {
         byte[] decodedBytes = Base64.getDecoder().decode(encryptedBase64);
-        return new String(xorWithKey(decodedBytes));
+        return new String(xorWithKey(decodedBytes), StandardCharsets.UTF_8);
     }
 
     private static byte[] xorWithKey(byte[] data) {

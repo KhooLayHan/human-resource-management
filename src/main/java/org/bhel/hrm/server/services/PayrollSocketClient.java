@@ -27,7 +27,7 @@ public class PayrollSocketClient {
 
         String portStr = configuration.getPayrollPort();
         if (portStr == null || portStr.isBlank())
-            throw new IllegalStateException("Payroll port is not configured."):
+            throw new IllegalStateException("Payroll port is not configured.");
 
         try {
             this.port = Integer.parseInt(portStr);
