@@ -6,6 +6,7 @@ import org.bhel.hrm.server.domain.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.ImmutableDescriptor;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -23,7 +24,16 @@ public class PayrollSocketClient {
     public PayrollSocketClient(Configuration configuration) {
         this.configuration = configuration;
         this.host = configuration.getPayrollHost();
-        this.port = Integer.parseInt(configuration.getPayrollPort());
+
+        String portStr = configuration.getPayrollPort();
+        if (portStr == null || portStr.isBlank())
+            throw new IllegalStateException("Payroll port is not configured."):
+
+        try {
+            this.port = Integer.parseInt(portStr);
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new IllegalStateException("Invalid payroll port: " + portStr, e);
+        }
     }
 
     /**

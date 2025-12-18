@@ -6,6 +6,7 @@ import org.bhel.hrm.common.exceptions.AuthenticationException;
 import org.bhel.hrm.common.exceptions.DuplicateUserException;
 import org.bhel.hrm.common.exceptions.HRMException;
 import org.bhel.hrm.common.exceptions.UserNotFoundException;
+import org.bhel.hrm.payroll.PayrollServer;
 import org.bhel.hrm.server.config.Configuration;
 import org.bhel.hrm.server.config.DatabaseManager;
 import org.bhel.hrm.server.daos.EmployeeDAO;
@@ -33,12 +34,13 @@ public class UserService {
     public UserService(
         DatabaseManager databaseManager,
         UserDAO userDAO,
-        EmployeeDAO employeeDAO
+        EmployeeDAO employeeDAO,
+        PayrollSocketClient payrollClient
     ) {
         this.dbManager = databaseManager;
         this.userDAO = userDAO;
         this.employeeDAO = employeeDAO;
-        this.payrollClient = new PayrollSocketClient(new Configuration());
+        this.payrollClient = payrollClient;
     }
 
     /**

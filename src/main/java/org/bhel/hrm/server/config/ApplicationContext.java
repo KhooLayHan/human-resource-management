@@ -8,6 +8,7 @@ import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
 import org.bhel.hrm.server.daos.impls.UserDAOImpl;
 import org.bhel.hrm.server.services.EmployeeService;
+import org.bhel.hrm.server.services.PayrollSocketClient;
 import org.bhel.hrm.server.services.UserService;
 
 /**
@@ -47,7 +48,7 @@ public class ApplicationContext {
         this.userDAO = new UserDAOImpl(databaseManager);
         this.employeeDAO = new EmployeeDAOImpl(databaseManager);
 
-        this.userService = new UserService(databaseManager, userDAO, employeeDAO);
+        this.userService = new UserService(databaseManager, userDAO, employeeDAO, new PayrollSocketClient(configuration));
         this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
 
         seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
