@@ -215,6 +215,8 @@
                                 <!-- Appends client files -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
+                            <!-- To suppress client dependency conflicts -->
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
                             <filters>
                                 <!-- Excludes digital signature files, which become invalid after shading -->
                                 <filter>
@@ -223,6 +225,7 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.java</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -246,6 +249,8 @@
                                 <!-- Appends server files instead -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
+                            <!-- To suppress server dependency conflicts -->
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
                             <filters>
                                 <!-- Also excludes digital signature files -->
                                 <filter>
@@ -254,6 +259,7 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.java</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
