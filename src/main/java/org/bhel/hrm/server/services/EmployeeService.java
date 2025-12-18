@@ -1,18 +1,22 @@
 package org.bhel.hrm.server.services;
 
 import org.bhel.hrm.common.dtos.EmployeeDTO;
+import org.bhel.hrm.common.dtos.EmployeeReportDTO;
 import org.bhel.hrm.common.error.ErrorCode;
 import org.bhel.hrm.common.exceptions.HRMException;
 import org.bhel.hrm.common.exceptions.InvalidInputException;
 import org.bhel.hrm.common.exceptions.ResourceNotFoundException;
 import org.bhel.hrm.server.config.DatabaseManager;
 import org.bhel.hrm.server.daos.EmployeeDAO;
+import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.domain.Employee;
 import org.bhel.hrm.server.mapper.EmployeeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,10 +27,16 @@ public class EmployeeService {
 
     private final DatabaseManager dbManager;
     private final EmployeeDAO employeeDAO;
+    private final UserDAO userDAO;
 
-    public EmployeeService(DatabaseManager databaseManager, EmployeeDAO employeeDAO) {
+    public EmployeeService(
+        DatabaseManager databaseManager,
+        EmployeeDAO employeeDAO,
+        UserDAO userDAO
+    ) {
         this.dbManager = databaseManager;
         this.employeeDAO = employeeDAO;
+        this.userDAO = userDAO;
     }
 
     /**
@@ -88,6 +98,55 @@ public class EmployeeService {
 
         logger.info("Successfully updated profile for employee ID: {}",
             employeeDTO.id());
+    }
+
+    public void deleteEmployeeById(int employeeId) throws SQLException, HRMException {
+        Employee employee = employeeDAO.findById(employeeId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                "Employee",
+                employeeId
+            ));
+
+        int userId = employee.getUserId();
+
+        dbManager.executeInTransaction(() -> {
+            employeeDAO.deleteById(employeeId);
+            userDAO.deleteById(userId);
+        });
+
+        logger.info("Successfully deleted employee by ID: {}.",
+            employeeId);
+    }
+
+    public EmployeeReportDTO generateYearlyReport(int employeeId) throws HRMException {
+        Employee employee = employeeDAO.findById(employeeId).
+            orElseThrow(() -> new ResourceNotFoundException(
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                "Employee",
+                employeeId
+            ));
+
+        EmployeeDTO profile = EmployeeMapper.mapToDto(employee);
+
+        // Stubs for now, will be updated
+        List<String> leaveSummary = new ArrayList<>();
+        leaveSummary.add("Annual Leave Balance: 14 days...");
+        leaveSummary.add("SAMPLE: Medical Leave Taken: 2 days...");
+
+        List<String> trainingSummary = new ArrayList<>();
+        trainingSummary.add("No training records found");
+
+        List<String> benefitsSummary = new ArrayList<>();
+        benefitsSummary.add("No training records found");
+
+        return new EmployeeReportDTO(
+            LocalDateTime.now(),
+            profile,
+            leaveSummary,
+            trainingSummary,
+            benefitsSummary
+        );
     }
 
     /**

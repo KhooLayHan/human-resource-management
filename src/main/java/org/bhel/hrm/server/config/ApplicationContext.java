@@ -48,7 +48,7 @@ public class ApplicationContext {
         this.employeeDAO = new EmployeeDAOImpl(databaseManager);
 
         this.userService = new UserService(databaseManager, userDAO, employeeDAO);
-        this.employeeService = new EmployeeService(databaseManager, employeeDAO);
+        this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
 
         seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
     }

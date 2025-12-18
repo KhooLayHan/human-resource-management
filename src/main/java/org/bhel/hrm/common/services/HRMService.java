@@ -65,6 +65,10 @@ public interface HRMService extends Remote {
      */
     void updateEmployeeProfile(EmployeeDTO employeeDTO) throws RemoteException, HRMException;
 
+    void deleteEmployee(int employeeId) throws RemoteException, HRMException;
+
+    EmployeeReportDTO generateEmployeeReport(int employeeId) throws RemoteException, HRMException;
+
     // --- 3. Leave Management (For Employees and HR) ---
 
     /**
