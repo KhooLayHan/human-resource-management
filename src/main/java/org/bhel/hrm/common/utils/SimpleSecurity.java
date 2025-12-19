@@ -31,7 +31,7 @@ public class SimpleSecurity {
         if (secretKey == null || secretKey.isEmpty())
             throw new IllegalStateException("Secret key is not configured.");
 
-        byte[] keyBytes = secretKey.getBytes();
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         byte[] output = new byte[data.length];
 
         for (int i = 0; i < data.length; i++)
