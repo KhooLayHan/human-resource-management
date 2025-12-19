@@ -7,8 +7,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.bhel.hrm.client.utils.DialogManager;
 import org.bhel.hrm.common.dtos.EmployeeReportDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReportDialogController {
-    private static final Logger logger = LoggerFactory.getLogger(ReportDialogController.class);
-
     @FXML private Label reportDateLabel;
     @FXML private TextArea reportTextArea;
 
@@ -42,49 +38,60 @@ public class ReportDialogController {
     }
 
     private String generateReportText(EmployeeReportDTO report) {
-        StringBuilder builder = new StringBuilder();
+        List<String> lines = new ArrayList<>();
 
-        builder.append("BHEL YEARLY REPORT").append(System.lineSeparator());
+        lines.add("BHEL YEARLY REPORT");
 
-        builder.append("1. Employee Profile").append(System.lineSeparator());
-        builder.append(String.format("Name: \t%s %s%n",
-            report.employeeDetails().firstName(), report.employeeDetails().lastName()));
-        builder.append(String.format("ID: \t%d%n", report.employeeDetails().id()));
-        builder.append(String.format("IC/Passport: \t%s%n", report.employeeDetails().icPassport()));
+        lines.add("1. Employee Profile");
+        lines.add(
+            String.format(
+                "Name: \t%s %s%n",
+                report.employeeDetails().firstName(), report.employeeDetails().lastName()
+            )
+        );
+        lines.add(
+            String.format(
+                "Employee ID: \t%d%n",
+                report.employeeDetails().id()
+            )
+        );
+        lines.add(
+            String.format(
+                "IC/Passport: \t%s%n",
+                report.employeeDetails().icPassport()
+            )
+        );
 
-        builder.append("2. Leave Summary").append(System.lineSeparator());
+        lines.add("2. Leave Summary");
         if (report.leaveHistorySummary().isEmpty()) {
-            builder.append("No leave records found for this period.").append(System.);
+            lines.add("No leave records found for this period.");
         } else {
-            for (String line : report.leaveHistorySummary()) {
-                builder.append("-> ").append(line).append("\n");
-            }
+            report.leaveHistorySummary().forEach(line ->
+                lines.add("-> " + line));
         }
-        builder.append("\n");
+        lines.add("");
 
-        builder.append("3. Training & Development\n");
+        lines.add("3. Training & Development");
         if (report.trainingHistorySummary().isEmpty()) {
-            builder.append("No training records found.\n");
+            lines.add("No training records found.");
         } else {
-            for (String line : report.trainingHistorySummary()) {
-                builder.append("-> ").append(line).append("\n");
-            }
+            report.trainingHistorySummary().forEach(line ->
+                lines.add("-> " + line));
         }
-        builder.append("\n");
+        lines.add("");
 
-        builder.append("4. Benefits Enrollment\n");
+        lines.add("4. Benefits Enrollment");
         if (report.benefitsSummary().isEmpty()) {
-            builder.append("No active benefit plans found.\n");
+            lines.add("No active benefit plans found.");
         } else {
-            for (String line : report.benefitsSummary()) {
-                builder.append("-> ").append(line).append("\n");
-            }
+            report.benefitsSummary().forEach(line ->
+                lines.add("-> " + line));
         }
-        builder.append("\n");
+        lines.add("");
 
-        builder.append("END OF REPORT\n");
+        lines.add("END OF REPORT");
 
-        return builder.toString();
+        return String.join(System.lineSeparator(), lines);
     }
 
     @FXML
@@ -95,6 +102,9 @@ public class ReportDialogController {
             "Report_" + reportData.employeeDetails().firstName() + ".txt");
         fileChooser.getExtensionFilters()
             .add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+
+        // Considering to add OpenPDF to generate PDFs instead...
+        // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
 
         File file = fileChooser.showSaveDialog(dialogStage);
         if (file != null) {

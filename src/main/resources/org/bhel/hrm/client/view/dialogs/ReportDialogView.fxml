@@ -2,14 +2,15 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.bhel.hrm.client.controllers.ReportDialogController"
-            prefHeight="400.0" prefWidth="600.0">
+
+<VBox spacing="5"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.bhel.hrm.client.controllers.ReportDialogController"
+      prefHeight="400.0" prefWidth="600.0">
 
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
@@ -32,4 +33,4 @@
         <Button text="Close" onAction="#handleClose" cancelButton="true"/>
         <Button text="Export to file..." onAction="#handleExport" styleClass="button-primary"/>
     </HBox>
-</AnchorPane>
+</VBox>

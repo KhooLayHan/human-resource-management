@@ -18,6 +18,7 @@ import org.bhel.hrm.client.controllers.components.PageHeaderController;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
 import org.bhel.hrm.common.dtos.EmployeeDTO;
+import org.bhel.hrm.common.dtos.EmployeeReportDTO;
 import org.bhel.hrm.common.services.HRMService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ public class EmployeeManagementController implements Initializable {
     @FXML private Button editButton;
     @FXML private Button deleteButton;
     @FXML private Button refreshButton;
+    @FXML private Button reportButton;
 
     @FXML private PageHeaderController pageHeaderController;
 
@@ -167,6 +169,7 @@ public class EmployeeManagementController implements Initializable {
                 boolean hasSelection = newValue != null;
                 editButton.setDisable(!hasSelection);
                 deleteButton.setDisable(!hasSelection);
+                reportButton.setDisable(!hasSelection);
             }
         );
     }
@@ -449,4 +452,68 @@ public class EmployeeManagementController implements Initializable {
 
         return deleteTask;
     }
+
+    @FXML
+    private void handleGenerateReport() {
+        EmployeeDTO selectedEmployee =
+            employeeTable.getSelectionModel().getSelectedItem();
+
+        if (selectedEmployee == null)
+            return;
+
+        // 1. Show loading state
+        DialogManager.showInfoDialog(
+            "Generating Report", "Please wait while we fetch the data...");
+
+        // 2. Create background task
+        Task<EmployeeReportDTO> reportTask = new Task<EmployeeReportDTO>() {
+            @Override
+            protected EmployeeReportDTO call() throws Exception {
+                return hrmService.generateEmployeeReport(selectedEmployee.id());
+            }
+        };
+
+        reportTask.setOnSucceeded(event -> {
+            logger.info("Generated employee report successfully.");
+
+            showReportDialog(reportTask.getValue());
+        });
+
+        reportTask.setOnFailed(event -> {
+            logger.error("Failed to generate employee employee with ID: {}",
+                selectedEmployee.id(), reportTask.getException());
+
+            DialogManager.showErrorDialog(
+                "Report Error",
+                "Failed to generate report: " + reportTask.getException().getMessage()
+            );
+        });
+
+        if (executorService != null)
+            executorService.submit(reportTask);
+    }
+
+    private void showReportDialog(EmployeeReportDTO report) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/org/bhel/hrm/client/view/dialogs/ReportDialogView.fxml"));
+
+            Stage stage = new Stage();
+            stage.setTitle("Employee Report");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initOwner(employeeTable.getScene().getWindow());
+            stage.setScene(new Scene(loader.load()));
+
+            ReportDialogController controller = loader.getController();
+            controller.setDialogStage(stage);
+            controller.setReportData(report);
+
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+            DialogManager.showErrorDialog(
+                "UI Error", "Could not open report window.");
+        }
+    }
+
 }
