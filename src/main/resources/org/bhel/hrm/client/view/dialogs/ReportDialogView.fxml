@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.bhel.hrm.client.controllers.ReportDialogController"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header -->
+    <VBox spacing="5">
+        <Label text="Employee Yearly Report">
+            <font><Font name="System Bold" size="20.0"/></font>
+        </Label>
+        <Label fx:id="reportDateLabel" text="Generated on: [Date]" textFill="#666666"/>
+    </VBox>
+
+    <!-- Report Content -->
+    <TextArea fx:id="reportTextArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+              style="-fx-font-family: 'Monospaced'; -fx-font-size: 13px"/>
+
+    <!-- Footer Actions -->
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+        <Button text="Close" onAction="#handleClose" cancelButton="true"/>
+        <Button text="Export to file..." onAction="#handleExport" styleClass="button-primary"/>
+    </HBox>
+</AnchorPane>

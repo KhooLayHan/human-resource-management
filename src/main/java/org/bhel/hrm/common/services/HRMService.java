@@ -80,7 +80,6 @@ public interface HRMService extends Remote {
 
     /**
      * Generates a comprehensive yearly report for the specified employee.
-     * <p>
      *
      * @param employeeId The unique identifier of the employee for whom to generate the report
      * @return An {@link EmployeeReportDTO} containing the complete yearly report with generation timestamp
