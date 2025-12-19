@@ -461,11 +461,6 @@ public class EmployeeManagementController implements Initializable {
         if (selectedEmployee == null)
             return;
 
-        // 1. Show loading state
-        DialogManager.showInfoDialog(
-            "Generating Report", "Please wait while we fetch the data...");
-
-        // 2. Create background task
         Task<EmployeeReportDTO> reportTask = new Task<EmployeeReportDTO>() {
             @Override
             protected EmployeeReportDTO call() throws Exception {
@@ -480,7 +475,7 @@ public class EmployeeManagementController implements Initializable {
         });
 
         reportTask.setOnFailed(event -> {
-            logger.error("Failed to generate employee employee with ID: {}",
+            logger.error("Failed to generate employee with ID: {}",
                 selectedEmployee.id(), reportTask.getException());
 
             DialogManager.showErrorDialog(
@@ -491,12 +486,14 @@ public class EmployeeManagementController implements Initializable {
 
         if (executorService != null)
             executorService.submit(reportTask);
+        else
+            new Thread(reportTask).start();
     }
 
     private void showReportDialog(EmployeeReportDTO report) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/org/bhel/hrm/client/view/dialogs/ReportDialogView.fxml"));
+                getClass().getResource(FXMLPaths.Dialogs.REPORT));
 
             Stage stage = new Stage();
             stage.setTitle("Employee Report");
@@ -510,7 +507,7 @@ public class EmployeeManagementController implements Initializable {
 
             stage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to load report dialog.", e);
             DialogManager.showErrorDialog(
                 "UI Error", "Could not open report window.");
         }

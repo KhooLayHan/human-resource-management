@@ -28,7 +28,7 @@ public class PayrollServer {
 
         int payrollPort;
         try {
-            payrollPort = Integer.parseInt(new Configuration().getPayrollPort());
+            payrollPort = Integer.parseInt(portStr);
         } catch (NumberFormatException e) {
             logger.error("Invalid payroll port: {}", portStr);
             return;
