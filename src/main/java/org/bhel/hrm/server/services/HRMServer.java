@@ -127,6 +127,10 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             employeeService.deleteEmployeeById(employeeId);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
         }
     }
 

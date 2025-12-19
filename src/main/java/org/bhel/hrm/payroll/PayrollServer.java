@@ -19,7 +19,20 @@ public class PayrollServer {
     private static final Logger logger = LoggerFactory.getLogger(PayrollServer.class);
 
     public static void main(String[] args) {
-        int payrollPort = Integer.parseInt(new Configuration().getPayrollPort());
+        Configuration configuration = new Configuration();
+        String portStr = configuration.getPayrollPort();
+        if (portStr == null || portStr.isBlank()) {
+            logger.error("Payroll port is not configured. Set 'payroll.port' in config.properties.");
+            return;
+        }
+
+        int payrollPort;
+        try {
+            payrollPort = Integer.parseInt(new Configuration().getPayrollPort());
+        } catch (NumberFormatException e) {
+            logger.error("Invalid payroll port: {}", portStr);
+            return;
+        }
 
         logger.info("Payroll System (PRS) Server is starting on port {}", payrollPort);
 
@@ -46,7 +59,7 @@ public class PayrollServer {
                     logger.info("Received raw data: {}", receivedData);
 
                     String decryptedData = SimpleSecurity.decrypt(receivedData);
-                    logger.info("Decrypted payroll instruction: {}", decryptedData);
+                    logger.debug("Decrypted payroll instruction: {}", decryptedData);
                 }
             }
         } catch (Exception e) {

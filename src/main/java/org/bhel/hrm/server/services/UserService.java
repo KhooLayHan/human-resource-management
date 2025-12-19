@@ -100,5 +100,9 @@ public class UserService {
         // After the transaction is successful, notify the payroll system.
         // We run this in a background thread so it doesn't block the RMI response.
         new Thread(() -> payrollClient.notifyNewEmployee(newEmployee)).start();
+
+        new Thread(() -> {
+            // Implement new using ExecutorService code here...
+        })
     }
 }
