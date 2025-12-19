@@ -6,8 +6,6 @@ import org.bhel.hrm.common.exceptions.AuthenticationException;
 import org.bhel.hrm.common.exceptions.DuplicateUserException;
 import org.bhel.hrm.common.exceptions.HRMException;
 import org.bhel.hrm.common.exceptions.UserNotFoundException;
-import org.bhel.hrm.payroll.PayrollServer;
-import org.bhel.hrm.server.config.Configuration;
 import org.bhel.hrm.server.config.DatabaseManager;
 import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.UserDAO;
@@ -99,10 +97,16 @@ public class UserService {
 
         // After the transaction is successful, notify the payroll system.
         // We run this in a background thread so it doesn't block the RMI response.
-        new Thread(() -> payrollClient.notifyNewEmployee(newEmployee)).start();
-
         new Thread(() -> {
             // Implement new using ExecutorService code here...
-        })
+            try {
+                payrollClient.notifyNewEmployee(newEmployee);
+                logger.info("Payroll system notified for employee: {}",
+                    newEmployee.getFirstName());
+            } catch (Exception e) {
+                logger.error("Failed to notify payroll system for employee {}: {}",
+                    newEmployee.getFirstName(), e.getMessage(), e);
+            }
+        }, "payroll-notifier").start();
     }
 }

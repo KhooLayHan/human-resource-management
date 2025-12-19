@@ -6,8 +6,6 @@ import org.bhel.hrm.server.domain.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.ImmutableDescriptor;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -17,12 +15,10 @@ import java.net.Socket;
 public class PayrollSocketClient {
     private static final Logger logger = LoggerFactory.getLogger(PayrollSocketClient.class);
 
-    private final Configuration configuration;
     private final String host;
     private final int port;
 
     public PayrollSocketClient(Configuration configuration) {
-        this.configuration = configuration;
         this.host = configuration.getPayrollHost();
 
         String portStr = configuration.getPayrollPort();
