@@ -410,11 +410,19 @@ public class EmployeeManagementController implements Initializable {
             return;
         }
 
+        Task<Void> deleteTask = getVoidTask(selectedEmployee);
+
+        if (executorService != null)
+            executorService.submit(deleteTask);
+        else
+            new Thread(deleteTask).start();
+    }
+
+    private Task<Void> getVoidTask(EmployeeDTO selectedEmployee) {
         Task<Void> deleteTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                // TODO: Implement HRMService method to delete an employee by ID
-                // hrmService.deleteEmployeeById(selectedEmployee.id());
+                hrmService.deleteEmployeeById(selectedEmployee.id());
                 return null;
             }
         };
@@ -430,7 +438,8 @@ public class EmployeeManagementController implements Initializable {
         });
 
         deleteTask.setOnFailed(event -> {
-            logger.error("Failed to delete employee ", deleteTask.getException());
+            logger.error("Failed to delete employee with ID: {}",
+                selectedEmployee.id(), deleteTask.getException());
 
             DialogManager.showErrorDialog(
                 "Delete Error",
@@ -438,9 +447,6 @@ public class EmployeeManagementController implements Initializable {
             );
         });
 
-        if (executorService != null)
-            executorService.submit(deleteTask);
-        else
-            new Thread(deleteTask).start();
+        return deleteTask;
     }
 }

@@ -76,7 +76,7 @@ public interface HRMService extends Remote {
      * @throws RemoteException           If a communication error occurs during the remote method call
      * @throws HRMException              If a business rule violation occurs or the employee is not found
      */
-    void deleteEmployee(int employeeId) throws RemoteException, HRMException;
+    void deleteEmployeeById(int employeeId) throws RemoteException, HRMException;
 
     /**
      * Generates a comprehensive yearly report for the specified employee.

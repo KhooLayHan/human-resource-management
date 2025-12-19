@@ -116,7 +116,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
-    public void deleteEmployee(
+    public void deleteEmployeeById(
         int employeeId
     ) throws RemoteException, HRMException {
         logger.info("RMI Call: deleteEmployeeById() for ID: {}", employeeId);
