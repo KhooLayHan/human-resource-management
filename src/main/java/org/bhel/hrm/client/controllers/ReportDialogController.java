@@ -113,16 +113,16 @@ public class ReportDialogController {
     }
 
     private String formatLine(String text, int boxWidth) {
-        String content = "│ " + text;
+        String paddedText = " " + text;
 
-        int padding = boxWidth - content.length() - 1; // -1 for the right border
+        int padding = boxWidth - paddedText.length();
         if (padding < 0) {
             // Text is too long, truncate it
-            content = content.substring(0, boxWidth - 4) + "...";
+            paddedText = paddedText.substring(0, boxWidth - 3) + "...";
             padding = 0;
         }
 
-        return content + " ".repeat(padding) + "│";
+        return "│" + paddedText + " ".repeat(padding) + "│";
     }
 
     private String centerText(String text, int boxWidth) {
