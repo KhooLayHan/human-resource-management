@@ -1,7 +1,8 @@
 package org.bhel.hrm.client.services;
 
+import org.bhel.hrm.common.exceptions.ConfigurationException;
 import org.bhel.hrm.common.services.HRMService;
-import org.bhel.hrm.server.config.Configuration;
+import org.bhel.hrm.common.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ public class ServiceManager {
     private boolean connected = false;
     private final String host;
     private final int port;
+    private final String serviceName;
 
     /**
      * Creates a new ServiceManager with default connection settings.
@@ -33,8 +35,18 @@ public class ServiceManager {
      */
     public ServiceManager(Configuration configuration) {
         this.configuration = configuration;
-        this.host = configuration.getRMIHost();
-        this.port = Integer.parseInt(configuration.getRMIPort());
+
+        try {
+            this.host = configuration.getRMIHost();
+            this.port = configuration.getRMIPort();
+            this.serviceName = configuration.getRMIServiceName();
+
+            logger.info("ServiceManager initialized with host={}, port={}, service={}",
+                host, port, serviceName);
+        } catch (ConfigurationException e) {
+            logger.error("Failed to initialize ServiceManager due to configuration error", e);
+            throw e;
+        }
 
         connect();
     }

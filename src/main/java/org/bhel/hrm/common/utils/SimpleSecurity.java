@@ -1,6 +1,6 @@
 package org.bhel.hrm.common.utils;
 
-import org.bhel.hrm.server.config.Configuration;
+import org.bhel.hrm.common.config.Configuration;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;

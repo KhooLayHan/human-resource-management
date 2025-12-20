@@ -1,7 +1,7 @@
 package org.bhel.hrm.server;
 
 import org.bhel.hrm.server.config.ApplicationContext;
-import org.bhel.hrm.server.config.Configuration;
+import org.bhel.hrm.common.config.Configuration;
 import org.bhel.hrm.server.services.HRMServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

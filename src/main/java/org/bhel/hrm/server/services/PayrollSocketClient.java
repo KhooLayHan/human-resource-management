@@ -1,7 +1,7 @@
 package org.bhel.hrm.server.services;
 
 import org.bhel.hrm.common.utils.SimpleSecurity;
-import org.bhel.hrm.server.config.Configuration;
+import org.bhel.hrm.common.config.Configuration;
 import org.bhel.hrm.server.domain.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

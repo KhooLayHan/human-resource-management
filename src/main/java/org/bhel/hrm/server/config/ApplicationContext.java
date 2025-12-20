@@ -1,5 +1,6 @@
 package org.bhel.hrm.server.config;
 
+import org.bhel.hrm.common.config.Configuration;
 import org.bhel.hrm.common.error.ErrorMessageProvider;
 import org.bhel.hrm.common.error.ExceptionMappingConfig;
 import org.bhel.hrm.common.utils.GlobalExceptionHandler;

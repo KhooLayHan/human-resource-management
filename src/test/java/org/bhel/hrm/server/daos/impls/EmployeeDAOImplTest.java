@@ -2,7 +2,7 @@ package org.bhel.hrm.server.daos.impls;
 
 import org.bhel.hrm.common.dtos.UserDTO;
 import org.bhel.hrm.server.config.DatabaseManager;
-import org.bhel.hrm.server.config.Configuration;
+import org.bhel.hrm.common.config.Configuration;
 import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.domain.Employee;
