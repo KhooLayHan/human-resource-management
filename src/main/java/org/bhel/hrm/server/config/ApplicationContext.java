@@ -11,6 +11,8 @@ import org.bhel.hrm.server.daos.impls.UserDAOImpl;
 import org.bhel.hrm.server.services.EmployeeService;
 import org.bhel.hrm.server.services.PayrollSocketClient;
 import org.bhel.hrm.server.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Responsible for creating and wiring together all the core
@@ -18,6 +20,7 @@ import org.bhel.hrm.server.services.UserService;
  * It follows the Singleton pattern to ensure only one context exists.
  */
 public class ApplicationContext {
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
     private static final ApplicationContext INSTANCE = new ApplicationContext();
 
     private final Configuration configuration;
@@ -39,6 +42,8 @@ public class ApplicationContext {
      * Initializes and wires all application components in the correct order.
      */
     private ApplicationContext() {
+        logger.info("Initializing Application Context...");
+
         this.configuration = new Configuration();
         this.errorMessageProvider = new ErrorMessageProvider();
         this.exceptionMappingConfig = new ExceptionMappingConfig();
@@ -53,8 +58,13 @@ public class ApplicationContext {
         this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
 
         seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
+
+        logger.info("Application Context initialized successfully");
     }
 
+    /**
+     * Seeds the database with initial data if in development environment.
+     */
     private void seedDatabase(
         Configuration config,
         DatabaseManager dbManager,
