@@ -95,7 +95,7 @@ public class ReportDialogController {
 
         // Benefits Enrollment Section
         lines.add("│" + " ".repeat(BOX_WIDTH) + "│");
-        lines.add("4. BENEFITS ENROLLMENT " + "─".repeat(BOX_WIDTH - 26) + "┤");
+        lines.add("├ 4. BENEFITS ENROLLMENT " + "─".repeat(BOX_WIDTH - 26) + "┤");
         if (report.benefitsSummary().isEmpty()) {
             lines.add( formatLine("No active benefit plans found.", BOX_WIDTH));
         } else {

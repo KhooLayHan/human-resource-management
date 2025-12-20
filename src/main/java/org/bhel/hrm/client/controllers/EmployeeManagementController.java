@@ -481,6 +481,15 @@ public class EmployeeManagementController implements Initializable {
             stage.setScene(new Scene(loader.load()));
 
             ReportDialogController controller = loader.getController();
+            if (controller == null) {
+                logger.error("ReportDialogController is null");
+                DialogManager.showErrorDialog(
+                    "Initialization Error",
+                    "Report dialog controller could not be initialized."
+                );
+                return;
+            }
+
             controller.setDialogStage(stage);
             controller.setReportData(report);
 
@@ -519,11 +528,11 @@ public class EmployeeManagementController implements Initializable {
         reportTask.setOnFailed(event -> {
             loadingAlert.close();
             logger.error("Failed to generate employee with ID: {}",
-                    selectedEmployee.id(), reportTask.getException());
+                selectedEmployee.id(), reportTask.getException());
 
             DialogManager.showErrorDialog(
-                    "Report Error",
-                    "Failed to generate report: " + reportTask.getException().getMessage()
+                "Report Error",
+                "Failed to generate report: " + reportTask.getException().getMessage()
             );
         });
 
