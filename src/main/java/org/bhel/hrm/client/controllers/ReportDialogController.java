@@ -1,8 +1,10 @@
 package org.bhel.hrm.client.controllers;
 
 import javafx.fxml.FXML;
+import javafx.print.PrinterJob;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.bhel.hrm.client.utils.DialogManager;
@@ -39,59 +41,96 @@ public class ReportDialogController {
 
     private String generateReportText(EmployeeReportDTO report) {
         List<String> lines = new ArrayList<>();
+        final int BOX_WIDTH = 60;
 
-        lines.add("BHEL YEARLY REPORT");
+        lines.add("│" + "=".repeat(BOX_WIDTH) + "│");
+        lines.add("│" + centerText("BHEL HUMAN RESOURCES — YEARLY REPORT", BOX_WIDTH) + "│");
+        lines.add("│" + "=".repeat(BOX_WIDTH) + "│");
 
-        lines.add("1. Employee Profile");
+        // Employee Profile Section
+        lines.add("│" + " ".repeat(BOX_WIDTH) + "│");
+        lines.add("├ 1. EMPLOYEE PROFILE " + "─".repeat(BOX_WIDTH - 21) + "┤");
         lines.add(
-            String.format(
-                "Name: \t%s %s%n",
-                report.employeeDetails().firstName(), report.employeeDetails().lastName()
+            formatLine(
+                "Name\t\t: " +
+                    report.employeeDetails().firstName() + " " + report.employeeDetails().lastName(),
+                BOX_WIDTH - 6
             )
         );
         lines.add(
-            String.format(
-                "Employee ID: \t%d%n",
-                report.employeeDetails().id()
+            formatLine(
+                "Employee ID\t: " + report.employeeDetails().id(),
+                BOX_WIDTH
             )
         );
         lines.add(
-            String.format(
-                "IC/Passport: \t%s%n",
-                report.employeeDetails().icPassport()
+            formatLine(
+                "IC/Passport\t: " + report.employeeDetails().icPassport(),
+                BOX_WIDTH
             )
         );
+        lines.add("├" + "─".repeat(BOX_WIDTH) + "┤");
 
-        lines.add("2. Leave Summary");
+        // Leave Summary Section
+        lines.add("│" + " ".repeat(BOX_WIDTH) + "│");
+        lines.add("├ 2. LEAVE SUMMARY " + "─".repeat(BOX_WIDTH - 18) + "┤");
         if (report.leaveHistorySummary().isEmpty()) {
-            lines.add("No leave records found for this period.");
+            lines.add(formatLine("No leave records found for this period.", BOX_WIDTH));
         } else {
             report.leaveHistorySummary().forEach(line ->
-                lines.add("-> " + line));
+                lines.add(formatLine(line, BOX_WIDTH)));
         }
-        lines.add("");
+        lines.add("├" + "─".repeat(BOX_WIDTH) + "┤");
 
-        lines.add("3. Training & Development");
+        // Training & Development Section
+        lines.add("│" + " ".repeat(BOX_WIDTH) + "│");
+        lines.add("├ 3. TRAINING & DEVELOPMENT " + "─".repeat(BOX_WIDTH - 27) + "┤");
         if (report.trainingHistorySummary().isEmpty()) {
-            lines.add("No training records found.");
+            lines.add(formatLine("No training records found.", BOX_WIDTH));
         } else {
             report.trainingHistorySummary().forEach(line ->
-                lines.add("-> " + line));
+                lines.add(formatLine(line, BOX_WIDTH)));
         }
-        lines.add("");
+        lines.add("├" + "─".repeat(BOX_WIDTH) + "┤");
 
-        lines.add("4. Benefits Enrollment");
+        // Benefits Enrollment Section
+        lines.add("│" + " ".repeat(BOX_WIDTH) + "│");
+        lines.add("4. BENEFITS ENROLLMENT " + "─".repeat(BOX_WIDTH - 26) + "┤");
         if (report.benefitsSummary().isEmpty()) {
-            lines.add("No active benefit plans found.");
+            lines.add( formatLine("No active benefit plans found.", BOX_WIDTH));
         } else {
             report.benefitsSummary().forEach(line ->
-                lines.add("-> " + line));
+                lines.add(formatLine(line, BOX_WIDTH)));
         }
-        lines.add("");
+        lines.add("├" + "─".repeat(BOX_WIDTH) + "┤");
 
-        lines.add("END OF REPORT");
+        lines.add("│" + " ".repeat(BOX_WIDTH) + "│");
+        lines.add("│" + "=".repeat(BOX_WIDTH) + "│");
+        lines.add("│" + centerText("END OF REPORT", BOX_WIDTH) + "│");
+        lines.add("│" + "=".repeat(BOX_WIDTH) + "│");
 
         return String.join(System.lineSeparator(), lines);
+    }
+
+    private String formatLine(String text, int boxWidth) {
+        String content = "│ " + text;
+
+        int padding = boxWidth - content.length() - 1; // -1 for the right border
+        if (padding < 0) {
+            // Text is too long, truncate it
+            content = content.substring(0, boxWidth - 4) + "...";
+            padding = 0;
+        }
+
+        return content + " ".repeat(padding) + "│";
+    }
+
+    private String centerText(String text, int boxWidth) {
+        int total = boxWidth - text.length();
+        int left = total / 2;
+        int right = total - left;
+
+        return " ".repeat(left) + text + " ".repeat(right);
     }
 
     @FXML
@@ -126,5 +165,17 @@ public class ReportDialogController {
     @FXML
     private void handleClose() {
         dialogStage.close();
+    }
+
+    @FXML
+    private void handlePrint() {
+        PrinterJob printerJob = PrinterJob.createPrinterJob();
+
+        if (printerJob != null && printerJob.showPrintDialog(dialogStage)) {
+            boolean success = printerJob.printPage(reportTextArea);
+
+            if (success)
+                printerJob.endJob();
+        }
     }
 }

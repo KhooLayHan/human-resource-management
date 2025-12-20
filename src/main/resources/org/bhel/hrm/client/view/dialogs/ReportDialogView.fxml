@@ -29,8 +29,9 @@
               style="-fx-font-family: 'Monospaced'; -fx-font-size: 13px"/>
 
     <!-- Footer Actions -->
-    <HBox alignment="CENTER_RIGHT" spacing="10">
+    <HBox alignment="CENTER_RIGHT" spacing="15">
         <Button text="Close" onAction="#handleClose" cancelButton="true"/>
-        <Button text="Export to file..." onAction="#handleExport" styleClass="button-primary"/>
+        <Button text="Export" onAction="#handleExport" styleClass="button-primary"/>
+        <Button text="Print" onAction="#handlePrint" styleClass="button-secondary"/>
     </HBox>
 </VBox>

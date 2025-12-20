@@ -413,7 +413,7 @@ public class EmployeeManagementController implements Initializable {
             return;
         }
 
-        Task<Void> deleteTask = getVoidTask(selectedEmployee);
+        Task<Void> deleteTask = getDeleteTask(selectedEmployee);
 
         if (executorService != null)
             executorService.submit(deleteTask);
@@ -421,7 +421,7 @@ public class EmployeeManagementController implements Initializable {
             new Thread(deleteTask).start();
     }
 
-    private Task<Void> getVoidTask(EmployeeDTO selectedEmployee) {
+    private Task<Void> getDeleteTask(EmployeeDTO selectedEmployee) {
         Task<Void> deleteTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
@@ -461,28 +461,7 @@ public class EmployeeManagementController implements Initializable {
         if (selectedEmployee == null)
             return;
 
-        Task<EmployeeReportDTO> reportTask = new Task<EmployeeReportDTO>() {
-            @Override
-            protected EmployeeReportDTO call() throws Exception {
-                return hrmService.generateEmployeeReport(selectedEmployee.id());
-            }
-        };
-
-        reportTask.setOnSucceeded(event -> {
-            logger.info("Generated employee report successfully.");
-
-            showReportDialog(reportTask.getValue());
-        });
-
-        reportTask.setOnFailed(event -> {
-            logger.error("Failed to generate employee with ID: {}",
-                selectedEmployee.id(), reportTask.getException());
-
-            DialogManager.showErrorDialog(
-                "Report Error",
-                "Failed to generate report: " + reportTask.getException().getMessage()
-            );
-        });
+        Task<EmployeeReportDTO> reportTask = getReportTask(selectedEmployee);
 
         if (executorService != null)
             executorService.submit(reportTask);
@@ -513,4 +492,41 @@ public class EmployeeManagementController implements Initializable {
         }
     }
 
+    private Task<EmployeeReportDTO> getReportTask(EmployeeDTO selectedEmployee) {
+        // Show progress indicator
+        ProgressIndicator progress = new ProgressIndicator();
+        Alert loadingAlert = new Alert(Alert.AlertType.INFORMATION);
+        loadingAlert.setTitle("Generating Report");
+        loadingAlert.setHeaderText("Please wait...");
+        loadingAlert.setContentText("Generating report for " + selectedEmployee.firstName());
+        loadingAlert.setGraphic(progress);
+        loadingAlert.show();
+
+        Task<EmployeeReportDTO> reportTask = new Task<>() {
+            @Override
+            protected EmployeeReportDTO call() throws Exception {
+                return hrmService.generateEmployeeReport(selectedEmployee.id());
+            }
+        };
+
+        reportTask.setOnSucceeded(event -> {
+            loadingAlert.close();
+            logger.info("Generated employee report successfully.");
+
+            showReportDialog(reportTask.getValue());
+        });
+
+        reportTask.setOnFailed(event -> {
+            loadingAlert.close();
+            logger.error("Failed to generate employee with ID: {}",
+                    selectedEmployee.id(), reportTask.getException());
+
+            DialogManager.showErrorDialog(
+                    "Report Error",
+                    "Failed to generate report: " + reportTask.getException().getMessage()
+            );
+        });
+
+        return reportTask;
+    }
 }
