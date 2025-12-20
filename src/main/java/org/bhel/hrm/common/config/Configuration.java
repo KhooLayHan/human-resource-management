@@ -57,7 +57,7 @@ public class Configuration {
 
             return port;
         } catch (NumberFormatException e) {
-            logger.error("Invalid RMI port value '{}'. Using default: {}", portStr, DEFAULT_RMI_PORT);
+            logger.error("Invalid RMI port value '{}'. Configuration failed.", portStr);
             throw new ConfigurationException(
                 String.format("Invalid RMI port configuration: '%s'. Must be a number between 1-65535.", portStr),
                 e
@@ -89,13 +89,31 @@ public class Configuration {
 
     // Database Configuration
     public String getDbUrl() {
+        String driver = getDbDriver();
+        String connection = getDbConnection();
+        String host = getDbHost();
+        String port = getDbPort();
+        String name = getDbName();
+
+        if (
+            driver == null
+            || connection == null
+            || host == null
+            || port == null
+            || name == null
+        ) {
+            throw new ConfigurationException(
+                "Missing required database configuration. Ensure db.driver, db.connection, db.host, db.port, db.name are set."
+            );
+        }
+
         // jdbc:mysql://localhost:3306/hrm_db?useSSL=false&serverTimezone=UTC
         return String.format("%s:%s://%s:%s/%s?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-            getDbDriver(),
-            getDbConnection(),
-            getDbHost(),
-            getDbPort(),
-            getDbName()
+            driver,
+            connection,
+            host,
+            port,
+            name
         );
     }
 
