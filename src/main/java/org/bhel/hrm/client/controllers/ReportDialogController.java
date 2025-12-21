@@ -54,19 +54,19 @@ public class ReportDialogController {
             formatLine(
                 "Name\t\t: " +
                     report.employeeDetails().firstName() + " " + report.employeeDetails().lastName(),
-                BOX_WIDTH - 6
+                BOX_WIDTH - 8
             )
         );
         lines.add(
             formatLine(
                 "Employee ID\t: " + report.employeeDetails().id(),
-                BOX_WIDTH
+                BOX_WIDTH - 2
             )
         );
         lines.add(
             formatLine(
                 "IC/Passport\t: " + report.employeeDetails().icPassport(),
-                BOX_WIDTH
+                BOX_WIDTH - 2
             )
         );
         lines.add("├" + "─".repeat(BOX_WIDTH) + "┤");
@@ -95,7 +95,7 @@ public class ReportDialogController {
 
         // Benefits Enrollment Section
         lines.add("│" + " ".repeat(BOX_WIDTH) + "│");
-        lines.add("├ 4. BENEFITS ENROLLMENT " + "─".repeat(BOX_WIDTH - 26) + "┤");
+        lines.add("├ 4. BENEFITS ENROLLMENT " + "─".repeat(BOX_WIDTH - 24) + "┤");
         if (report.benefitsSummary().isEmpty()) {
             lines.add( formatLine("No active benefit plans found.", BOX_WIDTH));
         } else {

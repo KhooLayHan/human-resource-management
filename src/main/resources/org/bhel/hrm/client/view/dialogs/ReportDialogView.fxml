@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox spacing="5"
+<VBox spacing="15"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.bhel.hrm.client.controllers.ReportDialogController"
@@ -29,7 +29,7 @@
               style="-fx-font-family: 'Monospaced'; -fx-font-size: 13px"/>
 
     <!-- Footer Actions -->
-    <HBox alignment="CENTER_RIGHT" spacing="15">
+    <HBox alignment="CENTER_RIGHT" spacing="10">
         <Button text="Close" onAction="#handleClose" cancelButton="true"/>
         <Button text="Export" onAction="#handleExport" styleClass="button-primary"/>
         <Button text="Print" onAction="#handlePrint" styleClass="button-secondary"/>
