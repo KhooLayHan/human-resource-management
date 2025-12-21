@@ -154,6 +154,13 @@
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-materialdesign2-pack</artifactId>
         </dependency>
+
+        <!-- OpenPDF: https://github.com/LibrePDF/OpenPDF -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>3.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
