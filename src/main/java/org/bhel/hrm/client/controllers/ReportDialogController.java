@@ -4,15 +4,17 @@ import javafx.fxml.FXML;
 import javafx.print.PrinterJob;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.bhel.hrm.client.utils.DialogManager;
+import org.bhel.hrm.client.utils.PdfReportGenerator;
+import org.bhel.hrm.common.dtos.EmployeeDTO;
 import org.bhel.hrm.common.dtos.EmployeeReportDTO;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,30 +137,101 @@ public class ReportDialogController {
 
     @FXML
     private void handleExport() {
+        String filename = String.format(
+            "Report_%s_%s.%s.txt",
+            reportData.employeeDetails().firstName(),
+            reportData.employeeDetails().lastName(),
+            LocalDate.now()
+        );
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Report");
-        fileChooser.setInitialFileName(
-            "Report_" + reportData.employeeDetails().firstName() + ".txt");
-        fileChooser.getExtensionFilters()
-            .add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-
-        // Considering to add OpenPDF to generate PDFs instead...
-        // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        fileChooser.setInitialFileName(filename);
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+            new FileChooser.ExtensionFilter("CSV Files", "*.csv"),
+            new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+        );
 
         File file = fileChooser.showSaveDialog(dialogStage);
+
         if (file != null) {
-            saveToFile(file);
+            String extension = getFileExtension(file);
+
+            switch (extension.toLowerCase()) {
+                case "pdf" -> saveAsPdf(file);
+                case "csv" -> saveAsCsv(file);
+                default -> saveAsText(file);
+            }
         }
     }
 
-    private void saveToFile(File file) {
+    private String getFileExtension(File file) {
+        String name = file.getName();
+        int period = name.lastIndexOf('.');
+
+        return period > 0 ? name.substring(period + 1) : "txt";
+    }
+
+    private void saveAsPdf(File file) {
+        try {
+            PdfReportGenerator.generateReport(reportData, file);
+            DialogManager.showInfoDialog(
+                "Export Successful", "PDF report saved to: " + file.getAbsolutePath());
+        } catch (IOException e) {
+            DialogManager.showErrorDialog(
+                "Export Failed", "Could not save the PDF file: " + e.getMessage());
+        }
+    }
+
+    private void saveAsCsv(File file) {
+        try (FileWriter writer = new FileWriter(file)) {
+            // CSV Header
+            writer.write("Section,Field,Value\n");
+
+            // Employee Profile
+            EmployeeDTO employee = reportData.employeeDetails();
+            writer.write(String.format("Employee Profile,Name,%s %s%n",
+                employee.firstName(), employee.lastName()));
+            writer.write(String.format("Employee Profile,Employee ID,%d%n",
+                employee.id()));
+            writer.write(String.format("Employee Profile,IC/Passport,%s%n",
+                employee.icPassport()));
+
+            // Leave Summary
+            for (String leave : reportData.leaveHistorySummary()) {
+                writer.write(String.format("Leave Summary,Entry,%s%n",
+                    leave.replace(",", ";")));
+            }
+
+            // Training & Development
+            for (String training : reportData.trainingHistorySummary()) {
+                writer.write(String.format("Training & Development,Course,%s%n",
+                        training.replace(",", ";")));
+            }
+
+            // Benefits Enrollment
+            for (String benefit : reportData.benefitsSummary()) {
+                writer.write(String.format("Benefits Enrollment,Plan,%s%n",
+                    benefit.replace(",", ";")));
+            }
+
+            DialogManager.showInfoDialog(
+                "Export Successful", "CSV report saved to: " + file.getAbsolutePath());
+        } catch (IOException e) {
+            DialogManager.showErrorDialog(
+                "Export Failed", "Could not save the CSV file: " + e.getMessage());
+        }
+    }
+
+    private void saveAsText(File file) {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(reportTextArea.getText());
             DialogManager.showInfoDialog(
-                "Export Successful", "Report saved to: " + file.getAbsolutePath());
+                "Export Successful", "Text report saved to: " + file.getAbsolutePath());
         } catch (IOException e) {
             DialogManager.showErrorDialog(
-                "Export Failed", "Could not save the file: " + e.getMessage());
+                "Export Failed", "Could not save the text file: " + e.getMessage());
         }
     }
 

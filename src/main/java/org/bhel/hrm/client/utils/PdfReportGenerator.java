@@ -24,8 +24,11 @@ public class PdfReportGenerator {
     private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.BLACK);
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static void generateReport(EmployeeReportDTO report, File file) throws IOException {
+    private PdfReportGenerator() {
+        throw new UnsupportedOperationException("PdfReportGenerator is a utility class and should not be instantiated.");
+    }
 
+    public static void generateReport(EmployeeReportDTO report, File file) throws IOException {
         try (Document document = new Document(PageSize.A4)) {
             PdfWriter.getInstance(document, new FileOutputStream(file));
             document.open();
