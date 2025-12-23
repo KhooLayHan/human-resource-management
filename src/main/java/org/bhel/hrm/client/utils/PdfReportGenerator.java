@@ -3,10 +3,14 @@ package org.bhel.hrm.client.utils;
 import org.bhel.hrm.common.dtos.EmployeeReportDTO;
 import org.openpdf.text.*;
 import org.openpdf.text.Font;
+import org.openpdf.text.Rectangle;
 import org.openpdf.text.pdf.PdfPCell;
 import org.openpdf.text.pdf.PdfPTable;
+import org.openpdf.text.pdf.PdfPageEventHelper;
 import org.openpdf.text.pdf.PdfWriter;
 import org.openpdf.text.pdf.draw.LineSeparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.File;
@@ -19,9 +23,13 @@ import java.util.List;
  * A utility class to generate professional PDF reports using OpenPDF.
  */
 public class PdfReportGenerator {
+    private static final Logger logger = LoggerFactory.getLogger(PdfReportGenerator.class);
+
     private static final Font TITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Color.BLACK);
     private static final Font HEADER_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.DARK_GRAY);
     private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
+    private static final Font PAGE_FONT = FontFactory.getFont(FontFactory.HELVETICA, 8, Color.GRAY);
+
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private PdfReportGenerator() {
@@ -33,33 +41,71 @@ public class PdfReportGenerator {
             FileOutputStream fos = new FileOutputStream(file);
             Document document = new Document(PageSize.A4)
         ) {
-            PdfWriter.getInstance(document, fos);
+            PdfWriter writer = PdfWriter.getInstance(document, fos);
+
+            // 1. Metadata & Page Numbers
+            addMetadata(document, report);
+            addPageNumbers(writer);
+
             document.open();
 
-            // 1. Organization Header
+            // 2. Organization Header
             addHeader(document, report);
 
-            // 2. Employee Profile Section
+            // 3. Employee Profile Section
             addSectionTitle(document, "1. EMPLOYEE PROFILE");
             addProfileTable(document, report);
 
-            // 3. Leave Summary Section
+            // 4. Leave Summary Section
             addSectionTitle(document, "2. LEAVE SUMMARY");
             addSimpleListTable(document, "Leave Record", report.leaveHistorySummary());
 
-            // 4. Training Section
+            // 5. Training Section
             addSectionTitle(document, "3. TRAINING & DEVELOPMENT");
             addSimpleListTable(document, "Course List/Activity", report.trainingHistorySummary());
 
-            // 5. Benefits Section
+            // 6. Benefits Section
             addSectionTitle(document, "4. BENEFITS ENROLLMENT");
             addSimpleListTable(document, "Benefit Plan", report.benefitsSummary());
 
-            // 6. Footer/End
+            // 7. Footer/End
             addFooter(document);
         } catch (DocumentException e) {
             throw new IOException("Error generating PDF document", e);
         }
+    }
+
+    private static void addMetadata(Document document, EmployeeReportDTO report) throws DocumentException {
+        document.addTitle("Employee Yearly Report – " + report.employeeDetails().firstName());
+        document.addSubject("BHEL HR Report");
+        document.addAuthor("BHEL HR Management System");
+        document.addCreator("BHEL HRM Application");
+        document.addCreationDate();
+    }
+
+    private static void addPageNumbers(PdfWriter writer) {
+        writer.setPageEvent(new PdfPageEventHelper() {
+            @Override
+            public void onEndPage(PdfWriter writer, Document document) {
+                try {
+                    PdfPTable footer = new PdfPTable(1);
+                    footer.setTotalWidth(document.getPageSize().getWidth() - 72);
+                    footer.setLockedWidth(true);
+
+                    PdfPCell cell = new PdfPCell(new Phrase(
+                        "Page " + writer.getPageNumber(),
+                        PAGE_FONT
+                    ));
+                    cell.setBorder(Rectangle.NO_BORDER);
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    footer.addCell(cell);
+
+                    footer.writeSelectedRows(0, -1, 36, 30, writer.getDirectContent());
+                } catch (Exception e) {
+                    logger.error("Stuff");
+                }
+            }
+        });
     }
 
     private static void addHeader(Document document, EmployeeReportDTO report) throws DocumentException {

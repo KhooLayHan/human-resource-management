@@ -2,6 +2,7 @@ package org.bhel.hrm.client.controllers;
 
 import javafx.fxml.FXML;
 import javafx.print.PrinterJob;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.FileChooser;
@@ -11,6 +12,7 @@ import org.bhel.hrm.client.utils.PdfReportGenerator;
 import org.bhel.hrm.common.dtos.EmployeeDTO;
 import org.bhel.hrm.common.dtos.EmployeeReportDTO;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ReportDialogController {
     @FXML private Label reportDateLabel;
@@ -184,9 +187,30 @@ public class ReportDialogController {
 
     private void saveAsPdf(File file) {
         try {
+            // Check if file has '.pdf' extension
+            if (!file.getName().toLowerCase().endsWith(".pdf"))
+                file = new File(file.getAbsolutePath() + ".pdf");
+
             PdfReportGenerator.generateReport(reportData, file);
             DialogManager.showInfoDialog(
                 "Export Successful", "PDF report saved to: " + file.getAbsolutePath());
+
+            Optional<ButtonType> result = DialogManager.showConfirmationDialog(
+                "Open File?",
+                "Would you like to open the file now?"
+            );
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                try {
+                    Desktop.getDesktop().open(file);
+                } catch (IOException e) {
+                    DialogManager.showWarningDialog(
+                        "Cannot open file",
+                        "The file was saved successfully but could not be opened automatically."
+                    );
+                }
+            }
+
         } catch (IOException e) {
             DialogManager.showErrorDialog(
                 "Export Failed", "Could not save the PDF file: " + e.getMessage());
