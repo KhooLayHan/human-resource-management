@@ -21,7 +21,7 @@ import java.util.List;
 public class PdfReportGenerator {
     private static final Font TITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Color.BLACK);
     private static final Font HEADER_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.DARK_GRAY);
-    private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.BLACK);
+    private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private PdfReportGenerator() {
@@ -29,8 +29,11 @@ public class PdfReportGenerator {
     }
 
     public static void generateReport(EmployeeReportDTO report, File file) throws IOException {
-        try (Document document = new Document(PageSize.A4)) {
-            PdfWriter.getInstance(document, new FileOutputStream(file));
+        try (
+            FileOutputStream fos = new FileOutputStream(file);
+            Document document = new Document(PageSize.A4)
+        ) {
+            PdfWriter.getInstance(document, fos);
             document.open();
 
             // 1. Organization Header
@@ -55,7 +58,7 @@ public class PdfReportGenerator {
             // 6. Footer/End
             addFooter(document);
         } catch (DocumentException e) {
-            throw new IOException("Error generating PDF documents", e);
+            throw new IOException("Error generating PDF document", e);
         }
     }
 

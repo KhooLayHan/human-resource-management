@@ -32,6 +32,9 @@ public class ReportDialogController {
     }
 
     public void setReportData(EmployeeReportDTO report) {
+        if (report == null)
+            throw new IllegalArgumentException("Report data cannot be null");
+
         this.reportData = report;
 
         // Set header date
@@ -137,6 +140,12 @@ public class ReportDialogController {
 
     @FXML
     private void handleExport() {
+        if (reportData == null) {
+            DialogManager.showErrorDialog(
+                "Export Failed", "No report data available.");
+            return;
+        }
+
         String filename = String.format(
             "Report_%s_%s.%s.txt",
             reportData.employeeDetails().firstName(),
@@ -237,11 +246,18 @@ public class ReportDialogController {
 
     @FXML
     private void handleClose() {
-        dialogStage.close();
+        if (dialogStage != null)
+            dialogStage.close();
     }
 
     @FXML
     private void handlePrint() {
+        if (dialogStage == null) {
+            DialogManager.showErrorDialog(
+                "Print Failed", "Dialog not initialized.");
+            return;
+        }
+
         PrinterJob printerJob = PrinterJob.createPrinterJob();
 
         if (printerJob != null && printerJob.showPrintDialog(dialogStage)) {
