@@ -183,6 +183,24 @@ public class ReportDialogController {
         return period > 0 ? name.substring(period + 1) : "txt";
     }
 
+    private void openReportFile(File file) {
+        boolean result = DialogManager.showConfirmationDialog(
+            "Open File?",
+            "Would you like to open the file now?"
+        );
+
+        if (result) {
+            try {
+                Desktop.getDesktop().open(file);
+            } catch (IOException e) {
+                DialogManager.showWarningDialog(
+                    "Cannot open file",
+                    "The file was saved successfully but could not be opened automatically."
+                );
+            }
+        }
+    }
+
     private void saveAsPdf(File file) {
         try {
             // Check if file has '.pdf' extension
@@ -193,22 +211,7 @@ public class ReportDialogController {
             DialogManager.showInfoDialog(
                 "Export Successful", "PDF report saved to: " + file.getAbsolutePath());
 
-            boolean result = DialogManager.showConfirmationDialog(
-                "Open File?",
-                "Would you like to open the file now?"
-            );
-
-            if (result) {
-                try {
-                    Desktop.getDesktop().open(file);
-                } catch (IOException e) {
-                    DialogManager.showWarningDialog(
-                        "Cannot open file",
-                        "The file was saved successfully but could not be opened automatically."
-                    );
-                }
-            }
-
+            openReportFile(file);
         } catch (IOException e) {
             DialogManager.showErrorDialog(
                 "Export Failed", "Could not save the PDF file: " + e.getMessage());
@@ -249,6 +252,8 @@ public class ReportDialogController {
 
             DialogManager.showInfoDialog(
                 "Export Successful", "CSV report saved to: " + file.getAbsolutePath());
+
+            openReportFile(file);
         } catch (IOException e) {
             DialogManager.showErrorDialog(
                 "Export Failed", "Could not save the CSV file: " + e.getMessage());
@@ -260,6 +265,8 @@ public class ReportDialogController {
             writer.write(reportTextArea.getText());
             DialogManager.showInfoDialog(
                 "Export Successful", "Text report saved to: " + file.getAbsolutePath());
+
+            openReportFile(file);
         } catch (IOException e) {
             DialogManager.showErrorDialog(
                 "Export Failed", "Could not save the text file: " + e.getMessage());
