@@ -2,7 +2,6 @@ package org.bhel.hrm.client.controllers;
 
 import javafx.fxml.FXML;
 import javafx.print.PrinterJob;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.FileChooser;
@@ -20,7 +19,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ReportDialogController {
     @FXML private Label reportDateLabel;
@@ -195,12 +193,12 @@ public class ReportDialogController {
             DialogManager.showInfoDialog(
                 "Export Successful", "PDF report saved to: " + file.getAbsolutePath());
 
-            Optional<ButtonType> result = DialogManager.showConfirmationDialog(
+            boolean result = DialogManager.showConfirmationDialog(
                 "Open File?",
                 "Would you like to open the file now?"
             );
 
-            if (result.isPresent() && result.get() == ButtonType.OK) {
+            if (result) {
                 try {
                     Desktop.getDesktop().open(file);
                 } catch (IOException e) {

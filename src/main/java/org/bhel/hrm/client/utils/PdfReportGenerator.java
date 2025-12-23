@@ -148,7 +148,12 @@ public class PdfReportGenerator {
         PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
         table.setSpacingAfter(10);
-        table.setWidths(new float[]{ 1.0f, 3.0f });
+        table.setSpacingBefore(5);
+        table.setWidths(new float[]{ 1.2f, 2.8f });
+
+        // Adds a subtle border
+//        table.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+//        table.getDefaultCell().setPadding(8);
 
         // Row 1: Name
         addCell(table, "Full Name: ", true);
@@ -209,9 +214,11 @@ public class PdfReportGenerator {
     private static void addCell(PdfPTable table, String text, boolean isHeader) {
         PdfPCell cell = new PdfPCell(new Phrase(text, isHeader ? HEADER_FONT : NORMAL_FONT));
         cell.setPadding(5);
+//        cell.setBorder(Rectangle.BOTTOM);
+        cell.setBorderColor(Color.LIGHT_GRAY);
 
         if (isHeader)
-            cell.setBackgroundColor(new Color(240, 240, 240));
+            cell.setBackgroundColor(new Color(245, 245, 245));
 
         table.addCell(cell);
     }
