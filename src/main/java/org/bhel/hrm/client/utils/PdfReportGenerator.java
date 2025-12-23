@@ -76,7 +76,12 @@ public class PdfReportGenerator {
     }
 
     private static void addMetadata(Document document, EmployeeReportDTO report) throws DocumentException {
-        document.addTitle("Employee Yearly Report – " + report.employeeDetails().firstName());
+        String employeeName =
+            report.employeeDetails() != null && report.employeeDetails().firstName() != null
+                ? report.employeeDetails().firstName()
+                : "Unknown Employee";
+
+        document.addTitle("Employee Yearly Report – " + employeeName);
         document.addSubject("BHEL HR Report");
         document.addAuthor("BHEL HR Management System");
         document.addCreator("BHEL HRM Application");
@@ -102,7 +107,8 @@ public class PdfReportGenerator {
 
                     footer.writeSelectedRows(0, -1, 36, 30, writer.getDirectContent());
                 } catch (Exception e) {
-                    logger.error("Stuff");
+                    logger.error("Failed to render page number on page {}",
+                        writer.getPageNumber(), e);
                 }
             }
         });
@@ -151,12 +157,15 @@ public class PdfReportGenerator {
         table.setWidths(new float[]{ 1.2f, 2.8f });
 
         // Row 1: Name
+        String firstName = report.employeeDetails().firstName() != null
+            ? report.employeeDetails().firstName().trim()
+            : "";
+        String lastName = report.employeeDetails().lastName() != null
+            ? report.employeeDetails().lastName().trim()
+            : "";
+
         addCell(table, "Full Name: ", true);
-        addCell(
-            table,
-            report.employeeDetails().firstName() + " " + report.employeeDetails().lastName(),
-            false
-        );
+        addCell(table, firstName + " " + lastName, false);
 
         // Row 2: ID
         addCell(table, "Employee ID: ", true);
@@ -167,12 +176,12 @@ public class PdfReportGenerator {
         );
 
         // Row 3: IC/Passport
+        String icPassport = report.employeeDetails().icPassport() != null
+            ? report.employeeDetails().icPassport()
+            : "N/A";
+
         addCell(table, "IC/Passport: ", true);
-        addCell(
-            table,
-            report.employeeDetails().icPassport(),
-            false
-        );
+        addCell(table, icPassport, false);
 
         document.add(table);
     }
@@ -198,7 +207,9 @@ public class PdfReportGenerator {
 
         // Data Rows
         for (String item : items) {
-            PdfPCell cell = new PdfPCell(new Phrase(item, NORMAL_FONT));
+            String safeItem = item != null ? item : "[No Data]";
+
+            PdfPCell cell = new PdfPCell(new Phrase(safeItem, NORMAL_FONT));
             cell.setPadding(5);
             table.addCell(cell);
         }
@@ -207,7 +218,9 @@ public class PdfReportGenerator {
     }
 
     private static void addCell(PdfPTable table, String text, boolean isHeader) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, isHeader ? HEADER_FONT : NORMAL_FONT));
+        String safeText = text != null ? text : "";
+
+        PdfPCell cell = new PdfPCell(new Phrase(safeText, isHeader ? HEADER_FONT : NORMAL_FONT));
         cell.setPadding(5);
         cell.setBorderColor(Color.LIGHT_GRAY);
 

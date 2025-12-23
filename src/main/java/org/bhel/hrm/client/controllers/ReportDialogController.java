@@ -56,25 +56,31 @@ public class ReportDialogController {
         // Employee Profile Section
         lines.add("│" + " ".repeat(BOX_WIDTH) + "│");
         lines.add("├ 1. EMPLOYEE PROFILE " + "─".repeat(BOX_WIDTH - 21) + "┤");
-        lines.add(
-            formatLine(
-                "Name\t\t: " +
-                    report.employeeDetails().firstName() + " " + report.employeeDetails().lastName(),
-                BOX_WIDTH - 8
-            )
-        );
-        lines.add(
-            formatLine(
-                "Employee ID\t: " + report.employeeDetails().id(),
-                BOX_WIDTH - 2
-            )
-        );
-        lines.add(
-            formatLine(
-                "IC/Passport\t: " + report.employeeDetails().icPassport(),
-                BOX_WIDTH - 2
-            )
-        );
+
+        EmployeeDTO employee = report.employeeDetails();
+        if (employee == null) {
+            lines.add(formatLine("Employee details not available.", BOX_WIDTH));
+        } else {
+            lines.add(
+                formatLine(
+                    "Full Name  : " +
+                        report.employeeDetails().firstName() + " " + report.employeeDetails().lastName(),
+                    BOX_WIDTH
+                )
+            );
+            lines.add(
+                formatLine(
+                    "Employee ID: " + report.employeeDetails().id(),
+                    BOX_WIDTH
+                )
+            );
+            lines.add(
+                formatLine(
+                    "IC/Passport: " + report.employeeDetails().icPassport(),
+                    BOX_WIDTH
+                )
+            );
+        }
         lines.add("├" + "─".repeat(BOX_WIDTH) + "┤");
 
         // Leave Summary Section
@@ -147,12 +153,18 @@ public class ReportDialogController {
             return;
         }
 
-        String filename = String.format(
-            "Report_%s_%s.%s.txt",
-            reportData.employeeDetails().firstName(),
-            reportData.employeeDetails().lastName(),
-            LocalDate.now()
-        );
+        String filename;
+        EmployeeDTO employee = reportData.employeeDetails();
+        if (employee != null) {
+            filename = String.format(
+                "Report_%s_%s.%s.txt",
+                reportData.employeeDetails().firstName(),
+                reportData.employeeDetails().lastName(),
+                LocalDate.now()
+            );
+        } else {
+            filename = String.format("Report_Unknown.%s.txt", LocalDate.now());
+        }
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Report");
@@ -209,12 +221,12 @@ public class ReportDialogController {
 
             PdfReportGenerator.generateReport(reportData, file);
             DialogManager.showInfoDialog(
-                "Export Successful", "PDF report saved to: " + file.getAbsolutePath());
+                "PDF Export Successful", "PDF report saved to: " + file.getAbsolutePath());
 
             openReportFile(file);
         } catch (IOException e) {
             DialogManager.showErrorDialog(
-                "Export Failed", "Could not save the PDF file: " + e.getMessage());
+                "PDF Export Failed", "Could not save the PDF file: " + e.getMessage());
         }
     }
 
@@ -234,42 +246,51 @@ public class ReportDialogController {
 
             // Leave Summary
             for (String leave : reportData.leaveHistorySummary()) {
-                writer.write(String.format("Leave Summary,Entry,%s%n",
-                    leave.replace(",", ";")));
+                writer.write(String.format("Leave Summary,Entry,%s%n", escapeCsvValue(leave)));
+
             }
 
             // Training & Development
             for (String training : reportData.trainingHistorySummary()) {
-                writer.write(String.format("Training & Development,Course,%s%n",
-                        training.replace(",", ";")));
+                writer.write(String.format("Training & Development,Course,%s%n", escapeCsvValue(training)));
             }
 
             // Benefits Enrollment
             for (String benefit : reportData.benefitsSummary()) {
-                writer.write(String.format("Benefits Enrollment,Plan,%s%n",
-                    benefit.replace(",", ";")));
+                writer.write(String.format("Benefits Enrollment,Plan,%s%n", escapeCsvValue(benefit)));
             }
 
             DialogManager.showInfoDialog(
-                "Export Successful", "CSV report saved to: " + file.getAbsolutePath());
+                "CSV Export Successful", "CSV report saved to: " + file.getAbsolutePath());
 
             openReportFile(file);
         } catch (IOException e) {
             DialogManager.showErrorDialog(
-                "Export Failed", "Could not save the CSV file: " + e.getMessage());
+                "CSV Export Failed", "Could not save the CSV file: " + e.getMessage());
         }
+    }
+
+    private String escapeCsvValue(String value) {
+        if (value == null)
+            return "";
+
+        // If value contains comma, quotes, or newlines, wrap in quotes and escape quotes
+        if (value.contains(",") || value.contains("\"") || value.contains("\n"))
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+
+        return value;
     }
 
     private void saveAsText(File file) {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(reportTextArea.getText());
             DialogManager.showInfoDialog(
-                "Export Successful", "Text report saved to: " + file.getAbsolutePath());
+                "Text Export Successful", "Text report saved to: " + file.getAbsolutePath());
 
             openReportFile(file);
         } catch (IOException e) {
             DialogManager.showErrorDialog(
-                "Export Failed", "Could not save the text file: " + e.getMessage());
+                "Text Export Failed", "Could not save the text file: " + e.getMessage());
         }
     }
 
