@@ -68,7 +68,11 @@ public class PdfReportGenerator {
         title.setSpacingAfter(10);
         document.add(title);
 
-        Paragraph date = new Paragraph("Generated on: " + report.generationDate().format(DATE_FMT), NORMAL_FONT);
+        String dateText = report.generationDate() != null
+            ? "Generated on: " + report.generationDate().format(DATE_FMT)
+            : "Generated on: [Date unavailable]";
+
+        Paragraph date = new Paragraph(dateText, NORMAL_FONT);
         date.setAlignment(Element.ALIGN_CENTER);
         date.setSpacingAfter(20);
         document.add(date);
@@ -90,6 +94,11 @@ public class PdfReportGenerator {
     }
 
     private static void addProfileTable(Document document, EmployeeReportDTO report) throws DocumentException {
+        if (report.employeeDetails() == null) {
+            document.add(new Paragraph("Employee details not available.", NORMAL_FONT));
+            return;
+        }
+
         PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
         table.setSpacingAfter(10);

@@ -1,15 +1,12 @@
 package org.bhel.hrm.server;
 
 import org.bhel.hrm.server.config.ApplicationContext;
-import org.bhel.hrm.common.config.Configuration;
 import org.bhel.hrm.server.rmi.RMIRegistryManager;
 import org.bhel.hrm.server.services.HRMServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
 /**
  * Main entry point for the HRMServer application.
