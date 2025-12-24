@@ -1,28 +1,54 @@
 <configuration>
 
-    <!-- Appender to log to the console -->
+    <!-- Property for log file location - makes it configurable -->
+    <property name="LOG_FILE" value="${LOG_PATH:-logs}/hrm-app.log"/>
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- Console Appender with colored output -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <!-- Format: Time [Thread] Level LoggerName - Message -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- Appender to log to a file -->
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>hrm-app.log</file>
+    <!-- Rolling File Appender (better than FileAppender) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>${LOG_PATTERN}</pattern>
         </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Daily rollover -->
+            <fileNamePattern>${LOG_PATH:-logs}/hrm-app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- Keep 30 days of history -->
+            <maxHistory>30</maxHistory>
+            <!-- Total size cap -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
     </appender>
 
-    <!-- The root logger directs all logs to the specified appender -->
+    <!-- Async appender for better performance -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- Root logger -->
     <root level="INFO">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC_FILE"/>
     </root>
 
-    <!-- You can set specific levels for your packages -->
-    <logger name="org.bhel.hrm.server" level="DEBUG" />
+    <!-- Application specific loggers -->
+    <logger name="org.bhel.hrm.server" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+
+    <!-- Reduce noise from frameworks -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="WARN"/>
 
 </configuration>

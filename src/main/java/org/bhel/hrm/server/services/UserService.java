@@ -27,11 +27,18 @@ public class UserService {
     private final DatabaseManager dbManager;
     private final EmployeeDAO employeeDAO;
     private final UserDAO userDAO;
+    private final PayrollSocketClient payrollClient;
 
-    public UserService(DatabaseManager databaseManager, UserDAO userDAO, EmployeeDAO employeeDAO) {
+    public UserService(
+        DatabaseManager databaseManager,
+        UserDAO userDAO,
+        EmployeeDAO employeeDAO,
+        PayrollSocketClient payrollClient
+    ) {
         this.dbManager = databaseManager;
         this.userDAO = userDAO;
         this.employeeDAO = employeeDAO;
+        this.payrollClient = payrollClient;
     }
 
     /**
@@ -64,6 +71,8 @@ public class UserService {
      * @throws HRMException If the username already exists or another business rule is violated
      */
     public void registerNewEmployee(NewEmployeeRegistrationDTO registrationData) throws SQLException, HRMException {
+        final Employee newEmployee = new Employee();
+
         dbManager.executeInTransaction(() -> {
             if (userDAO.findByUsername(registrationData.username()).isPresent())
                 throw new DuplicateUserException(registrationData.username());
@@ -75,16 +84,29 @@ public class UserService {
             );
             userDAO.save(newUser);
 
-            Employee newEmployee = new Employee(
-                newUser.getId(),
-                registrationData.firstName(),
-                registrationData.lastName(),
-                registrationData.icPassport()
-            );
+            newEmployee.setUserId(newUser.getId());
+            newEmployee.setFirstName(registrationData.firstName());
+            newEmployee.setLastName(registrationData.lastName());
+            newEmployee.setIcPassport(registrationData.icPassport());
+
             employeeDAO.save(newEmployee);
 
             logger.info("Successfully registered the new Employee {} with user ID {}.",
                 newEmployee.getFirstName(), newUser.getId());
         });
+
+        // After the transaction is successful, notify the payroll system.
+        // We run this in a background thread so it doesn't block the RMI response.
+        new Thread(() -> {
+            // Implement new using ExecutorService code here...
+            try {
+                payrollClient.notifyNewEmployee(newEmployee);
+                logger.info("Payroll system notified for employee: {}",
+                    newEmployee.getFirstName());
+            } catch (Exception e) {
+                logger.error("Failed to notify payroll system for employee {}: {}",
+                    newEmployee.getFirstName(), e.getMessage(), e);
+            }
+        }, "payroll-notifier").start();
     }
 }

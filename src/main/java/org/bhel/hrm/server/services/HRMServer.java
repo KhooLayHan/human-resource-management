@@ -116,6 +116,42 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public void deleteEmployeeById(
+        int employeeId
+    ) throws RemoteException, HRMException {
+        logger.info("RMI Call: deleteEmployeeById() for ID: {}", employeeId);
+        ErrorContext context = ErrorContext.forUser(
+            "deleteEmployeeById", String.valueOf(employeeId));
+
+        try {
+            employeeService.deleteEmployeeById(employeeId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
+    public EmployeeReportDTO generateEmployeeReport(int employeeId) throws RemoteException, HRMException {
+        logger.info("RMI Call: generateEmployeeReport() for ID: {}", employeeId);
+        ErrorContext context = ErrorContext.forUser(
+            "generateEmployeeReport", String.valueOf(employeeId));
+
+        try {
+            return employeeService.generateYearlyReport(employeeId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
     public void applyForLeave(LeaveApplicationDTO leaveApplicationDTO) throws RemoteException {
         throw new RemoteException("not yet implemented");
     }

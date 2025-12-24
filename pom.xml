@@ -154,6 +154,13 @@
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-materialdesign2-pack</artifactId>
         </dependency>
+
+        <!-- OpenPDF: https://github.com/LibrePDF/OpenPDF -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>3.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -215,6 +222,8 @@
                                 <!-- Appends client files -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
+                            <!-- To suppress client dependency conflicts -->
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
                             <filters>
                                 <!-- Excludes digital signature files, which become invalid after shading -->
                                 <filter>
@@ -223,6 +232,7 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.java</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -246,6 +256,8 @@
                                 <!-- Appends server files instead -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
+                            <!-- To suppress server dependency conflicts -->
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
                             <filters>
                                 <!-- Also excludes digital signature files -->
                                 <filter>
@@ -254,6 +266,7 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.java</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

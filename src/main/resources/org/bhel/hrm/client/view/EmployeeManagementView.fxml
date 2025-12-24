@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-
+<?import javafx.scene.layout.*?>
 <VBox spacing="20.0" styleClass="employee-container"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.bhel.hrm.client.controllers.EmployeeManagementController">
@@ -51,5 +49,9 @@
         <Button fx:id="deleteButton" text="Delete Selected"
                 styleClass="button-danger" disable="true"
                 onAction="#handleDeleteSelectedEmployee"/>
+        <!-- Newly added "Generate Report" button -->
+        <Button fx:id="reportButton" text="Generate Report"
+                onAction="#handleGenerateReport"
+                disable="true"/>
     </HBox>
 </VBox>
