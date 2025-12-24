@@ -23,18 +23,6 @@ public class PayrollServer {
     public static void main(String[] args) {
         Configuration configuration = new Configuration();
         int port = configuration.getPayrollPort();
-//        if (portStr == null || portStr.isBlank()) {
-//            logger.error("Payroll port is not configured. Set 'payroll.port' in config.properties.");
-//            return;
-//        }
-//
-//        int payrollPort;
-//        try {
-//            payrollPort = Integer.parseInt(portStr);
-//        } catch (NumberFormatException e) {
-//            logger.error("Invalid payroll port: {}", portStr);
-//            return;
-//        }
 
         logger.info("Payroll System (PRS) Server is starting on port {}", port);
 
