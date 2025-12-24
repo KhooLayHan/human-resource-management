@@ -311,17 +311,21 @@ public class ReportDialogController {
 
             // Employee Profile
             EmployeeDTO employee = reportData.employeeDetails();
-            writer.write(String.format("Employee Profile,Name,%s %s%n",
-                employee.firstName(), employee.lastName()));
-            writer.write(String.format("Employee Profile,Employee ID,%d%n",
-                employee.id()));
-            writer.write(String.format("Employee Profile,IC/Passport,%s%n",
-                employee.icPassport()));
+
+            if (employee == null) {
+                writer.write("Employee Profile,Error,Employee Details not available%n");
+            } else {
+                writer.write(String.format("Employee Profile,Name,%s %s%n",
+                    escapeCsvValue(employee.firstName()), escapeCsvValue(employee.lastName())));
+                writer.write(String.format("Employee Profile,Employee ID,%d%n",
+                    employee.id()));
+                writer.write(String.format("Employee Profile,IC/Passport,%s%n",
+                    escapeCsvValue(employee.icPassport())));
+            }
 
             // Leave Summary
             for (String leave : reportData.leaveHistorySummary()) {
                 writer.write(String.format("Leave Summary,Entry,%s%n", escapeCsvValue(leave)));
-
             }
 
             // Training & Development
