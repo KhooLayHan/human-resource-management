@@ -10,6 +10,10 @@ public class SslContextFactory {
     private static final String KEYSTORE_PASSWORD = "password123";
     private static final String KEYSTORE_PATH = "payroll_keystore.p12";
 
+    private SslContextFactory() {
+        throw new UnsupportedOperationException("SslContextFactory is a utility class and should not be instantiated.");
+    }
+
     public static SSLContext createSslContext() throws Exception {
         // 1. Loads the KeyStore
         KeyStore keyStore = KeyStore.getInstance("PKCS12");

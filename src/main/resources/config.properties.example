@@ -2,7 +2,11 @@
 app.environment=development
 
 # Application Secret Key
-app.secret.key=BHEL_HRM_SECRET_KEY_2026
+app.secret.key=BHEL_HRM_SUPER_SECRET_MASTER_KEY_2026
+
+# KeyStore
+keystore.password=password123
+keystore.path=payroll_keystore.p12
 
 # Payroll System (PRS)
 payroll.host=localhost
