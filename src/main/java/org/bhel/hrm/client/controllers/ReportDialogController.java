@@ -306,37 +306,7 @@ public class ReportDialogController {
      */
     private void saveAsCsv(File file) {
         try (FileWriter writer = new FileWriter(file)) {
-            // CSV Header
-            writer.write("Section,Field,Value\n");
-
-            // Employee Profile
-            EmployeeDTO employee = reportData.employeeDetails();
-
-            if (employee == null) {
-                writer.write("Employee Profile,Error,Employee Details not available%n");
-            } else {
-                writer.write(String.format("Employee Profile,Name,%s %s%n",
-                    escapeCsvValue(employee.firstName()), escapeCsvValue(employee.lastName())));
-                writer.write(String.format("Employee Profile,Employee ID,%d%n",
-                    employee.id()));
-                writer.write(String.format("Employee Profile,IC/Passport,%s%n",
-                    escapeCsvValue(employee.icPassport())));
-            }
-
-            // Leave Summary
-            for (String leave : reportData.leaveHistorySummary()) {
-                writer.write(String.format("Leave Summary,Entry,%s%n", escapeCsvValue(leave)));
-            }
-
-            // Training & Development
-            for (String training : reportData.trainingHistorySummary()) {
-                writer.write(String.format("Training & Development,Course,%s%n", escapeCsvValue(training)));
-            }
-
-            // Benefits Enrollment
-            for (String benefit : reportData.benefitsSummary()) {
-                writer.write(String.format("Benefits Enrollment,Plan,%s%n", escapeCsvValue(benefit)));
-            }
+            generateCsvReport(writer);
 
             DialogManager.showInfoDialog(
                 "CSV Export Successful", "CSV report saved to: " + file.getAbsolutePath());
@@ -345,6 +315,52 @@ public class ReportDialogController {
         } catch (IOException e) {
             DialogManager.showErrorDialog(
                 "CSV Export Failed", "Could not save the CSV file: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Generates a CSV-formatted report and writes it to the provided writer.
+     *
+     * @param writer The FileWriter to which the CSV content is written; must not be null
+     * @throws IOException If an I/O error occurs while writing to the file
+     */
+    private void generateCsvReport(FileWriter writer) throws IOException {
+        // CSV Header
+        writer.write("Section,Field,Value\n");
+
+        // Employee Profile
+        EmployeeDTO employee = reportData.employeeDetails();
+
+        if (employee == null) {
+            writer.write("Employee Profile,Error,Employee Details not available\n");
+        } else {
+            writer.write(String.format("Employee Profile,Name,%s %s%n",
+                escapeCsvValue(employee.firstName()), escapeCsvValue(employee.lastName())));
+            writer.write(String.format("Employee Profile,Employee ID,%d%n",
+                employee.id()));
+            writer.write(String.format("Employee Profile,IC/Passport,%s%n",
+                escapeCsvValue(employee.icPassport())));
+        }
+
+        // Leave Summary
+        if (reportData.leaveHistorySummary() != null) {
+            for (String leave : reportData.leaveHistorySummary()) {
+                writer.write(String.format("Leave Summary,Entry,%s%n", escapeCsvValue(leave)));
+            }
+        }
+
+        // Training & Development
+        if (reportData.trainingHistorySummary() != null) {
+            for (String training : reportData.trainingHistorySummary()) {
+                writer.write(String.format("Training & Development,Course,%s%n", escapeCsvValue(training)));
+            }
+        }
+
+        // Benefits Enrollment
+        if (reportData.benefitsSummary() != null) {
+            for (String benefit : reportData.benefitsSummary()) {
+                writer.write(String.format("Benefits Enrollment,Plan,%s%n", escapeCsvValue(benefit)));
+            }
         }
     }
 
