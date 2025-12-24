@@ -20,7 +20,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * A utility class to generate professional PDF reports using OpenPDF.
+ * A utility class for generating professional PDF reports using the OpenPDF library.
+ * <p>
+ * This class provides functionality to convert {@link EmployeeReportDTO} objects into
+ * well-formatted PDF documents with proper styling, sections, and metadata.
+ * </p>
+ *
+ * The generated PDF includes:
+ * <ul>
+ *   <li>Document metadata (title, author, creation date)</li>
+ *   <li>Employee profile information</li>
+ *   <li>Leave summary records</li>
+ *   <li>Training and development history</li>
+ *   <li>Benefits enrollment details</li>
+ * </ul>
+ *
  */
 public class PdfReportGenerator {
     private static final Logger logger = LoggerFactory.getLogger(PdfReportGenerator.class);
@@ -36,6 +50,14 @@ public class PdfReportGenerator {
         throw new UnsupportedOperationException("PdfReportGenerator is a utility class and should not be instantiated.");
     }
 
+    /**
+     * Generates a complete PDF report for the given employee data and saves it to the specified file.
+     *
+     * @param report The employee report data to be rendered into PDF format, must not be null
+     * @param file   The destination file where the PDF will be saved, must not be null
+     * @throws IOException       If an I/O error occurs during file writing
+     * @throws DocumentException If an error occurs during PDF document generation (wrapped in IOException)
+     */
     public static void generateReport(EmployeeReportDTO report, File file) throws IOException {
         try (
             FileOutputStream fos = new FileOutputStream(file);
@@ -75,6 +97,13 @@ public class PdfReportGenerator {
         }
     }
 
+    /**
+     * Adds PDF metadata to the document, including title, subject, author, and creation date.
+     *
+     * @param document The PDF document to add metadata to
+     * @param report   The employee report containing the employee name
+     * @throws DocumentException If an error occurs while adding metadata
+     */
     private static void addMetadata(Document document, EmployeeReportDTO report) throws DocumentException {
         String employeeName =
             report.employeeDetails() != null && report.employeeDetails().firstName() != null
@@ -88,6 +117,11 @@ public class PdfReportGenerator {
         document.addCreationDate();
     }
 
+    /**
+     * Configures automatic page numbering in the document footer.
+     *
+     * @param writer The PDF writer instance responsible for rendering the document
+     */
     private static void addPageNumbers(PdfWriter writer) {
         writer.setPageEvent(new PdfPageEventHelper() {
             @Override
@@ -114,6 +148,13 @@ public class PdfReportGenerator {
         });
     }
 
+    /**
+     * Adds the document header containing the organization name and report generation date.
+     *
+     * @param document The PDF document to add the header to
+     * @param report   The report containing the generation date
+     * @throws DocumentException If an error occurs while adding the header
+     */
     private static void addHeader(Document document, EmployeeReportDTO report) throws DocumentException {
         Paragraph title = new Paragraph("BHEL HUMAN RESOURCES — YEARLY REPORT", TITLE_FONT);
         title.setAlignment(Element.ALIGN_CENTER);
@@ -132,6 +173,13 @@ public class PdfReportGenerator {
         document.add(new Paragraph(" "));
     }
 
+    /**
+     * Adds a section title with an underline separator to the document.
+     *
+     * @param document The PDF document to add the section title to
+     * @param title    The text of the section title
+     * @throws DocumentException If an error occurs while adding the title
+     */
     private static void addSectionTitle(Document document, String title) throws DocumentException {
         Paragraph subtitle = new Paragraph(title, HEADER_FONT);
         subtitle.setSpacingBefore(10);
@@ -145,6 +193,13 @@ public class PdfReportGenerator {
         document.add(new Paragraph(" "));
     }
 
+    /**
+     * Adds a formatted table displaying the employee's profile information.
+     *
+     * @param document The PDF document to add the profile table to
+     * @param report   The report containing employee details
+     * @throws DocumentException If an error occurs while adding the table
+     */
     private static void addProfileTable(Document document, EmployeeReportDTO report) throws DocumentException {
         if (report.employeeDetails() == null) {
             document.add(new Paragraph("Employee details not available.", NORMAL_FONT));
@@ -186,6 +241,14 @@ public class PdfReportGenerator {
         document.add(table);
     }
 
+    /**
+     * Adds a simple single-column table displaying a list of items.
+     *
+     * @param document    The PDF document to add the table to
+     * @param headerTitle The title to display in the table header
+     * @param items       The list of items to display; may be null or empty
+     * @throws DocumentException If an error occurs while adding the table
+     */
     private static void addSimpleListTable(
         Document document,
         String headerTitle,
@@ -217,6 +280,13 @@ public class PdfReportGenerator {
         document.add(table);
     }
 
+    /**
+     * Adds a single cell to a PDF table with appropriate styling.
+     *
+     * @param table    The table to add the cell to
+     * @param text     The text content of the cell; null values are converted to empty strings
+     * @param isHeader {@code true} if this is a header cell (applies special styling), false otherwise
+     */
     private static void addCell(PdfPTable table, String text, boolean isHeader) {
         String safeText = text != null ? text : "";
 
@@ -230,6 +300,12 @@ public class PdfReportGenerator {
         table.addCell(cell);
     }
 
+    /**
+     * Adds a footer section to the document indicating the end of the report.
+     *
+     * @param document The PDF document to add the footer to
+     * @throws DocumentException If an error occurs while adding the footer
+     */
     private static void addFooter(Document document) throws DocumentException {
         Paragraph footer = new Paragraph(
             "\n\nEnd of Report",

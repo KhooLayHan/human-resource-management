@@ -20,6 +20,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller for the Report Dialog view, responsible for displaying and exporting employee reports.
+ * <p>
+ * This controller manages the display of employee yearly reports in a formatted text view
+ * and provides export functionality to multiple formats including:
+ * <ul>
+ *   <li>Plain text (.txt)</li>
+ *   <li>Comma-separated values (.csv)</li>
+ *   <li>Portable Document Format (.pdf)</li>
+ * </ul>
+ * </p>
+ * <p>
+ * The controller also supports printing the report directly from the dialog.
+ * </p>
+ */
 public class ReportDialogController {
     @FXML private Label reportDateLabel;
     @FXML private TextArea reportTextArea;
@@ -28,10 +43,25 @@ public class ReportDialogController {
     private EmployeeReportDTO reportData;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    /**
+     * Sets the dialog stage for this controller.
+     * <p>
+     * This method must be called before showing the dialog to properly
+     * initialize the window reference.
+     * </p>
+     *
+     * @param dialogStage The JavaFX stage for this dialog window
+     */
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
     }
 
+    /**
+     * Sets the report data to be displayed and formats it for viewing.
+     *
+     * @param report The employee report data to display, must not be null
+     * @throws IllegalArgumentException If report is null
+     */
     public void setReportData(EmployeeReportDTO report) {
         if (report == null)
             throw new IllegalArgumentException("Report data cannot be null");
@@ -45,6 +75,12 @@ public class ReportDialogController {
         reportTextArea.setText(generateReportText(report));
     }
 
+    /**
+     * Generates a formatted text representation of the employee report with ASCII art borders.
+     *
+     * @param report The employee report data to format
+     * @return A formatted string representation of the report with box-drawing characters
+     */
     private String generateReportText(EmployeeReportDTO report) {
         List<String> lines = new ArrayList<>();
         final int BOX_WIDTH = 60;
@@ -124,12 +160,19 @@ public class ReportDialogController {
         return String.join(System.lineSeparator(), lines);
     }
 
+    /**
+     * Formats a single line of text to fit within a box with vertical borders.
+     *
+     * @param text     The text content to format
+     * @param boxWidth The total width of the box (excluding vertical bars)
+     * @return A formatted string with vertical bars and padding
+     */
     private String formatLine(String text, int boxWidth) {
         String paddedText = " " + text;
 
         int padding = boxWidth - paddedText.length();
         if (padding < 0) {
-            // Text is too long, truncate it
+            // Text is too long, truncate it with ellipsis
             paddedText = paddedText.substring(0, boxWidth - 3) + "...";
             padding = 0;
         }
@@ -137,6 +180,13 @@ public class ReportDialogController {
         return "│" + paddedText + " ".repeat(padding) + "│";
     }
 
+    /**
+     * Centers text within a specified width by adding equal padding on both sides.
+     *
+     * @param text     The text to center
+     * @param boxWidth The width within which to center the text
+     * @return The text with appropriate spacing on both sides
+     */
     private String centerText(String text, int boxWidth) {
         int total = boxWidth - text.length();
         int left = total / 2;
@@ -145,6 +195,9 @@ public class ReportDialogController {
         return " ".repeat(left) + text + " ".repeat(right);
     }
 
+    /**
+     * Handles the export button action, allowing the user to save the report in various formats.
+     */
     @FXML
     private void handleExport() {
         if (reportData == null) {
@@ -188,6 +241,12 @@ public class ReportDialogController {
         }
     }
 
+    /**
+     * Extracts the file extension from a file object.
+     *
+     * @param file The file from which to extract the extension
+     * @return The file extension (without the dot), or "txt" if no extension is found
+     */
     private String getFileExtension(File file) {
         String name = file.getName();
         int period = name.lastIndexOf('.');
@@ -195,6 +254,11 @@ public class ReportDialogController {
         return period > 0 ? name.substring(period + 1) : "txt";
     }
 
+    /**
+     * Prompts the user to open the saved report file after export.
+     *
+     * @param file The file to potentially open
+     */
     private void openReportFile(File file) {
         boolean result = DialogManager.showConfirmationDialog(
             "Open File?",
@@ -213,6 +277,11 @@ public class ReportDialogController {
         }
     }
 
+    /**
+     * Saves the report as a PDF file using the {@link PdfReportGenerator}.
+     *
+     * @param file The destination file for the PDF export
+     */
     private void saveAsPdf(File file) {
         try {
             // Check if file has '.pdf' extension
@@ -230,6 +299,11 @@ public class ReportDialogController {
         }
     }
 
+    /**
+     * Saves the report as a CSV (Comma-Separated Values) file.
+     *
+     * @param file The destination file for the CSV export
+     */
     private void saveAsCsv(File file) {
         try (FileWriter writer = new FileWriter(file)) {
             // CSV Header
@@ -270,6 +344,13 @@ public class ReportDialogController {
         }
     }
 
+    /**
+     * Escapes a value for safe inclusion in a CSV file according to RFC 4180.
+     * <p>
+     *
+     * @param value The value to escape; may be null
+     * @return The escaped value, or an empty string if the input is null
+     */
     private String escapeCsvValue(String value) {
         if (value == null)
             return "";
@@ -281,6 +362,11 @@ public class ReportDialogController {
         return value;
     }
 
+    /**
+     * Saves the report as a plain text file.
+     *
+     * @param file The destination file for the text export
+     */
     private void saveAsText(File file) {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(reportTextArea.getText());
@@ -294,12 +380,18 @@ public class ReportDialogController {
         }
     }
 
+    /**
+     * Handles the close button action, closing the report dialog window.
+     */
     @FXML
     private void handleClose() {
         if (dialogStage != null)
             dialogStage.close();
     }
 
+    /**
+     * Handles the print button action, opening the system print dialog.
+     */
     @FXML
     private void handlePrint() {
         if (dialogStage == null) {
