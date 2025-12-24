@@ -93,7 +93,7 @@ public class Configuration {
         String portStr = properties.getProperty("payroll.port");
 
         if (portStr == null || portStr.isBlank()) {
-            logger.error("Payroll port is not configured, using default: {}", DEFAULT_PAYROLL_PORT);
+            logger.warn("Payroll port is not configured, using default: {}", DEFAULT_PAYROLL_PORT);
             return DEFAULT_PAYROLL_PORT;
         }
 

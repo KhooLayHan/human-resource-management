@@ -9,6 +9,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.Base64;
@@ -55,7 +56,7 @@ public class CryptoUtils {
         GCMParameterSpec gcmSpec = new GCMParameterSpec(TAG_LENGTH_BIT, iv);
 
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec);
-        byte[] cipherText = cipher.doFinal(plainText.getBytes());
+        byte[] cipherText = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
 
         // 4. Combine Salt, IV and cipherText
         ByteBuffer byteBuffer = ByteBuffer.allocate(salt.length + iv.length + cipherText.length);
@@ -95,7 +96,7 @@ public class CryptoUtils {
         cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec);
         byte[] plainTextBytes = cipher.doFinal(cipherText);
 
-        return new String(plainTextBytes);
+        return new String(plainTextBytes, StandardCharsets.UTF_8);
     }
 
     /**
