@@ -1,14 +1,16 @@
 package org.bhel.hrm.payroll;
 
-import org.bhel.hrm.common.utils.SimpleSecurity;
 import org.bhel.hrm.common.config.Configuration;
+import org.bhel.hrm.common.utils.CryptoUtils;
+import org.bhel.hrm.common.utils.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 /**
  * A simple, single-threaded socket server to simulate a Payroll System (PRS).
@@ -20,46 +22,55 @@ public class PayrollServer {
 
     public static void main(String[] args) {
         Configuration configuration = new Configuration();
-        String portStr = configuration.getPayrollPort();
-        if (portStr == null || portStr.isBlank()) {
-            logger.error("Payroll port is not configured. Set 'payroll.port' in config.properties.");
-            return;
-        }
+        int port = configuration.getPayrollPort();
+//        if (portStr == null || portStr.isBlank()) {
+//            logger.error("Payroll port is not configured. Set 'payroll.port' in config.properties.");
+//            return;
+//        }
+//
+//        int payrollPort;
+//        try {
+//            payrollPort = Integer.parseInt(portStr);
+//        } catch (NumberFormatException e) {
+//            logger.error("Invalid payroll port: {}", portStr);
+//            return;
+//        }
 
-        int payrollPort;
+        logger.info("Payroll System (PRS) Server is starting on port {}", port);
+
         try {
-            payrollPort = Integer.parseInt(portStr);
-        } catch (NumberFormatException e) {
-            logger.error("Invalid payroll port: {}", portStr);
-            return;
-        }
+            SSLServerSocketFactory sslFactory = SslContextFactory.createSslContext().getServerSocketFactory();
+            SSLServerSocket serverSocket = (SSLServerSocket) sslFactory.createServerSocket(port);
 
-        logger.info("Payroll System (PRS) Server is starting on port {}", payrollPort);
+            // Optional: Require client authentication (Mutual TLS)
+            // serverSocket.setNeedClientAuth(true);
 
-        try (ServerSocket serverSocket = new ServerSocket(payrollPort)) {
-            // To keep the server running indefinitely
             while (true) {
-                logger.info("Waiting for a connection from the HRM system...");
+                logger.info("Waiting to secure a connection...");
 
                 // Blocks until a client connects
-                try (Socket clientSocket = serverSocket.accept()) {
-                    logger.info("HRM System connected from: {}", clientSocket.getInetAddress());
+                try (SSLSocket clientSocket = (SSLSocket) serverSocket.accept()) {
+                    clientSocket.startHandshake(); // Explicit handshake to verify SSL immediately.
+                    logger.info("Secure connection established from: {}", clientSocket.getInetAddress());
 
-                    // Set up streams to read data from the client
-                    InputStreamReader inputReader =
-                        new InputStreamReader(clientSocket.getInputStream());
+                    InputStreamReader inputReader = new InputStreamReader(clientSocket.getInputStream());
                     BufferedReader reader = new BufferedReader(inputReader);
 
                     // Reads one line of data as the secure message
-                    String receivedData = reader.readLine();
-                    if (receivedData == null) {
-                        logger.warn("Received empty payload from HRM system; closing connection.");
+                    String encryptedData = reader.readLine();
+
+                    if (encryptedData == null) {
+                        logger.warn("Received empty payload from HRM system. Closing connection.");
                         continue;
                     }
-                    logger.info("Received raw data: {}", receivedData);
 
-                    String decryptedData = SimpleSecurity.decrypt(receivedData);
+                    logger.debug("Received CipherText: {}", encryptedData);
+
+                    // Decrypt using AES-GCM
+                    String decryptedData = CryptoUtils.decrypt(encryptedData);
                     logger.debug("Decrypted payroll instruction: {}", decryptedData);
+                } catch (Exception e) {
+                    logger.error("Error processing client connection", e);
                 }
             }
         } catch (Exception e) {

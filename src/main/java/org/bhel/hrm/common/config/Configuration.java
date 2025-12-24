@@ -83,8 +83,24 @@ public class Configuration {
         return properties.getProperty("payroll.host");
     }
 
-    public String getPayrollPort() {
-        return properties.getProperty("payroll.port");
+    public int getPayrollPort() {
+        String portStr = properties.getProperty("payroll.port");
+
+        if (portStr == null || portStr.isBlank()) {
+            logger.error("Payroll port is not configured. Set 'payroll.port' in config.properties.");
+//            return;
+        }
+
+        try {
+            assert portStr != null;
+            return Integer.parseInt(portStr.trim());
+        } catch (NumberFormatException | NullPointerException e) {
+            logger.error("Invalid payroll port: {}. Configuration failed.", portStr);
+            throw new ConfigurationException(
+                String.format("Invalid Payroll port configuration: '%s'.", portStr),
+                e
+            );
+        }
     }
 
     // Database Configuration
