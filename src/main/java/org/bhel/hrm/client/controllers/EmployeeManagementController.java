@@ -381,7 +381,7 @@ public class EmployeeManagementController implements Initializable {
     }
 
     /**
-     * Handles the delete selected employee button action
+     * Handles the delete selected employee button action.
      */
     @FXML
     private void handleDeleteSelectedEmployee() {
@@ -421,6 +421,12 @@ public class EmployeeManagementController implements Initializable {
             new Thread(deleteTask).start();
     }
 
+    /**
+     * Creates and configures a background task to delete an employee by ID.
+     *
+     * @param selectedEmployee The employee to delete, must not be null
+     * @return A {@link Task} that performs the deletion asynchronously
+     */
     private Task<Void> getDeleteTask(EmployeeDTO selectedEmployee) {
         Task<Void> deleteTask = new Task<>() {
             @Override
@@ -453,6 +459,10 @@ public class EmployeeManagementController implements Initializable {
         return deleteTask;
     }
 
+    /**
+     * Handles the action when the generate report button is clicked.
+     * Initiates a background task to generate a report for the selected employee.
+     */
     @FXML
     private void handleGenerateReport() {
         EmployeeDTO selectedEmployee =
@@ -469,6 +479,11 @@ public class EmployeeManagementController implements Initializable {
             new Thread(reportTask).start();
     }
 
+    /**
+     * Displays the employee report in a modal dialog.
+     *
+     * @param report The report data to display, must not be null
+     */
     private void showReportDialog(EmployeeReportDTO report) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -501,6 +516,13 @@ public class EmployeeManagementController implements Initializable {
         }
     }
 
+    /**
+     * Creates and configures a background task to generate an employee report.
+     * Shows a loading indicator while the report is being generated.
+     *
+     * @param selectedEmployee The employee for whom the report is generated, must not be null
+     * @return A {@link Task} that produces the generated {@link EmployeeReportDTO}
+     */
     private Task<EmployeeReportDTO> getReportTask(EmployeeDTO selectedEmployee) {
         // Show progress indicator
         ProgressIndicator progress = new ProgressIndicator();
