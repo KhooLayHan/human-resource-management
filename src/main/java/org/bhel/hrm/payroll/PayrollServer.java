@@ -28,38 +28,42 @@ public class PayrollServer {
 
         try {
             SSLServerSocketFactory sslFactory = SslContextFactory.createSslContext().getServerSocketFactory();
-            SSLServerSocket serverSocket = (SSLServerSocket) sslFactory.createServerSocket(port);
 
-            // Optional: Require client authentication (Mutual TLS)
-            // serverSocket.setNeedClientAuth(true);
+            try (SSLServerSocket serverSocket = (SSLServerSocket) sslFactory.createServerSocket(port)) {
+                // Optional: Require client authentication (Mutual TLS)
+                // serverSocket.setNeedClientAuth(true);
 
-            while (true) {
-                logger.info("Waiting to secure a connection...");
+                while (true) {
+                    logger.info("Waiting to secure a connection...");
 
-                // Blocks until a client connects
-                try (SSLSocket clientSocket = (SSLSocket) serverSocket.accept()) {
-                    clientSocket.startHandshake(); // Explicit handshake to verify SSL immediately.
-                    logger.info("Secure connection established from: {}", clientSocket.getInetAddress());
+                    // Blocks until a client connects
+                    try (SSLSocket clientSocket = (SSLSocket) serverSocket.accept()) {
+                        clientSocket.startHandshake(); // Explicit handshake to verify SSL immediately.
+                        logger.info("Secure connection established from: {}", clientSocket.getInetAddress());
 
-                    InputStreamReader inputReader = new InputStreamReader(clientSocket.getInputStream());
-                    BufferedReader reader = new BufferedReader(inputReader);
+                        InputStreamReader inputReader = new InputStreamReader(clientSocket.getInputStream());
+                        BufferedReader reader = new BufferedReader(inputReader);
 
-                    // Reads one line of data as the secure message
-                    String encryptedData = reader.readLine();
+                        // Reads one line of data as the secure message
+                        String encryptedData = reader.readLine();
 
-                    if (encryptedData == null) {
-                        logger.warn("Received empty payload from HRM system. Closing connection.");
-                        continue;
+                        if (encryptedData == null) {
+                            logger.warn("Received empty payload from HRM system. Closing connection.");
+                            continue;
+                        }
+
+                        logger.debug("Received CipherText: {}", encryptedData);
+
+                        // Decrypt using AES-GCM
+                        String decryptedData = CryptoUtils.decrypt(encryptedData);
+                        logger.debug("Decrypted payroll instruction received (contains {} bytes).",
+                            decryptedData.length());
+                    } catch (Exception e) {
+                        logger.error("Error processing client connection", e);
                     }
-
-                    logger.debug("Received CipherText: {}", encryptedData);
-
-                    // Decrypt using AES-GCM
-                    String decryptedData = CryptoUtils.decrypt(encryptedData);
-                    logger.debug("Decrypted payroll instruction: {}", decryptedData);
-                } catch (Exception e) {
-                    logger.error("Error processing client connection", e);
                 }
+            } catch (Exception e) {
+                logger.error("Payroll server error: {}", e.getMessage(), e);
             }
         } catch (Exception e) {
             logger.error("Payroll server error: {}", e.getMessage(), e);

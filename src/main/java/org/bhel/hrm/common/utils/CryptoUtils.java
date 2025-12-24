@@ -25,8 +25,8 @@ public class CryptoUtils {
     private static final int KEY_LENGTH_BIT = 256;
     private static final int ITERATION_COUNT = 65_536;
 
-    // How to inject via .env...? "BHEL_HRM_SUPER_SECRET_MASTER_KEY_2026"
-    private static final String MASTER_SECRET = new Configuration().getSecretKey();
+    private static final Configuration configuration = new Configuration();
+    private static final String MASTER_SECRET = configuration.getSecretKey();
 
     private CryptoUtils() {
         throw new UnsupportedOperationException("CryptoUtils is a utility class and should not be instantiated.");
