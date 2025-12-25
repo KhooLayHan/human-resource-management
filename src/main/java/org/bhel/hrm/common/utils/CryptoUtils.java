@@ -73,6 +73,13 @@ public class CryptoUtils {
      */
     public static String decrypt(String encryptedbase64) throws Exception {
         byte[] decoded = Base64.getDecoder().decode(encryptedbase64);
+
+        final int DECODER_INPUT_LENGTH_BYTE = SALT_LENGTH_BYTE + IV_LENGTH_BYTE;
+        if (decoded.length < DECODER_INPUT_LENGTH_BYTE) {
+            throw new IllegalArgumentException(
+                "Encrypted data is too short. Expected at least " + DECODER_INPUT_LENGTH_BYTE + " bytes.");
+        }
+
         ByteBuffer byteBuffer = ByteBuffer.wrap(decoded);
 
         // 1. Extract Salt and IV
