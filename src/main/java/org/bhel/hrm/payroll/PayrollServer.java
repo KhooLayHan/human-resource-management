@@ -9,64 +9,134 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A simple, single-threaded socket server to simulate a Payroll System (PRS).
+ * A simple, multithreaded socket server to simulate a Payroll System (PRS).
  * It listens on a port, accepts one connection at a time, reads a single line of data,
  * prints it, and then waits for the next connection.
  */
 public class PayrollServer {
     private static final Logger logger = LoggerFactory.getLogger(PayrollServer.class);
 
-    public static void main(String[] args) {
-        Configuration configuration = new Configuration();
-        int port = configuration.getPayrollPort();
+    private static final int MAX_THREADS = 20;
+    private static final int QUEUE_SIZE = 50;
 
-        logger.info("Payroll System (PRS) Server is starting on port {}", port);
+    private final Configuration configuration;
+    private final SslContextFactory sslContextFactory;
+    private final CryptoUtils cryptoUtils;
+    private final ExecutorService executorService;
+    private final AtomicBoolean running;
+    private SSLServerSocket serverSocket;
+
+    public PayrollServer(
+        Configuration configuration,
+        SslContextFactory sslContextFactory,
+        CryptoUtils cryptoUtils
+    ) {
+        if (configuration == null || sslContextFactory == null || cryptoUtils == null)
+            throw new IllegalArgumentException("Dependencies cannot be null");
+
+        this.configuration = configuration;
+        this.sslContextFactory = sslContextFactory;
+        this.cryptoUtils = cryptoUtils;
+        this.running = new AtomicBoolean(false);
+
+        this.executorService = new ThreadPoolExecutor(
+            5,
+            MAX_THREADS,
+            60,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
+            new ThreadFactory() {
+                private int counter = 0;
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "PayrollServer-Worker-" + counter++);
+                    t.setDaemon(false);
+
+                    return t;
+                }
+            },
+            new ThreadPoolExecutor.CallerRunsPolicy()
+        );
+    }
+
+    public void start() {
+        if (running.getAcquire()) {
+            logger.warn("Server is already running...");
+            return;
+        }
+
+        int port = configuration.getPayrollPort();
+        running.set(true);
 
         try {
-            SSLServerSocketFactory sslFactory = SslContextFactory.createSslContext().getServerSocketFactory();
+            SSLServerSocketFactory sslFactory = sslContextFactory.createSslContext().getServerSocketFactory();
+            serverSocket = (SSLServerSocket) sslFactory.createServerSocket(port);
 
-            try (SSLServerSocket serverSocket = (SSLServerSocket) sslFactory.createServerSocket(port)) {
-                // Optional: Require client authentication (Mutual TLS)
-                // serverSocket.setNeedClientAuth(true);
+            // Configure SSL parameters
+            serverSocket.setEnabledCipherSuites(SslContextFactory.getPreferredCipherSuites());
+            serverSocket.setEnabledProtocols(SslContextFactory.getEnabledProtocols());
 
-                while (true) {
-                    logger.info("Waiting to secure a connection...");
+            // Optional: Require client authentication (Mutual TLS)
+            // serverSocket.setNeedClientAuth(true);
 
-                    // Blocks until a client connects
-                    try (SSLSocket clientSocket = (SSLSocket) serverSocket.accept()) {
-                        clientSocket.startHandshake(); // Explicit handshake to verify SSL immediately.
-                        logger.info("Secure connection established from: {}", clientSocket.getInetAddress());
+            serverSocket.setSoTimeout(1_000); // Checks running flag every second
 
-                        InputStreamReader inputReader = new InputStreamReader(clientSocket.getInputStream());
-                        BufferedReader reader = new BufferedReader(inputReader);
+            logger.info("Payroll System (PRS) Server started successfully on port {}", port);
+            logger.info("Enabled protocols: {}",
+                String.join(", ", serverSocket.getEnabledProtocols()));
 
-                        // Reads one line of data as the secure message
-                        String encryptedData = reader.readLine();
-
-                        if (encryptedData == null) {
-                            logger.warn("Received empty payload from HRM system. Closing connection.");
-                            continue;
-                        }
-
-                        logger.debug("Received CipherText: {}", encryptedData);
-
-                        // Decrypt using AES-GCM
-                        String decryptedData = CryptoUtils.decrypt(encryptedData);
-                        logger.debug("Decrypted payroll instruction received (contains {} bytes).",
-                            decryptedData.length());
-                    } catch (Exception e) {
-                        logger.error("Error processing client connection", e);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Payroll server error: {}", e.getMessage(), e);
-            }
+            acceptConnections();
         } catch (Exception e) {
-            logger.error("Payroll server error: {}", e.getMessage(), e);
+            logger.error("Failed to start server", e);
+            running.set(false);
         }
+    }
+
+    private void acceptConnections() {
+        while (running.getAcquire()) {
+            try {
+                SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
+                executorService.submit(new ClientHandler(clientSocket, cryptoUtils));
+            } catch (SocketTimeoutException e) {
+                continue; // Normal timeout, continue checking running flag
+            } catch (IOException e) {
+                if (running.get()) {
+                    logger.error("Error accepting connection", e);
+                }
+            }
+        }
+    }
+
+    public void shutdown() {
+        logger.info("Initiating shutdown...");
+        running.set(false);
+
+        try {
+            if (serverSocket != null && !serverSocket.isClosed())
+                serverSocket.close();
+        } catch (IOException e) {
+            logger.debug("Error closing server socket.", e);
+        }
+
+        executorService.shutdown();
+
+        try {
+            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+                logger.warn("Executor did not terminate in time, forcing shutdown.");
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        logger.info("Server shutdown complete");
     }
 }
