@@ -23,10 +23,6 @@ public class SslContextFactory {
     private final Configuration configuration;
     private SSLContext cachedSslContext;
 
-    private SslContextFactory() {
-        throw new UnsupportedOperationException("SslContextFactory is a utility class and should not be instantiated.");
-    }
-
     public SslContextFactory(Configuration configuration) {
         if (configuration == null)
             throw new IllegalArgumentException("Configuration cannot be null");
