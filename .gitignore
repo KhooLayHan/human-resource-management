@@ -252,3 +252,4 @@ config.properties
 psw4j.properties
 !*.properties.example
 .env
+.idea
