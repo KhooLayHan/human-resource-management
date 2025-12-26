@@ -137,8 +137,6 @@ public class CryptoUtils {
             logger.error("Decryption failed - data may be corrupted or tampered", e);
             throw new CryptoException("Failed to decrypt data", e);
         }
-
-
     }
 
     /**

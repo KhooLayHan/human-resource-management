@@ -10,9 +10,9 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 /**
  * A simple, multithreaded socket server to simulate a Payroll System (PRS).
@@ -90,7 +90,7 @@ public class PayrollServer {
 
             logger.info("Payroll System (PRS) Server started successfully on port {}", port);
             logger.info("Enabled protocols: {}",
-                String.join(", ", serverSocket.getEnabledProtocols()));
+                String.join(", ",  SslContextFactory.getEnabledProtocols()));
 
             acceptConnections();
         } catch (Exception e) {
@@ -104,8 +104,6 @@ public class PayrollServer {
             try {
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 executorService.submit(new ClientHandler(clientSocket, cryptoUtils));
-            } catch (SocketTimeoutException e) {
-                continue; // Normal timeout, continue checking running flag
             } catch (IOException e) {
                 if (running.get()) {
                     logger.error("Error accepting connection", e);
