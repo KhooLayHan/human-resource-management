@@ -51,6 +51,27 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public void updateUserPassword(
+        int userId,
+        String oldPassword,
+        String newPassword
+    ) throws RemoteException, HRMException {
+        logger.info("Attempting to update user's old password: {}.", oldPassword);
+        ErrorContext context = ErrorContext.forUser(
+            "updateUserPassword", String.valueOf(userId));
+
+        try {
+            userService.changePassword(userId, oldPassword, newPassword);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+        } finally {
+            // Ensure transaction is closed even if an unexpected exception occurs.
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
     public void registerNewEmployee(
         NewEmployeeRegistrationDTO registrationData
     ) throws RemoteException, HRMException {

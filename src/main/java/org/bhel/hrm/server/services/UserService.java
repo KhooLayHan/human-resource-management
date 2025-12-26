@@ -2,10 +2,7 @@ package org.bhel.hrm.server.services;
 
 import org.bhel.hrm.common.dtos.NewEmployeeRegistrationDTO;
 import org.bhel.hrm.common.dtos.UserDTO;
-import org.bhel.hrm.common.exceptions.AuthenticationException;
-import org.bhel.hrm.common.exceptions.DuplicateUserException;
-import org.bhel.hrm.common.exceptions.HRMException;
-import org.bhel.hrm.common.exceptions.UserNotFoundException;
+import org.bhel.hrm.common.exceptions.*;
 import org.bhel.hrm.server.config.DatabaseManager;
 import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.UserDAO;
@@ -50,7 +47,13 @@ public class UserService {
      * @throws UserNotFoundException If no user exists with the given username
      * @throws AuthenticationException If the password does not match the stored hash
      */
-    public UserDTO authenticate(String username, String password) throws AuthenticationException, UserNotFoundException {
+    public UserDTO authenticate(
+        String username,
+        String password
+    ) throws
+        AuthenticationException,
+        UserNotFoundException
+    {
         User user = userDAO.findByUsername(username)
             .orElseThrow(() -> new UserNotFoundException(username));
 
@@ -70,7 +73,12 @@ public class UserService {
      * @throws SQLException If a database access error occurs during the transaction
      * @throws HRMException If the username already exists or another business rule is violated
      */
-    public void registerNewEmployee(NewEmployeeRegistrationDTO registrationData) throws SQLException, HRMException {
+    public void registerNewEmployee(
+        NewEmployeeRegistrationDTO registrationData
+    ) throws
+        SQLException,
+        HRMException
+    {
         final Employee newEmployee = new Employee();
 
         dbManager.executeInTransaction(() -> {
@@ -108,5 +116,28 @@ public class UserService {
                     newEmployee.getFirstName(), e.getMessage(), e);
             }
         }, "payroll-notifier").start();
+    }
+
+    public void changePassword(
+        int userId,
+        String oldPassword,
+        String newPassword
+    ) throws
+        HRMException,
+        DataAccessException,
+        SQLException
+    {
+        dbManager.executeInTransaction(() -> {
+            User user = userDAO.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User ID: " + userId));
+
+            // Verifies the old password first
+            if (!PasswordService.checkPassword(oldPassword, user.getPasswordHash()))
+                throw new AuthenticationException(user.getUsername());
+
+            // Hash and set new password
+            user.setPasswordHash(PasswordService.hashPassword(newPassword));
+            userDAO.save(user);
+        });
     }
 }

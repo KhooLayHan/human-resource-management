@@ -1,10 +1,16 @@
 package org.bhel.hrm.common.services;
 
 import org.bhel.hrm.common.dtos.*;
+import org.bhel.hrm.common.exceptions.AuthenticationException;
+import org.bhel.hrm.common.exceptions.DataAccessException;
 import org.bhel.hrm.common.exceptions.HRMException;
+import org.bhel.hrm.common.exceptions.UserNotFoundException;
+import org.bhel.hrm.server.domain.User;
+import org.bhel.hrm.server.services.PasswordService;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -25,6 +31,8 @@ public interface HRMService extends Remote {
      * @throws HRMException If an authentication-related business rule is violated
      */
     UserDTO authenticateUser(String username, String password) throws RemoteException, HRMException;
+
+    void updateUserPassword(int userId, String oldPassword, String newPassword) throws RemoteException, HRMException;
 
     // --- 2. Employee Management (Primarily for HR Staff) ---
 
