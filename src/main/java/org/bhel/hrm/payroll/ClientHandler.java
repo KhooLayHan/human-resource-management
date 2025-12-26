@@ -55,26 +55,7 @@ public class ClientHandler implements Runnable {
                 logger.debug("Received encrypted data ({} bytes) from {}",
                     encryptedData.length(), clientAddress);
 
-                try {
-                    // Decrypt using AES-GCM
-                    String decryptedData = cryptoUtils.decrypt(encryptedData);
-                    logger.debug("Decrypted payroll instruction from {}.",
-                        clientAddress);
-
-                    // Process the payroll instruction
-                    boolean success = processPayrollInstruction(decryptedData);
-
-                    if (success) {
-                        writer.println("ACK:SUCCESS");
-                        logger.info("Payroll instruction processed successfully.");
-                    } else {
-                        writer.println("ERROR:PROCESSING_FAILED");
-                        logger.error("Failed to process payroll instruction.");
-                    }
-                } catch (CryptoException e) {
-                    logger.error("Decryption failed for connection from {}", clientAddress, e);
-                    writer.println("ERROR:DECRYPTION_FAILED");
-                }
+                decryptAndProcessData(encryptedData, writer, clientAddress);
             }
         } catch (SocketTimeoutException e) {
             logger.warn("Connection timeout from {}", clientSocket.getInetAddress());
@@ -85,11 +66,41 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    private void decryptAndProcessData(String encryptedData, PrintWriter writer, String clientAddress) {
+        try {
+            // Decrypt using AES-GCM
+            String decryptedData = cryptoUtils.decrypt(encryptedData);
+            logger.debug("Decrypted payroll instruction from {}.",
+                clientAddress);
+
+            // Process the payroll instruction
+            boolean success = processPayrollInstruction(decryptedData);
+
+            if (success) {
+                writer.println("ACK:SUCCESS");
+                logger.info("Payroll instruction processed successfully.");
+            } else {
+                writer.println("ERROR:PROCESSING_FAILED");
+                logger.error("Failed to process payroll instruction.");
+            }
+        } catch (CryptoException e) {
+            logger.error("Decryption failed for connection from {}", clientAddress, e);
+            writer.println("ERROR:DECRYPTION_FAILED");
+        }
+    }
+
     private boolean processPayrollInstruction(String instruction) {
         logger.debug("Processing instruction: {}", instruction);
 
-        // TODO: Implement actual payroll processing logic
-        return instruction.contains("ACTION=") && instruction.contains("ID=");
+        // ACTION=NEW_HIRE;ID=%d;FIRST_NAME=%s;LAST_NAME=%s;IC=%s;TIMESTAMP=%d
+        return
+            instruction.contains("ACTION=") &&
+            instruction.contains("ID=") &&
+            instruction.contains("FIRST_NAME=") &&
+            instruction.contains("LAST_NAME=") &&
+            instruction.contains("IC=") &&
+            instruction.contains("TIMESTAMP=")
+        ;
     }
 
     private void closeSocket() {

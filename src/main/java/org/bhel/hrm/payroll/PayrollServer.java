@@ -10,9 +10,9 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 /**
  * A simple, multithreaded socket server to simulate a Payroll System (PRS).
@@ -83,16 +83,15 @@ public class PayrollServer {
             serverSocket.setEnabledCipherSuites(SslContextFactory.getPreferredCipherSuites());
             serverSocket.setEnabledProtocols(SslContextFactory.getEnabledProtocols());
 
-            // Optional: Require client authentication (Mutual TLS)
-            // serverSocket.setNeedClientAuth(true);
-
             serverSocket.setSoTimeout(1_000); // Checks running flag every second
 
             logger.info("Payroll System (PRS) Server started successfully on port {}", port);
             logger.info("Enabled protocols: {}",
-                String.join(", ",  SslContextFactory.getEnabledProtocols()));
+                    String.join(", ", SslContextFactory.getEnabledProtocols()));
 
             acceptConnections();
+        } catch (SocketTimeoutException e) {
+          // Expected — allows for periodic checking of running flag
         } catch (Exception e) {
             logger.error("Failed to start server", e);
             running.set(false);

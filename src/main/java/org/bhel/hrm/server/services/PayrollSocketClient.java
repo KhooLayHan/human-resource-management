@@ -126,6 +126,7 @@ public class PayrollSocketClient {
                 "Failed to send notification to PRS at {}:{}. Is the PayrollServer running?",
                 host, port, e
             );
+            throw e;
         }
     }
 
