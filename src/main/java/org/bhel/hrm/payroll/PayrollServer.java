@@ -102,7 +102,7 @@ public class PayrollServer {
         while (running.getAcquire()) {
             try {
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
-                executorService.submit(new ClientHandler(clientSocket, cryptoUtils));
+                executorService.submit(new PayrollClientHandler(clientSocket, cryptoUtils));
             } catch (IOException e) {
                 if (running.get()) {
                     logger.error("Error accepting connection", e);

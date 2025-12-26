@@ -27,7 +27,6 @@ public class PayrollSocketClient {
     private static final Logger logger = LoggerFactory.getLogger(PayrollSocketClient.class);
 
     private static final int SOCKET_TIMEOUT_MS = 30_000;
-    private static final int MAX_RETRY_ATTEMPTS = 3;
     private static final int BASE_RETRY_DELAY_MS = 1_000;
 
     private final String host;
@@ -50,7 +49,6 @@ public class PayrollSocketClient {
         try {
             this.sslSocketFactory = sslContextFactory.createSslContext().getSocketFactory();
         } catch (Exception e) {
-            logger.error("Failed to initialize SSL context", e);
             throw new RuntimeException("SSL initialization failed", e);
         }
 
@@ -120,13 +118,6 @@ public class PayrollSocketClient {
             }
 
             return validateResponse(response);
-
-        } catch (Exception e) {
-            logger.error(
-                "Failed to send notification to PRS at {}:{}. Is the PayrollServer running?",
-                host, port, e
-            );
-            throw e;
         }
     }
 

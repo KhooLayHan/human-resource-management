@@ -15,15 +15,15 @@ import java.net.SocketTimeoutException;
 /**
  * Handles individual client connections.
  */
-public class ClientHandler implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
+public class PayrollClientHandler implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(PayrollClientHandler.class);
 
     private static final int SOCKET_TIMEOUT_MS = 30_000;
 
     private final SSLSocket clientSocket;
     private final CryptoUtils cryptoUtils;
 
-    ClientHandler(SSLSocket clientSocket, CryptoUtils cryptoUtils) {
+    PayrollClientHandler(SSLSocket clientSocket, CryptoUtils cryptoUtils) {
         this.clientSocket = clientSocket;
         this.cryptoUtils = cryptoUtils;
     }
