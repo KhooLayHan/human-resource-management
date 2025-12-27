@@ -119,6 +119,22 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public EmployeeDTO getEmployeeByUserId(
+        int userId
+    ) throws RemoteException, HRMException {
+        logger.debug("RMI Call: getEmployeeByUserId() for User ID: {}", userId);
+        ErrorContext context = ErrorContext.forUser(
+            "getEmployeeByUserId", String.valueOf(userId));
+
+        try {
+            return employeeService.getEmployeeById(userId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        }
+    }
+
+    @Override
     public void updateEmployeeProfile(
         EmployeeDTO employeeDTO
     ) throws RemoteException, HRMException {

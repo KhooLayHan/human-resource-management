@@ -65,6 +65,16 @@ public interface HRMService extends Remote {
     EmployeeDTO getEmployeeById(int employeeId) throws RemoteException, HRMException;
 
     /**
+     * Retrieves the full profile details for a single employee by their user ID.
+     *
+     * @param userId The user ID of the employee to fetch; must be positive
+     * @return An {@link EmployeeDTO} containing the employee's details, not null
+     * @throws RemoteException If a communication error occurs
+     * @throws HRMException If the employee is not found or another business rule is violated
+     */
+    EmployeeDTO getEmployeeByUserId(int userId) throws RemoteException, HRMException;
+
+    /**
      * Updates the profile information for an existing employee.
      *
      * @param employeeDTO The DTO containing updated information; must include a valid ID, not null
