@@ -11,62 +11,108 @@
     <!-- Page Header -->
     <fx:include source="components/PageHeader.fxml" fx:id="pageHeader"/>
 
-    <GridPane hgap="20" vgap="15"
-              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 5;">
-        <columnConstraints>
-            <ColumnConstraints minWidth="120" halignment="RIGHT"/>
-            <ColumnConstraints hgrow="ALWAYS"/>
-        </columnConstraints>
+    <!-- Account Section Card -->
+    <VBox spacing="15"
+          styleClass="profile-card">
 
         <!-- Account Details -->
-        <Label text="Account Details"
-               style="-fx-font-weight: bold; -fx-text-fill: #666;"
-               GridPane.rowIndex="0" GridPane.columnSpan="2"/>
-        <Separator GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+        <Label text="Account Information"
+               styleClass="section-title"/>
+        <Separator/>
 
-        <Label text="Username:"
-               GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="usernameField"
-                   editable="false" disable="true"
-                   GridPane.rowIndex="2" GridPane.columnSpan="1"/>
+        <GridPane hgap="20" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" halignment="RIGHT"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="250"/>
+            </columnConstraints>
 
-        <Label text="Role:"
-               GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <TextField fx:id="roleField"
-                   editable="false" disable="true"
-                   GridPane.rowIndex="3" GridPane.columnSpan="1"/>
+            <Label text="Username:"
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <HBox spacing="10"
+                  alignment="CENTER_LEFT"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <TextField fx:id="usernameField"
+                           editable="false" disable="true"
+                           styleClass="readonly-field"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            </HBox>
 
-        <Button text="Change Password"
-                onAction="#handleChangePassword"
-                GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <Label text="Role:"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <HBox spacing="10"
+                  alignment="CENTER_LEFT"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <TextField fx:id="roleField"
+                           editable="false" disable="true"
+                           styleClass="readonly-field"
+                           HBox.hgrow="ALWAYS"/>
+                <Label styleClass="role-badge" fx:id="roleBadge"/>
+            </HBox>
 
-        <!-- Personal Details -->
-        <Label text="Personal Details"
-               style="-fx-font-weight: bold; -fx-text-fill: #666;"
-               GridPane.rowIndex="5" GridPane.columnSpan="2"/>
-        <Separator GridPane.rowIndex="6" GridPane.columnSpan="2"/>
+            <Label text="Password:"
+                   GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <HBox spacing="10"
+                  alignment="CENTER_LEFT"
+                  GridPane.rowIndex="2" GridPane.columnIndex="1">
+                <Label text="••••••••" styleClass="password-placeholder"/>
+                <Button text="Change Password"
+                        onAction="#handleChangePassword"
+                        styleClass="button-secondary-small"/>
+            </HBox>
 
-        <Label text="First Name:"
-               GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-        <TextField fx:id="firstNameField"
-                   editable="false"
-                   GridPane.rowIndex="7" GridPane.columnSpan="1"/>
+        </GridPane>
+    </VBox>
 
-        <Label text="Last Name:"
-               GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-        <TextField fx:id="lastNameField"
-                   editable="false"
-                   GridPane.rowIndex="8" GridPane.columnSpan="1"/>
+    <!-- Personal Details Card -->
+    <VBox spacing="15"
+          styleClass="profile-card">
 
-        <Label text="IC/Passport:"
-               GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-        <TextField fx:id="icPassportField"
-                   editable="false"
-                   GridPane.rowIndex="9" GridPane.columnSpan="1"/>
-    </GridPane>
+        <HBox alignment="CENTER_LEFT"
+              spacing="10">
+            <!-- Personal Details -->
+            <Label text="Personal Details"
+                   styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="editModeIndicator"
+                   text="Edit Mode"
+                   styleClass="edit-indicator"
+                   visible="false"/>
+        </HBox>
+        <Separator/>
 
-    <!-- Footer -->
-    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <GridPane hgap="20" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" halignment="RIGHT"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="250"/>
+            </columnConstraints>
+
+            <Label text="First Name:"
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="firstNameField"
+                       editable="false"
+                       promptText="Enter first name"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Last Name:"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="lastNameField"
+                       editable="false"
+                       promptText="Enter last name"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="IC/Passport:"
+                   GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="icPassportField"
+                       editable="false"
+                       promptText="Enter IC or passport number"
+                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        </GridPane>
+    </VBox>
+
+    <!-- Action Buttons Bar -->
+    <HBox spacing="10"
+          alignment="CENTER_RIGHT"
+          styleClass="button-bar">
         <Button fx:id="editButton"
                 text="Edit Profile"
                 onAction="#handleEditToggle"
@@ -74,10 +120,12 @@
         <Button fx:id="saveButton"
                 text="Save Changes"
                 onAction="#handleSave"
-                visible="false"/>
+                visible="false"
+                styleClass="button-success"/>
         <Button fx:id="cancelButton"
                 text="Cancel"
                 onAction="#handleCancel"
-                visible="false"/>
+                visible="false"
+                styleClass="button-secondary"/>
     </HBox>
 </VBox>

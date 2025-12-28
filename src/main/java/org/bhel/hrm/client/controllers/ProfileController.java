@@ -124,10 +124,25 @@ public class ProfileController implements Initializable {
         cancelButton.setVisible(editing);
 
         // Visual cue
-        String style = editing ? "-fx-background-color: white; -fx-border-color: #ddd;" : "-fx-background-color: transparent; -fx-border-color: transparent;";
-        firstNameField.setStyle(style);
-        lastNameField.setStyle(style);
-        icPassportField.setStyle(style);
+//        String style = editing ? "-fx-background-color: white; -fx-border-color: #ddd;" : "-fx-background-color: transparent; -fx-border-color: transparent;";
+        String editableStyle = editing
+            ? "-fx-background-color: white; -fx-border-color: #80bdff; -fx-border-width: 2px;"
+            : "";
+
+        firstNameField.setStyle(editableStyle);
+        lastNameField.setStyle(editableStyle);
+        icPassportField.setStyle(editableStyle);
+
+        // Add style classes for readonly vs editable
+        if (editing) {
+            firstNameField.getStyleClass().remove("readonly-field");
+            lastNameField.getStyleClass().remove("readonly-field");
+            icPassportField.getStyleClass().remove("readonly-field");
+        } else {
+            firstNameField.getStyleClass().add("readonly-field");
+            lastNameField.getStyleClass().add("readonly-field");
+            icPassportField.getStyleClass().add("readonly-field");
+        }
     }
 
     @FXML
