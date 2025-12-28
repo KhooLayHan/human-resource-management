@@ -72,7 +72,7 @@ public class EmployeeService {
     }
 
     /**
-     * Retrieves the employee profile associated by their user ID.
+     * Retrieves the employee profile associated with their user ID.
      *
      * @param userId The user ID of the employee to fetch; must be positive
      * @return The {@link EmployeeDTO} for the found employee; never null
@@ -82,7 +82,7 @@ public class EmployeeService {
         Employee employee = employeeDAO.findByUserId(userId)
             .orElseThrow(() -> new ResourceNotFoundException(
                 ErrorCode.EMPLOYEE_NOT_FOUND,
-                "Employee for User ID Profile",
+                "Employee with User ID",
                 userId
             ));
 

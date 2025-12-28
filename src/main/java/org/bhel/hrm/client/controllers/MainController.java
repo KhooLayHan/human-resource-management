@@ -277,19 +277,23 @@ public class MainController {
     private void loadProfileView() {
         logger.info("Loading Profile View...");
 
-        ViewManager.loadViewWithController(contentArea, FXMLPaths.PROFILE);
+//        ViewManager.loadViewWithController(contentArea, FXMLPaths.PROFILE);
 
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.PROFILE));
-//            Parent view = loader.load();
-//
-//            ProfileController controller = loader.getController();
-//            controller.setDependencies(serviceManager, executorService, currentUser);
-//
-//            contentArea.getChildren().setAll(view);
-//        } catch (IOException e) {
-//            logger.error("Failed to load Profile view.");
-//        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.PROFILE));
+            Parent view = loader.load();
+
+            ProfileController controller = loader.getController();
+            controller.setDependencies(serviceManager, executorService, currentUser);
+
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
+            logger.error("Failed to load Profile view.");
+            DialogManager.showErrorDialog(
+                "View Load Error",
+                "Could not load the profile view. Please try again."
+            );
+        }
     }
 
     /**

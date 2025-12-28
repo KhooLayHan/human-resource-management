@@ -56,7 +56,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         String oldPassword,
         String newPassword
     ) throws RemoteException, HRMException {
-        logger.info("Attempting to update user's old password: {}.", oldPassword);
+        logger.info("Attempting to update password for user ID: {}.", userId);
         ErrorContext context = ErrorContext.forUser(
             "updateUserPassword", String.valueOf(userId));
 
@@ -127,7 +127,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             "getEmployeeByUserId", String.valueOf(userId));
 
         try {
-            return employeeService.getEmployeeById(userId);
+            return employeeService.getEmployeeByUserId(userId);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");

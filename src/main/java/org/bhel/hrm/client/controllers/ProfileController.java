@@ -58,7 +58,7 @@ public class ProfileController implements Initializable {
 
     private void loadProfileData() {
         usernameField.setText(currentUser.username());
-        usernameField.setText(currentUser.role().toString());
+        roleField.setText(currentUser.role().toString());
 
         Task<EmployeeDTO> getEmployeeByUserIdTask = getEmployeeByUserIdTask();
 
@@ -92,6 +92,11 @@ public class ProfileController implements Initializable {
     }
 
     private void populateFields() {
+        if (currentEmployeeProfile == null) {
+            logger.warn("Attempted to populate fields but currentEmployeeProfile is null.");
+            return;
+        }
+
         firstNameField.setText(currentEmployeeProfile.firstName());
         lastNameField.setText(currentEmployeeProfile.lastName());
         icPassportField.setText(currentEmployeeProfile.icPassport());

@@ -138,6 +138,8 @@ public class UserService {
             // Hash and set new password
             user.setPasswordHash(PasswordService.hashPassword(newPassword));
             userDAO.save(user);
+
+            logger.info("Password successfully updated for user ID: {}", userId);
         });
     }
 }
