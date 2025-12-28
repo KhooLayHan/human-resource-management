@@ -124,9 +124,8 @@ public class ProfileController implements Initializable {
         cancelButton.setVisible(editing);
 
         // Visual cue
-//        String style = editing ? "-fx-background-color: white; -fx-border-color: #ddd;" : "-fx-background-color: transparent; -fx-border-color: transparent;";
         String editableStyle = editing
-            ? "-fx-background-color: white; -fx-border-color: #80bdff; -fx-border-width: 2px;"
+            ? "-fx-background-color: white; -fx-border-color: #80bdff; -fx-border-width: 1px;"
             : "";
 
         firstNameField.setStyle(editableStyle);

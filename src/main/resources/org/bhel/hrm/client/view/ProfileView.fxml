@@ -30,11 +30,10 @@
                    GridPane.rowIndex="0" GridPane.columnIndex="0"/>
             <HBox spacing="10"
                   alignment="CENTER_LEFT"
-                  GridPane.rowIndex="1" GridPane.columnIndex="1">
+                  GridPane.rowIndex="0" GridPane.columnIndex="1">
                 <TextField fx:id="usernameField"
-                           editable="false" disable="true"
-                           styleClass="readonly-field"
-                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                           editable="false"
+                           styleClass="readonly-field"/>
             </HBox>
 
             <Label text="Role:"
@@ -43,7 +42,7 @@
                   alignment="CENTER_LEFT"
                   GridPane.rowIndex="1" GridPane.columnIndex="1">
                 <TextField fx:id="roleField"
-                           editable="false" disable="true"
+                           editable="false"
                            styleClass="readonly-field"
                            HBox.hgrow="ALWAYS"/>
                 <Label styleClass="role-badge" fx:id="roleBadge"/>
