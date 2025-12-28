@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox spacing="20" styleClass="employee-container"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.bhel.hrm.client.controllers.ProfileController">
@@ -16,13 +15,16 @@
           styleClass="profile-card">
 
         <!-- Account Details -->
+        <FontIcon iconLiteral="mdi2s-shield-account"
+                  iconSize="24"
+                  iconColor="#2c3e50"/>
         <Label text="Account Information"
                styleClass="section-title"/>
         <Separator/>
 
-        <GridPane hgap="20" vgap="15">
+        <GridPane hgap="10" vgap="15">
             <columnConstraints>
-                <ColumnConstraints minWidth="120" halignment="RIGHT"/>
+                <ColumnConstraints minWidth="120" halignment="LEFT"/>
                 <ColumnConstraints hgrow="ALWAYS" minWidth="250"/>
             </columnConstraints>
 
@@ -33,7 +35,8 @@
                   GridPane.rowIndex="0" GridPane.columnIndex="1">
                 <TextField fx:id="usernameField"
                            editable="false"
-                           styleClass="readonly-field"/>
+                           styleClass="readonly-field"
+                           HBox.hgrow="ALWAYS"/>
             </HBox>
 
             <Label text="Role:"
@@ -45,20 +48,21 @@
                            editable="false"
                            styleClass="readonly-field"
                            HBox.hgrow="ALWAYS"/>
-                <Label styleClass="role-badge" fx:id="roleBadge"/>
             </HBox>
 
-            <Label text="Password:"
-                   GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+<!--            <Label text="Password:"-->
+<!--                   GridPane.rowIndex="2" GridPane.columnIndex="0"/>-->
             <HBox spacing="10"
                   alignment="CENTER_LEFT"
                   GridPane.rowIndex="2" GridPane.columnIndex="1">
-                <Label text="••••••••" styleClass="password-placeholder"/>
+<!--                <Label text="••••••••" styleClass="password-placeholder"/>-->
+<!--                <FontIcon iconLiteral="mdi2e-eye-off"-->
+<!--                          iconSize="18"-->
+<!--                          iconColor="#6c757d"/>-->
                 <Button text="Change Password"
                         onAction="#handleChangePassword"
                         styleClass="button-secondary-small"/>
             </HBox>
-
         </GridPane>
     </VBox>
 
@@ -69,19 +73,22 @@
         <HBox alignment="CENTER_LEFT"
               spacing="10">
             <!-- Personal Details -->
+            <FontIcon iconLiteral="mdi2a-account-details"
+                      iconSize="24"
+                      iconColor="#2c3e50"/>
             <Label text="Personal Details"
                    styleClass="section-title"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="editModeIndicator"
-                   text="Edit Mode"
-                   styleClass="edit-indicator"
-                   visible="false"/>
+<!--            <Label fx:id="editModeIndicator"-->
+<!--                   text="Edit Mode"-->
+<!--                   styleClass="edit-indicator"-->
+<!--                   visible="false"/>-->
         </HBox>
         <Separator/>
 
         <GridPane hgap="20" vgap="15">
             <columnConstraints>
-                <ColumnConstraints minWidth="120" halignment="RIGHT"/>
+                <ColumnConstraints minWidth="120" halignment="LEFT"/>
                 <ColumnConstraints hgrow="ALWAYS" minWidth="250"/>
             </columnConstraints>
 
@@ -109,7 +116,7 @@
     </VBox>
 
     <!-- Action Buttons Bar -->
-    <HBox spacing="10"
+    <HBox spacing="5"
           alignment="CENTER_RIGHT"
           styleClass="button-bar">
         <Button fx:id="editButton"

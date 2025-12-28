@@ -42,6 +42,8 @@ public class FXMLPaths {
 
         public static final String TRAINING_COURSE_FORM = DIALOG + "TrainingCourseFormView" + EXTENSION;
 
+        public static final String CHANGE_PASSWORD = DIALOG + "ChangePasswordView" + EXTENSION;
+
         public static final String REPORT = DIALOG + "ReportDialogView" + EXTENSION;
     }
 }

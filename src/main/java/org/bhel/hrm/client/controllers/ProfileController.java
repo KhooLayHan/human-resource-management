@@ -2,9 +2,14 @@ package org.bhel.hrm.client.controllers;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.bhel.hrm.client.constants.FXMLPaths;
 import org.bhel.hrm.client.controllers.components.PageHeaderController;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
@@ -13,6 +18,7 @@ import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -198,6 +204,35 @@ public class ProfileController implements Initializable {
 
     @FXML
     private void handleChangePassword() {
-        DialogManager.showInfoDialog("Feature Stub", "Please implement the ChangePasswordDialog here.");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.Dialogs.CHANGE_PASSWORD));
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initOwner(usernameField.getScene().getWindow());
+            stage.setScene(new Scene(loader.load()));
+            stage.setResizable(false);
+
+            ChangePasswordDialogController controller = loader.getController();
+            controller.setDialogStage(stage);
+            controller.setHrmService(serviceManager.getHrmService());
+            controller.setExecutorService(executorService);
+            controller.setUserId(currentUser.id());
+
+            stage.showAndWait();
+
+            if (controller.isSuccess()) {
+                DialogManager.showInfoDialog(
+                    "Success",
+                    "Your password has been updated successfully."
+                );
+            }
+        } catch (IOException e) {
+            logger.error("Failed to load password dialog", e);
+            DialogManager.showErrorDialog(
+                "UI Error",
+                "Could not open change password dialog."
+            );
+        }
     }
 }
