@@ -25,6 +25,8 @@ public class FXMLPaths {
 
     public static final String TRAINING_CATALOG = BASE + "TrainingCatalogView" + EXTENSION;
 
+    public static final String PROFILE = BASE + "ProfileView" + EXTENSION;
+
     public static class Dialogs {
         private Dialogs() {
             throw new UnsupportedOperationException("FXMLPaths.Dialogs is a utility class and should not be instantiated.");

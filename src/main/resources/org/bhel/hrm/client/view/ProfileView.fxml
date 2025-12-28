@@ -1,71 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<VBox spacing="20"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.bhel.hrm.client.controller.ProfileController">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
+<VBox spacing="20" styleClass="employee-container"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.bhel.hrm.client.controllers.ProfileController">
+
+    <!-- Page Header -->
     <fx:include source="components/PageHeader.fxml" fx:id="pageHeader"/>
 
-    <GridPane hgap="20" vgap="15"
-              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 5;">
-        <columnConstraints>
-            <ColumnConstraints minWidth="120" halignment="RIGHT"/>
-            <ColumnConstraints hgrow="ALWAYS"/>
-        </columnConstraints>
+<!--    <GridPane hgap="20" vgap="15"-->
+<!--              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 5;">-->
+<!--        <columnConstraints>-->
+<!--            <ColumnConstraints minWidth="120" halignment="RIGHT"/>-->
+<!--            <ColumnConstraints hgrow="ALWAYS"/>-->
+<!--        </columnConstraints>-->
 
-        <!-- Account Details -->
-        <Label text="Account Details"
-               style="-fx-font-weight: bold; -fx-text-fill: #666;"
-               GridPane.rowIndex="0" GridPane.columnSpan="2"/>
-        <Separator GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+<!--        &lt;!&ndash; Account Details &ndash;&gt;-->
+<!--        <Label text="Account Details"-->
+<!--               style="-fx-font-weight: bold; -fx-text-fill: #666;"-->
+<!--               GridPane.rowIndex="0" GridPane.columnSpan="2"/>-->
+<!--        <Separator GridPane.rowIndex="1" GridPane.columnSpan="2"/>-->
 
-        <Label text="Username:"
-               GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="usernameField"
-                   editable="false" disable="true"
-                   GridPane.rowIndex="2" GridPane.columnSpan="1"/>
+<!--        <Label text="Username:"-->
+<!--               GridPane.rowIndex="2" GridPane.columnIndex="0"/>-->
+<!--        <TextField fx:id="usernameField"-->
+<!--                   editable="false" disable="true"-->
+<!--                   GridPane.rowIndex="2" GridPane.columnSpan="1"/>-->
 
-        <Label text="Role:"
-               GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <TextField fx:id="roleField"
-                   editable="false" disable="true"
-                   GridPane.rowIndex="3" GridPane.columnSpan="1"/>
+<!--        <Label text="Role:"-->
+<!--               GridPane.rowIndex="3" GridPane.columnIndex="0"/>-->
+<!--        <TextField fx:id="roleField"-->
+<!--                   editable="false" disable="true"-->
+<!--                   GridPane.rowIndex="3" GridPane.columnSpan="1"/>-->
 
-        <Button text="Change Password"
-                onAction="#handleChangePassword"
-                GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+<!--        <Button text="Change Password"-->
+<!--                onAction="#handleChangePassword"-->
+<!--                GridPane.rowIndex="4" GridPane.columnIndex="1"/>-->
 
-        <!-- Personal Details -->
-        <Label text="Personal Details"
-               style="-fx-font-weight: bold; -fx-text-fill: #666;"
-               GridPane.rowIndex="5" GridPane.columnSpan="2"/>
-        <Separator GridPane.rowIndex="6" GridPane.columnSpan="2"/>
+<!--        &lt;!&ndash; Personal Details &ndash;&gt;-->
+<!--        <Label text="Personal Details"-->
+<!--               style="-fx-font-weight: bold; -fx-text-fill: #666;"-->
+<!--               GridPane.rowIndex="5" GridPane.columnSpan="2"/>-->
+<!--        <Separator GridPane.rowIndex="6" GridPane.columnSpan="2"/>-->
 
-        <Label text="First Name:"
-               GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-        <TextField fx:id="firstNameField"
-                   editable="false"
-                   GridPane.rowIndex="7" GridPane.columnSpan="1"/>
+<!--        <Label text="First Name:"-->
+<!--               GridPane.rowIndex="7" GridPane.columnIndex="0"/>-->
+<!--        <TextField fx:id="firstNameField"-->
+<!--                   editable="false"-->
+<!--                   GridPane.rowIndex="7" GridPane.columnSpan="1"/>-->
 
-        <Label text="Last Name:"
-               GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-        <TextField fx:id="lastNameField"
-                   editable="false"
-                   GridPane.rowIndex="8" GridPane.columnSpan="1"/>
+<!--        <Label text="Last Name:"-->
+<!--               GridPane.rowIndex="8" GridPane.columnIndex="0"/>-->
+<!--        <TextField fx:id="lastNameField"-->
+<!--                   editable="false"-->
+<!--                   GridPane.rowIndex="8" GridPane.columnSpan="1"/>-->
 
-        <Label text="IC/Passport:"
-               GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-        <TextField fx:id="icPassportField"
-                   editable="false"
-                   GridPane.rowIndex="9" GridPane.columnSpan="1"/>
-    </GridPane>
+<!--        <Label text="IC/Passport:"-->
+<!--               GridPane.rowIndex="9" GridPane.columnIndex="0"/>-->
+<!--        <TextField fx:id="icPassportField"-->
+<!--                   editable="false"-->
+<!--                   GridPane.rowIndex="9" GridPane.columnSpan="1"/>-->
+<!--    </GridPane>-->
 
     <!-- Footer -->
     <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button fx:id="updateButton"
-                text="Update Profile"
-                onAction="#handleUpdate"
-                style="button-primary"/>
+        <Button fx:id="editButton"
+                text="Edit Profile"
+                onAction="#handleEditToggle"
+                styleClass="button-primary"/>
         <Button fx:id="saveButton"
                 text="Save Changes"
                 onAction="#handleSave"
