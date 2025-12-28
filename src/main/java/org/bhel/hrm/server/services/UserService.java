@@ -126,6 +126,7 @@ public class UserService {
      * @param newPassword The new password to set; must not be null or empty.
      * @throws UserNotFoundException   If no user exists with the given ID.
      * @throws AuthenticationException If the old password does not match.
+     * @throws DataAccessException     If a database access error occurs.
      * @throws HRMException            If validation fails or a business rule is violated.
      * @throws SQLException            If a database transaction error occurs.
      */
@@ -145,13 +146,13 @@ public class UserService {
             throw new InvalidInputException("New password must be at least 8 characters long.");
 
         if (!containsDigit(newPassword))
-            throw new InvalidInputException("New password must contain at least one uppercase letter.");
+            throw new InvalidInputException("New password must contain at least one digit.");
 
         if (!containsLowerCase(newPassword))
             throw new InvalidInputException("New password must contain at least one lowercase letter.");
 
         if (!containsUpperCase(newPassword))
-            throw new InvalidInputException("New password must contain at least one digit.");
+            throw new InvalidInputException("New password must contain at least one uppercase letter.");
 
         dbManager.executeInTransaction(() -> {
             User user = userDAO.findById(userId)
