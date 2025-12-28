@@ -144,13 +144,13 @@ public class UserService {
         if (newPassword.length() < 8)
             throw new InvalidInputException("New password must be at least 8 characters long.");
 
-        if (!newPassword.matches(".*[A-Z].*"))
+        if (!containsDigit(newPassword))
             throw new InvalidInputException("New password must contain at least one uppercase letter.");
 
-        if (!newPassword.matches(".*[a-z].*"))
+        if (!containsLowerCase(newPassword))
             throw new InvalidInputException("New password must contain at least one lowercase letter.");
 
-        if (!newPassword.matches(".*\\d.*"))
+        if (!containsUpperCase(newPassword))
             throw new InvalidInputException("New password must contain at least one digit.");
 
         dbManager.executeInTransaction(() -> {
@@ -167,5 +167,26 @@ public class UserService {
 
             logger.info("Password successfully updated for user ID: {}", userId);
         });
+    }
+
+    private boolean containsUpperCase(String s) {
+        for (char c : s.toCharArray())
+            if (Character.isUpperCase(c)) return true;
+
+        return false;
+    }
+
+    private boolean containsLowerCase(String s) {
+        for (char c : s.toCharArray())
+            if (Character.isLowerCase(c)) return true;
+
+        return false;
+    }
+
+    private boolean containsDigit(String s) {
+        for (char c : s.toCharArray())
+            if (Character.isDigit(c)) return true;
+
+        return false;
     }
 }
