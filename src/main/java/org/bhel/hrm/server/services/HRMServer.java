@@ -51,6 +51,28 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public void updateUserPassword(
+        int userId,
+        String oldPassword,
+        String newPassword
+    ) throws RemoteException, HRMException {
+        logger.info("Attempting to update password for user ID: {}.", userId);
+        ErrorContext context = ErrorContext.forUser(
+            "updateUserPassword", String.valueOf(userId));
+
+        try {
+            userService.changePassword(userId, oldPassword, newPassword);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            // Ensure transaction is closed even if an unexpected exception occurs.
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
     public void registerNewEmployee(
         NewEmployeeRegistrationDTO registrationData
     ) throws RemoteException, HRMException {
@@ -91,6 +113,22 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
 
         try {
             return employeeService.getEmployeeById(employeeId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        }
+    }
+
+    @Override
+    public EmployeeDTO getEmployeeByUserId(
+        int userId
+    ) throws RemoteException, HRMException {
+        logger.debug("RMI Call: getEmployeeByUserId() for User ID: {}", userId);
+        ErrorContext context = ErrorContext.forUser(
+            "getEmployeeByUserId", String.valueOf(userId));
+
+        try {
+            return employeeService.getEmployeeByUserId(userId);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");

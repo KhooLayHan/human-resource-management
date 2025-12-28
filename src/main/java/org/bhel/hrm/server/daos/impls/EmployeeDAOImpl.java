@@ -45,6 +45,24 @@ public class EmployeeDAOImpl extends AbstractDAO<Employee> implements EmployeeDA
     }
 
     @Override
+    public Optional<Employee> findByUserId(int userId) {
+        String sql = """
+            SELECT
+                id,
+                user_id,
+                first_name,
+                last_name,
+                ic_passport
+            FROM
+                employees
+            WHERE
+                user_id = ?
+        """;
+
+        return findOne(sql, stmt -> stmt.setInt(1, userId), rowMapper);
+    }
+
+    @Override
     public List<Employee> findAll() {
         String sql = """
             SELECT

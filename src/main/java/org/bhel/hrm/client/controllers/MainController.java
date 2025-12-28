@@ -7,6 +7,8 @@ import javafx.application.Platform;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -26,6 +28,7 @@ import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
@@ -273,6 +276,24 @@ public class MainController {
      */
     private void loadProfileView() {
         logger.info("Loading Profile View...");
+
+//        ViewManager.loadViewWithController(contentArea, FXMLPaths.PROFILE);
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.PROFILE));
+            Parent view = loader.load();
+
+            ProfileController controller = loader.getController();
+            controller.setDependencies(serviceManager, executorService, currentUser);
+
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
+            logger.error("Failed to load Profile view.");
+            DialogManager.showErrorDialog(
+                "View Load Error",
+                "Could not load the profile view. Please try again."
+            );
+        }
     }
 
     /**
