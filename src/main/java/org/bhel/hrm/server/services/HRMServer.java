@@ -64,6 +64,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             userService.changePassword(userId, oldPassword, newPassword);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
         } finally {
             // Ensure transaction is closed even if an unexpected exception occurs.
             if (dbManager.isTransactionActive())

@@ -1,16 +1,10 @@
 package org.bhel.hrm.common.services;
 
 import org.bhel.hrm.common.dtos.*;
-import org.bhel.hrm.common.exceptions.AuthenticationException;
-import org.bhel.hrm.common.exceptions.DataAccessException;
 import org.bhel.hrm.common.exceptions.HRMException;
-import org.bhel.hrm.common.exceptions.UserNotFoundException;
-import org.bhel.hrm.server.domain.User;
-import org.bhel.hrm.server.services.PasswordService;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
 import java.util.List;
 
 /**

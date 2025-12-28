@@ -118,6 +118,17 @@ public class UserService {
         }, "payroll-notifier").start();
     }
 
+    /**
+     * Changes the password for an existing user.
+     *
+     * @param userId      The ID of the user whose password to change; must be positive.
+     * @param oldPassword The current password for verification; must not be null.
+     * @param newPassword The new password to set; must not be null or empty.
+     * @throws UserNotFoundException   If no user exists with the given ID.
+     * @throws AuthenticationException If the old password does not match.
+     * @throws HRMException            If validation fails or a business rule is violated.
+     * @throws SQLException            If a database transaction error occurs.
+     */
     public void changePassword(
         int userId,
         String oldPassword,
@@ -127,6 +138,9 @@ public class UserService {
         DataAccessException,
         SQLException
     {
+        if (newPassword == null || newPassword.isBlank())
+            throw new InvalidInputException("New password must not be null or empty.");
+
         dbManager.executeInTransaction(() -> {
             User user = userDAO.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User ID: " + userId));

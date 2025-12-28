@@ -146,6 +146,14 @@ public class ProfileController implements Initializable {
 
     @FXML
     private void handleSave() {
+        if (currentEmployeeProfile == null) {
+            DialogManager.showErrorDialog(
+                "Save Error",
+                "Profile data is not loaded. Please wait and try again."
+            );
+            return;
+        }
+
         EmployeeDTO updatedDTO = new EmployeeDTO(
             currentEmployeeProfile.id(),
             currentEmployeeProfile.userId(),
