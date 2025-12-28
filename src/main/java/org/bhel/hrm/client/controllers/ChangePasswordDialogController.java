@@ -65,7 +65,7 @@ public class ChangePasswordDialogController {
     }
 
     private Task<Void> getChangePasswordTask(String oldPassword, String newPassword) {
-        Task<Void> changePasswordTask = new Task<Void>() {
+        Task<Void> changePasswordTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
                 hrmService.updateUserPassword(userId, oldPassword, newPassword);
@@ -94,6 +94,7 @@ public class ChangePasswordDialogController {
                 showError("An unexpected error occurred: " + ex.getMessage());
             }
         });
+
         return changePasswordTask;
     }
 

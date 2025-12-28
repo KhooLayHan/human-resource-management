@@ -141,6 +141,18 @@ public class UserService {
         if (newPassword == null || newPassword.isBlank())
             throw new InvalidInputException("New password must not be null or empty.");
 
+        if (newPassword.length() < 8)
+            throw new InvalidInputException("New password must be at least 8 characters long.");
+
+        if (!newPassword.matches(".*[A-Z].*"))
+            throw new InvalidInputException("New password must contain at least one uppercase letter.");
+
+        if (!newPassword.matches(".*[a-z].*"))
+            throw new InvalidInputException("New password must contain at least one lowercase letter.");
+
+        if (!newPassword.matches(".*\\d.*"))
+            throw new InvalidInputException("New password must contain at least one digit.");
+
         dbManager.executeInTransaction(() -> {
             User user = userDAO.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User ID: " + userId));

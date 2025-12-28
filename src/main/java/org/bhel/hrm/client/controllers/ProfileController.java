@@ -75,7 +75,7 @@ public class ProfileController implements Initializable {
     }
 
     private Task<EmployeeDTO> getEmployeeByUserIdTask() {
-        Task<EmployeeDTO> getEmployeeByUserIdTask = new Task<EmployeeDTO>() {
+        Task<EmployeeDTO> getEmployeeByUserIdTask = new Task<>() {
             @Override
             protected EmployeeDTO call() throws Exception {
                 return serviceManager.getHrmService()
@@ -139,14 +139,15 @@ public class ProfileController implements Initializable {
         icPassportField.setStyle(editableStyle);
 
         // Add style classes for readonly vs editable
+        final String READONLY = "readonly-field";
         if (editing) {
-            firstNameField.getStyleClass().remove("readonly-field");
-            lastNameField.getStyleClass().remove("readonly-field");
-            icPassportField.getStyleClass().remove("readonly-field");
+            firstNameField.getStyleClass().remove(READONLY);
+            lastNameField.getStyleClass().remove(READONLY);
+            icPassportField.getStyleClass().remove(READONLY);
         } else {
-            firstNameField.getStyleClass().add("readonly-field");
-            lastNameField.getStyleClass().add("readonly-field");
-            icPassportField.getStyleClass().add("readonly-field");
+            firstNameField.getStyleClass().add(READONLY);
+            lastNameField.getStyleClass().add(READONLY);
+            icPassportField.getStyleClass().add(READONLY);
         }
     }
 
@@ -177,7 +178,7 @@ public class ProfileController implements Initializable {
     }
 
     private Task<Void> getSaveTask(EmployeeDTO updatedDTO) {
-        Task<Void> saveTask = new Task<Void>() {
+        Task<Void> saveTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
                 serviceManager.getHrmService().updateEmployeeProfile(updatedDTO);
@@ -228,7 +229,7 @@ public class ProfileController implements Initializable {
                 );
             }
         } catch (IOException e) {
-            logger.error("Failed to load password dialog", e);
+            logger.error("Failed to load password dialog");
             DialogManager.showErrorDialog(
                 "UI Error",
                 "Could not open change password dialog."
