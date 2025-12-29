@@ -24,6 +24,7 @@ import java.util.List;
  */
 public class EmployeeService {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+    private static final String RESOURCE_TYPE = "Employee";
 
     private final DatabaseManager dbManager;
     private final EmployeeDAO employeeDAO;
@@ -105,7 +106,7 @@ public class EmployeeService {
             Employee existingEmployee = employeeDAO.findById(employeeDTO.id())
                 .orElseThrow(() -> new ResourceNotFoundException(
                     ErrorCode.EMPLOYEE_NOT_FOUND,
-                    "Employee Update",
+                    RESOURCE_TYPE,
                     employeeDTO.id()
                 ));
 
@@ -133,7 +134,7 @@ public class EmployeeService {
             Employee employee = employeeDAO.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                     ErrorCode.EMPLOYEE_NOT_FOUND,
-                    "Employee Delete",
+                    RESOURCE_TYPE,
                     employeeId
                 ));
 
@@ -171,7 +172,7 @@ public class EmployeeService {
         Employee employee = employeeDAO.findById(employeeId).
             orElseThrow(() -> new ResourceNotFoundException(
                 ErrorCode.EMPLOYEE_NOT_FOUND,
-                "Employee Report",
+                RESOURCE_TYPE,
                 employeeId
             ));
 
