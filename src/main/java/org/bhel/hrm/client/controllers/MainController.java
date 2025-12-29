@@ -277,8 +277,6 @@ public class MainController {
     private void loadProfileView() {
         logger.info("Loading Profile View...");
 
-//        ViewManager.loadViewWithController(contentArea, FXMLPaths.PROFILE);
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.PROFILE));
             Parent view = loader.load();

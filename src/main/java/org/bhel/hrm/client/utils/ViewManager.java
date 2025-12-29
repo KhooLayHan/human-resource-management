@@ -104,9 +104,9 @@ public class ViewManager {
             }
         };
 
-        loadParentTask.setOnSucceeded(event -> {
-            container.getChildren().setAll(loadParentTask.getValue());
-        });
+        loadParentTask.setOnSucceeded(event ->
+            container.getChildren().setAll(loadParentTask.getValue())
+        );
 
         loadParentTask.setOnFailed(event -> {
             logger.error("Failed to load view asynchronously: {}",

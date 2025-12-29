@@ -62,7 +62,7 @@ public class EmployeeService {
         Employee employee = employeeDAO.findById(employeeId)
             .orElseThrow(() -> new ResourceNotFoundException(
                 ErrorCode.EMPLOYEE_NOT_FOUND,
-                "Employee",
+                "Employee ID",
                 employeeId
             ));
 
@@ -105,7 +105,7 @@ public class EmployeeService {
             Employee existingEmployee = employeeDAO.findById(employeeDTO.id())
                 .orElseThrow(() -> new ResourceNotFoundException(
                     ErrorCode.EMPLOYEE_NOT_FOUND,
-                    "Employee",
+                    "Employee Update",
                     employeeDTO.id()
                 ));
 
@@ -133,7 +133,7 @@ public class EmployeeService {
             Employee employee = employeeDAO.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                     ErrorCode.EMPLOYEE_NOT_FOUND,
-                    "Employee",
+                    "Employee Delete",
                     employeeId
                 ));
 
@@ -171,7 +171,7 @@ public class EmployeeService {
         Employee employee = employeeDAO.findById(employeeId).
             orElseThrow(() -> new ResourceNotFoundException(
                 ErrorCode.EMPLOYEE_NOT_FOUND,
-                "Employee",
+                "Employee Report",
                 employeeId
             ));
 
