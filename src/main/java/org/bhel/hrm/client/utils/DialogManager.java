@@ -83,12 +83,7 @@ public final class DialogManager {
      */
     public static void showErrorDialog(String title, ErrorCode errorCode) {
         String message = messageProvider.getMessage(errorCode);
-
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        showErrorDialog(title, message);
     }
 
     /**

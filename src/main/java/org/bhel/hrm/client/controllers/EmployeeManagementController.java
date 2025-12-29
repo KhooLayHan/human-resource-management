@@ -56,7 +56,6 @@ public class EmployeeManagementController implements Initializable {
     @FXML private PageHeaderController pageHeaderController;
 
     private HRMService hrmService;
-    private ServiceManager serviceManager;
     private ExecutorService executorService;
     private ObservableList<EmployeeDTO> allEmployees;
     private ObservableList<EmployeeDTO> filteredEmployees;
@@ -98,9 +97,10 @@ public class EmployeeManagementController implements Initializable {
     private void completeInitialization() {
         // Get dependencies from parent controller
         MainController mainController = getMainController();
+        ServiceManager serviceManager;
 
         if (mainController != null) {
-            this.serviceManager = mainController.getServiceManager();
+            serviceManager = mainController.getServiceManager();
             this.executorService = mainController.getExecutorService();
 
             if (serviceManager != null)

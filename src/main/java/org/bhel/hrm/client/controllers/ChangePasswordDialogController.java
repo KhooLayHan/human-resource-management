@@ -86,12 +86,13 @@ public class ChangePasswordDialogController {
             Throwable ex = changePasswordTask.getException();
             logger.warn("Password change failed", ex);
 
-            if (ex instanceof AuthenticationException) {
-                showError("Incorrect current password.");
-            } else if (ex instanceof RemoteException) {
-                showError("Server communication error. Please try again.");
-            } else {
-                showError("An unexpected error occurred: " + ex.getMessage());
+            switch (ex) {
+                case AuthenticationException authEx ->
+                    showError("Incorrect current password.");
+                case RemoteException remoteEx ->
+                    showError("Server communication error. Please try again.");
+                default ->
+                    showError("An unexpected error occurred: " + ex.getMessage());
             }
         });
 

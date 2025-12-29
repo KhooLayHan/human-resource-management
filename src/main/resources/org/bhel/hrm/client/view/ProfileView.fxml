@@ -15,14 +15,17 @@
           styleClass="profile-card">
 
         <!-- Account Details -->
-        <FontIcon iconLiteral="mdi2s-shield-account"
-                  iconSize="24"
-                  iconColor="#2c3e50"/>
-        <Label text="Account Information"
-               styleClass="section-title"/>
+        <HBox spacing="10"
+              alignment="CENTER_LEFT">
+            <FontIcon iconLiteral="mdi2s-shield-account"
+                      iconSize="24"
+                      iconColor="#2c3e50"/>
+            <Label text="Account Information"
+                   styleClass="section-title"/>
+        </HBox>
         <Separator/>
 
-        <GridPane hgap="10" vgap="15">
+        <GridPane hgap="20" vgap="15">
             <columnConstraints>
                 <ColumnConstraints minWidth="120" halignment="LEFT"/>
                 <ColumnConstraints hgrow="ALWAYS" minWidth="250"/>
@@ -50,15 +53,9 @@
                            HBox.hgrow="ALWAYS"/>
             </HBox>
 
-<!--            <Label text="Password:"-->
-<!--                   GridPane.rowIndex="2" GridPane.columnIndex="0"/>-->
             <HBox spacing="10"
                   alignment="CENTER_LEFT"
                   GridPane.rowIndex="2" GridPane.columnIndex="1">
-<!--                <Label text="••••••••" styleClass="password-placeholder"/>-->
-<!--                <FontIcon iconLiteral="mdi2e-eye-off"-->
-<!--                          iconSize="18"-->
-<!--                          iconColor="#6c757d"/>-->
                 <Button text="Change Password"
                         onAction="#handleChangePassword"
                         styleClass="button-secondary-small"/>
@@ -79,10 +76,6 @@
             <Label text="Personal Details"
                    styleClass="section-title"/>
             <Region HBox.hgrow="ALWAYS"/>
-<!--            <Label fx:id="editModeIndicator"-->
-<!--                   text="Edit Mode"-->
-<!--                   styleClass="edit-indicator"-->
-<!--                   visible="false"/>-->
         </HBox>
         <Separator/>
 
