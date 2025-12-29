@@ -271,6 +271,6 @@
 
 /* Reports */
 .report-text-area {
-    -fx-font-family: 'Monospaced';
-    -fx-font-size: 13px";
+    -fx-font-family: Monospaced;
+    -fx-font-size: 13px;
 }
