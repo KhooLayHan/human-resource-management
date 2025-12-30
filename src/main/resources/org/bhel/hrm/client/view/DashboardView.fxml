@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<ScrollPane fitToWidth="true" style="-fx-background-color: transparent;"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.bhel.hrm.client.controllers.DashboardController">
+
+    <VBox spacing="25">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header -->
+        <VBox spacing="5">
+            <Label fx:id="welcomeLabel" text="Welcome, User!" styleClass="page-title"/>
+            <Label text="Here is what's happening today." styleClass="page-subtitle"/>
+        </VBox>
+
+        <!-- Stats Cards Container (FlowPane wraps items if window is small) -->
+        <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" prefWrapLength="1000">
+            <!-- Cards will be dynamically toggled visible/invisible based on role -->
+
+            <!-- CARD 1: Total Employees (HR Only) -->
+            <HBox fx:id="cardTotalEmployees" styleClass="stat-card" spacing="15" alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-blue">
+                    <FontIcon iconLiteral="mdi2a-account-group" iconSize="32" iconColor="white"/>
+                </StackPane>
+                <VBox>
+                    <Label fx:id="labelTotalEmployees" text="0" styleClass="stat-value"/>
+                    <Label text="Total Employees" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+
+            <!-- CARD 2: Annual Leave (Employee Only) -->
+            <HBox fx:id="cardAnnualLeave" styleClass="stat-card" spacing="15" alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-green">
+                    <FontIcon iconLiteral="mdi2b-beach" iconSize="32" iconColor="white"/>
+                </StackPane>
+                <VBox>
+                    <Label fx:id="labelAnnualLeave" text="0" styleClass="stat-value"/>
+                    <Label text="Annual Leave Bal." styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+
+            <!-- CARD 3: Pending Approvals (HR Only) -->
+            <HBox fx:id="cardPendingLeaves" styleClass="stat-card" spacing="15" alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-orange">
+                    <FontIcon iconLiteral="mdi2f-file-document-alert" iconSize="32" iconColor="white"/>
+                </StackPane>
+                <VBox>
+                    <Label fx:id="labelPendingLeaves" text="0" styleClass="stat-value"/>
+                    <Label text="Pending Approvals" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+
+            <!-- CARD 4: Open Jobs (HR Only) -->
+            <HBox fx:id="cardOpenJobs" styleClass="stat-card" spacing="15" alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-purple">
+                    <FontIcon iconLiteral="mdi2b-briefcase-search" iconSize="32" iconColor="white"/>
+                </StackPane>
+                <VBox>
+                    <Label fx:id="labelOpenJobs" text="0" styleClass="stat-value"/>
+                    <Label text="Open Positions" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+
+        </FlowPane>
+
+        <!-- Charts Section -->
+        <HBox spacing="20" VBox.vgrow="ALWAYS">
+            <VBox styleClass="chart-card" HBox.hgrow="ALWAYS">
+                <Label text="Department Distribution" styleClass="section-title"/>
+                <PieChart fx:id="deptPieChart" labelsVisible="true" legendVisible="false"/>
+            </VBox>
+
+            <!-- Placeholder for another widget (e.g. Announcements) -->
+            <VBox styleClass="chart-card" HBox.hgrow="ALWAYS">
+                <Label text="Quick Actions" styleClass="section-title"/>
+                <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
+                    <Button text="Apply for Leave" maxWidth="Infinity" styleClass="button-secondary"/>
+                    <Button text="View Profile" maxWidth="Infinity" styleClass="button-secondary"/>
+                </VBox>
+            </VBox>
+        </HBox>
+
+    </VBox>
+</ScrollPane>

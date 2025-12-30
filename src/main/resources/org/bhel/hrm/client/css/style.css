@@ -274,3 +274,46 @@
     -fx-font-family: Monospaced;
     -fx-font-size: 13px;
 }
+
+/* Dashboard Stat Card */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-padding: 15;
+    -fx-min-width: 250;
+    -fx-max-width: 250;
+}
+
+.stat-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.stat-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7f8c8d;
+}
+
+/* Icon Containers in Cards */
+.icon-container {
+    -fx-background-radius: 50%;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+    -fx-max-width: 50;
+    -fx-max-height: 50;
+}
+
+.icon-blue   { -fx-background-color: #3498db; }
+.icon-green  { -fx-background-color: #2ecc71; }
+.icon-orange { -fx-background-color: #f39c12; }
+.icon-purple { -fx-background-color: #9b59b6; }
+
+/* Chart/Generic Card */
+.chart-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-padding: 15;
+}
