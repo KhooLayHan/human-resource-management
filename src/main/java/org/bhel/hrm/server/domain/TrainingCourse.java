@@ -1,15 +1,24 @@
 package org.bhel.hrm.server.domain;
 
+import org.bhel.hrm.common.dtos.TrainingCourseDTO;
+
 public class TrainingCourse {
     private int id;
     private String title;
     private String description;
     private int durationInHours;
-    private String department;
+    private TrainingCourseDTO.Department department;
 
     public TrainingCourse() {}
 
-    public TrainingCourse(int id, String title, String description, int durationInHours, String department) {
+    public TrainingCourse(String title, String description, int durationInHours, TrainingCourseDTO.Department department) {
+        this.title = title;
+        this.description = description;
+        this.durationInHours = durationInHours;
+        this.department = department;
+    }
+
+    public TrainingCourse(int id, String title, String description, int durationInHours, TrainingCourseDTO.Department department) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -49,11 +58,11 @@ public class TrainingCourse {
         this.durationInHours = durationInHours;
     }
 
-    public String getDepartment() {
+    public TrainingCourseDTO.Department getDepartment() {
         return department;
     }
 
-    public void setDepartment(String department) {
+    public void setDepartment(TrainingCourseDTO.Department department) {
         this.department = department;
     }
 }

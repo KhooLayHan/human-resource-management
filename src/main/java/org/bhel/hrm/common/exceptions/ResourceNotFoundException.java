@@ -95,11 +95,11 @@ public final class ResourceNotFoundException extends HRMException {
         this.resourceType = resourceType;
     }
 
-    public ResourceNotFoundException(String trainingCourse, int courseId, Object resourceId, String resourceType) {
-        super();
-        this.resourceId = resourceId;
-        this.resourceType = resourceType;
-    }
+//    public ResourceNotFoundException(String trainingCourse, int courseId, Object resourceId, String resourceType) {
+//        super();
+//        this.resourceId = resourceId;
+//        this.resourceType = resourceType;
+//    }
 
     private static String formatMessage(
         String resourceType,

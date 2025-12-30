@@ -1,6 +1,9 @@
 package org.bhel.hrm.server.services;
 
 import org.bhel.hrm.common.dtos.TrainingCourseDTO;
+import org.bhel.hrm.common.dtos.TrainingEnrollmentDTO;
+import org.bhel.hrm.common.error.ErrorCode;
+import org.bhel.hrm.common.error.ErrorContext;
 import org.bhel.hrm.common.exceptions.EnrollmentException;
 import org.bhel.hrm.common.exceptions.InvalidInputException;
 import org.bhel.hrm.common.exceptions.ResourceNotFoundException;
@@ -43,7 +46,8 @@ public class TrainingService {
         dbManager.executeInTransaction(() -> {
             // 1. Verify Course Exists
             courseDAO.findById(courseId)
-                    .orElseThrow(() -> new ResourceNotFoundException("TrainingCourse", courseId));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            ErrorCode.EMPLOYEE_NOT_FOUND, "TrainingCourse"));
 
             // 2. Check if already enrolled (Optional, but good business logic)
             // Assuming your TrainingEnrollmentDAO has a custom finder for this
@@ -60,21 +64,29 @@ public class TrainingService {
             }
 
             // 3. Create Enrollment
-            TrainingEnrollment enrollment = new TrainingEnrollment();
-            enrollment.setEmployeeId(employeeId);
-            enrollment.setCourseId(courseId);
-            enrollment.setStatus("ENROLLED");
+            TrainingEnrollment enrollment = new TrainingEnrollment(
+                employeeId,
+                    courseId,
+                    TrainingEnrollmentDTO.Status.ENROLLED
+            );
+//            enrollment.setEmployeeId(employeeId);
+//            enrollment.setCourseId(courseId);
+//            enrollment.setStatus("ENROLLED");
 
             enrollmentDAO.save(enrollment);
         });
     }
 
     private void validateCourse(TrainingCourseDTO dto) throws InvalidInputException {
+        ErrorContext context = ErrorContext.forUser(
+                "TrainingCourse", String.valueOf(dto.id())
+        );
+
         if (dto.title() == null || dto.title().trim().isEmpty()) {
-            throw new InvalidInputException("Course title is required", "title");
+            throw new InvalidInputException("Course title is required", context);
         }
         if (dto.durationInHours() <= 0) {
-            throw new InvalidInputException("Duration must be greater than 0", "durationInHours");
+            throw new InvalidInputException("Duration must be greater than 0", context);
         }
     }
 }

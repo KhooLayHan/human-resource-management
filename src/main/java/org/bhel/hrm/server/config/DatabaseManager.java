@@ -320,6 +320,20 @@ public final class DatabaseManager {
             )
         """);
 
+        // 4.1 Departments Lookup Table (NEW)
+        stmt.execute("""
+            CREATE TABLE IF NOT EXISTS departments (
+                id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(50) NOT NULL UNIQUE,
+                sort_order TINYINT NOT NULL DEFAULT 0
+            )
+        """);
+        // Seed departments
+        stmt.execute("""
+            INSERT IGNORE INTO departments (name, sort_order) VALUES
+            ('IT', 1), ('HR', 2), ('Finance', 3), ('Operations', 4), ('Sales', 5)
+        """);
+
         // 4. TrainingCourses Table
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS training_courses (
@@ -327,9 +341,14 @@ public final class DatabaseManager {
                 title VARCHAR(255) NOT NULL,
                 description TEXT,
                 duration_in_hours INT,
-                department VARCHAR(255),
+                department_id TINYINT UNSIGNED NOT NULL,
+        
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+                CONSTRAINT fk_courses_department_id
+                    FOREIGN KEY (department_id) REFERENCES departments(id)
+                    ON UPDATE CASCADE ON DELETE RESTRICT
             )
         """);
 
@@ -420,26 +439,48 @@ public final class DatabaseManager {
                     ON DELETE RESTRICT
             )
         """);
-        // Inside DatabaseManager.createHRMTables()
+
+        stmt.execute("""
+        CREATE TABLE IF NOT EXISTS training_enrollment_statuses (
+            id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(20) NOT NULL UNIQUE,
+            sort_order TINYINT NOT NULL DEFAULT 0
+        )
+    """);
+        stmt.execute("""
+        INSERT IGNORE INTO training_enrollment_statuses (name, sort_order) VALUES
+        ('ENROLLED', 1), ('COMPLETED', 2), ('CANCELLED', 3), ('FAILED', 4)
+    """);
 
 // 8. Training Enrollments Table (Many-to-Many Join Table)
         stmt.execute("""
-    CREATE TABLE IF NOT EXISTS training_enrollments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        employee_id INT NOT NULL,
-        course_id INT NOT NULL,
-        enrollment_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        status VARCHAR(50) NOT NULL DEFAULT 'ENROLLED', -- e.g., ENROLLED, COMPLETED
+            CREATE TABLE IF NOT EXISTS training_enrollments (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                employee_id INT NOT NULL,
+                course_id INT NOT NULL,
+                status_id TINYINT UNSIGNED NOT NULL, -- Changed from VARCHAR
+                enrollment_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+                CONSTRAINT fk_enrollment_employee_id
+                    FOREIGN KEY (employee_id) REFERENCES employees(id)
+                    ON UPDATE CASCADE ON DELETE CASCADE,
+                CONSTRAINT fk_enrollment_course_id
+                    FOREIGN KEY (course_id) REFERENCES training_courses(id)
+                    ON UPDATE CASCADE ON DELETE CASCADE,
+                CONSTRAINT fk_enrollment_status_id
+                    FOREIGN KEY (status_id) REFERENCES training_enrollment_statuses(id)
+                    ON UPDATE CASCADE ON DELETE RESTRICT,
         
-        CONSTRAINT fk_enrollment_employee_id
-            FOREIGN KEY (employee_id) REFERENCES employees(id)
-            ON DELETE CASCADE,
-        CONSTRAINT fk_enrollment_course_id
-            FOREIGN KEY (course_id) REFERENCES training_courses(id)
-            ON DELETE CASCADE,
-        -- An employee can only be enrolled in the same course once
-        UNIQUE KEY uk_employee_course (employee_id, course_id)
-    )
-""");
+                UNIQUE KEY uk_employee_course (employee_id, course_id)
+            )
+        """);
+// 8.1 Training Enrollment Statuses Lookup Table (NEW)
+
+
+
+
     }
 }

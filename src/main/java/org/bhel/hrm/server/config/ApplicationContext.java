@@ -4,10 +4,15 @@ import org.bhel.hrm.common.error.ErrorMessageProvider;
 import org.bhel.hrm.common.error.ExceptionMappingConfig;
 import org.bhel.hrm.common.utils.GlobalExceptionHandler;
 import org.bhel.hrm.server.daos.EmployeeDAO;
+import org.bhel.hrm.server.daos.TrainingCourseDAO;
+import org.bhel.hrm.server.daos.TrainingEnrollmentDAO;
 import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
+import org.bhel.hrm.server.daos.impls.TrainingCourseDAOImpl;
+import org.bhel.hrm.server.daos.impls.TrainingEnrollmentDAOImpl;
 import org.bhel.hrm.server.daos.impls.UserDAOImpl;
 import org.bhel.hrm.server.services.EmployeeService;
+import org.bhel.hrm.server.services.TrainingService;
 import org.bhel.hrm.server.services.UserService;
 
 /**
@@ -28,9 +33,13 @@ public class    ApplicationContext {
 
     private final UserDAO userDAO;
     private final EmployeeDAO employeeDAO;
+    private final TrainingCourseDAO trainingCourseDAO;
+    private final TrainingEnrollmentDAO trainingEnrollmentDAO;
 
     private final UserService userService;
     private final EmployeeService employeeService;
+    private final TrainingService trainingService;
+
 
     /**
      * Private constructor to enforce the Singleton pattern.
@@ -46,9 +55,12 @@ public class    ApplicationContext {
 
         this.userDAO = new UserDAOImpl(databaseManager);
         this.employeeDAO = new EmployeeDAOImpl(databaseManager);
+        this.trainingCourseDAO = new TrainingCourseDAOImpl(databaseManager);
+        this.trainingEnrollmentDAO = new TrainingEnrollmentDAOImpl(databaseManager);
 
         this.userService = new UserService(databaseManager, userDAO, employeeDAO);
         this.employeeService = new EmployeeService(databaseManager, employeeDAO);
+        this.trainingService = new TrainingService(databaseManager, trainingCourseDAO, trainingEnrollmentDAO);
 
         seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
     }
@@ -60,7 +72,7 @@ public class    ApplicationContext {
         EmployeeDAO employeeDAO
     ) {
         if ("development".equalsIgnoreCase(config.getAppEnvironment())) {
-            databaseSeeder = new DatabaseSeeder(dbManager, userDAO, employeeDAO);
+            databaseSeeder = new DatabaseSeeder(dbManager, userDAO, employeeDAO, trainingCourseDAO, trainingEnrollmentDAO);
             databaseSeeder.seedIfEmpty();
         }
     }
@@ -112,5 +124,17 @@ public class    ApplicationContext {
 
     public EmployeeService getEmployeeService() {
         return employeeService;
+    }
+
+    public TrainingCourseDAO getTrainingCourseDAO() {
+        return trainingCourseDAO;
+    }
+
+    public TrainingEnrollmentDAO getTrainingEnrollmentDAO() {
+        return trainingEnrollmentDAO;
+    }
+
+    public TrainingService getTrainingService() {
+        return trainingService;
     }
 }

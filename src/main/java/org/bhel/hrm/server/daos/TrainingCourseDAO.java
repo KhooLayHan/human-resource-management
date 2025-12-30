@@ -11,6 +11,6 @@ import java.util.Optional;
  */
 public interface TrainingCourseDAO extends DAO<TrainingCourse, Integer> {
 
-    Optional<User> findByUsername(String username);
+//    Optional<User> findByUsername(String username);
 
 }

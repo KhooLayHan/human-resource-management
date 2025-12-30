@@ -1,22 +1,38 @@
 package org.bhel.hrm.server.domain;
 
+import org.bhel.hrm.common.dtos.TrainingEnrollmentDTO;
+
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class TrainingEnrollment {
     private int id;
     private int employeeId;
     private int courseId;
-    private LocalDateTime enrollmentDate;
-    private String status;
+    private LocalDate enrollmentDate;
+    private TrainingEnrollmentDTO.Status status;
     // Getters and Setters...
 
-    public TrainingEnrollment(int id, int employeeId, int courseId, LocalDateTime enrollmentDate, String status) {
+    public TrainingEnrollment(int id, int employeeId, int courseId, LocalDate enrollmentDate, TrainingEnrollmentDTO.Status status) {
         this.id = id;
         this.employeeId = employeeId;
         this.courseId = courseId;
         this.enrollmentDate = enrollmentDate;
         this.status = status;
     }
+
+    public TrainingEnrollment(int employeeId, int courseId, TrainingEnrollmentDTO.Status status) {
+        this.employeeId = employeeId;
+        this.courseId = courseId;
+        this.status = status;
+    }
+
+//    public TrainingEnrollment(int employeeId, int courseId, TrainingEnrollmentDTO.Status status) {
+//        this.employeeId = employeeId;
+//        this.courseId = courseId;
+//        this.status = status;
+//    }
 
     public int getId() {
         return id;
@@ -30,11 +46,11 @@ public class TrainingEnrollment {
         return courseId;
     }
 
-    public LocalDateTime getEnrollmentDate() {
+    public LocalDate getEnrollmentDate() {
         return enrollmentDate;
     }
 
-    public String getStatus() {
+    public TrainingEnrollmentDTO.Status getStatus() {
         return status;
     }
 
@@ -50,11 +66,11 @@ public class TrainingEnrollment {
         this.courseId = courseId;
     }
 
-    public void setEnrollmentDate(LocalDateTime enrollmentDate) {
+    public void setEnrollmentDate(LocalDate enrollmentDate) {
         this.enrollmentDate = enrollmentDate;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TrainingEnrollmentDTO.Status status) {
         this.status = status;
     }
 }

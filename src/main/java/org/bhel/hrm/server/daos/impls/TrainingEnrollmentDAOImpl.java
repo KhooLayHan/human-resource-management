@@ -1,0 +1,184 @@
+package org.bhel.hrm.server.daos.impls;
+
+import org.bhel.hrm.common.dtos.TrainingEnrollmentDTO;
+import org.bhel.hrm.common.dtos.UserDTO;
+import org.bhel.hrm.common.error.ErrorContext;
+import org.bhel.hrm.common.error.ExceptionMappingConfig;
+import org.bhel.hrm.common.exceptions.DataAccessException;
+import org.bhel.hrm.server.config.DatabaseManager;
+import org.bhel.hrm.server.daos.AbstractDAO;
+import org.bhel.hrm.server.daos.TrainingEnrollmentDAO;
+import org.bhel.hrm.server.domain.TrainingEnrollment;
+
+import java.sql.*;
+import java.util.List;
+import java.util.Optional;
+public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> implements TrainingEnrollmentDAO {
+
+    private ExceptionMappingConfig config;
+
+    private final RowMapper<TrainingEnrollment> rowMapper = rs -> new TrainingEnrollment(
+        rs.getInt("id"),
+        rs.getInt("employee_id"),
+        rs.getInt("course_id"),
+
+            rs.getDate("enrollment_date").toLocalDate(),
+//        if (ts != null) {
+//            rs.setEnrollmentDate(ts.toLocalDateTime());
+//        }
+            mapRole(rs.getObject("status_id", Integer.class))
+//        return rs;
+    );
+
+    public TrainingEnrollmentDAOImpl(DatabaseManager dbManager) {
+        super(dbManager);
+    }
+
+    @Override
+    public List<TrainingEnrollment> findByEmployeeId(int employeeId) {
+        String sql = "SELECT * FROM training_enrollments WHERE employee_id = ?";
+        return findMany(sql, stmt -> stmt.setInt(1, employeeId), rowMapper);
+    }
+
+    @Override
+    public List<TrainingEnrollment> findByCourseId(int courseId) {
+        String sql = "SELECT * FROM training_enrollments WHERE course_id = ?";
+        return findMany(sql, stmt -> stmt.setInt(1, courseId), rowMapper);
+    }
+
+    @Override
+    public Optional<TrainingEnrollment> findById(Integer id) {
+        String sql = "SELECT * FROM training_enrollments WHERE id = ?";
+        return findOne(sql, stmt -> stmt.setInt(1, id), rowMapper);
+    }
+
+    @Override
+    public List<TrainingEnrollment> findAll() {
+        String sql = "SELECT * FROM training_enrollments";
+        return findMany(sql, stmt -> {
+        }, rowMapper);
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        String sql = "DELETE FROM training_enrollments WHERE id = ?";
+        executeUpdate(sql, stmt -> stmt.setInt(1, id));
+    }
+
+    @Override
+    public long count() {
+        String sql = "SELECT COUNT(*) FROM training_enrollments";
+        Connection conn = null;
+        try {
+            conn = dbManager.getConnection();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                if (rs.next()) return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error counting enrollments", e);
+        } finally {
+            dbManager.releaseConnection(conn);
+        }
+        return 0;
+    }
+
+    @Override
+    protected void setSaveParameters(PreparedStatement stmt, TrainingEnrollment enrollment) throws SQLException {
+        stmt.setInt(1, enrollment.getEmployeeId());
+        stmt.setInt(2, enrollment.getCourseId());
+
+        int status;
+        switch (enrollment.getStatus()) {
+            case TrainingEnrollmentDTO.Status.ENROLLED -> status = 1;
+            case TrainingEnrollmentDTO.Status.COMPLETED -> status = 2;
+            case TrainingEnrollmentDTO.Status.CANCELLED -> status = 3;
+            default -> status = 4;
+        }
+
+//        int status =
+//            enrollment.getStatus() == TrainingEnrollmentDTO.Status.ENROLLED ? 1
+//            : enrollment.getStatus() == TrainingEnrollmentDTO.Status.COMPLETED ? 2
+//            : enrollment.getStatus() == TrainingEnrollmentDTO.Status.CANCELLED ? 3
+//            : 4
+//        ;
+
+        stmt.setInt(3, status);
+    }
+
+    // Update your save() method to utilize it
+    @Override
+    public void save(TrainingEnrollment enrollment) {
+        // We focus on INSERT for enrollments usually
+        String sql = "INSERT INTO training_enrollments (employee_id, course_id, status) VALUES (?, ?, ?)";
+
+        ErrorContext errorContext = ErrorContext.forOperation(
+            "training-enrollment.create"
+        );
+
+        try (java.sql.Connection conn = dbManager.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+
+            // USE THE HELPER METHOD HERE
+            setSaveParameters(stmt, enrollment);
+
+            stmt.executeUpdate();
+
+            try (java.sql.ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) enrollment.setId(keys.getInt(1));
+            }
+        } catch (SQLException e) {
+            throw config.translate(e, errorContext);
+        }
+    }
+
+    @Override
+    protected void insert(TrainingEnrollment enrollment) {
+        String sql = "INSERT INTO training_enrollments (employee_id, course_id, status) VALUES (?, ?, ?)";
+        Connection conn = null;
+        try {
+            conn = dbManager.getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                setSaveParameters(stmt, enrollment);
+                stmt.executeUpdate();
+
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) enrollment.setId(keys.getInt(1));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error inserting enrollment", e);
+        } finally {
+            dbManager.releaseConnection(conn);
+        }
+    }
+
+    @Override
+    protected void update(TrainingEnrollment enrollment) {
+        String sql = "UPDATE training_enrollments SET employee_id=?, course_id=?, status=? WHERE id=?";
+        executeUpdate(sql, stmt -> {
+            setSaveParameters(stmt, enrollment);
+            stmt.setInt(4, enrollment.getId());
+        });
+    }
+
+    private static TrainingEnrollmentDTO.Status mapRole(Integer statusId) {
+        if (statusId == null)
+            throw new IllegalStateException("users.status_id is NULL");
+
+        return switch (statusId) {
+            case 1 -> TrainingEnrollmentDTO.Status.ENROLLED;
+            case 2 -> TrainingEnrollmentDTO.Status.COMPLETED;
+            case 3 -> TrainingEnrollmentDTO.Status.CANCELLED;
+            case 4 -> TrainingEnrollmentDTO.Status.FAILED;
+            default -> throw new IllegalArgumentException("Unknown users.status_id=" + statusId);
+        };
+    }
+
+
+//    protected void setSaveParameters(PreparedStatement stmt, TrainingEnrollment enrollment) throws SQLException {
+//        stmt.setInt(1, enrollment.getEmployeeId());
+//        stmt.setInt(2, enrollment.getCourseId());
+//        stmt.setString(3, enrollment.getStatus());
+//    }
+}
