@@ -15,6 +15,8 @@ public class FXMLPaths {
 
     public static final String EMPLOYEE_MANAGEMENT = BASE + "EmployeeManagementView" + EXTENSION;
 
+    public static final String DASHBOARD = BASE + "DashboardView" + EXTENSION;
+
     public static final String LEAVE = BASE + "LeaveView" + EXTENSION;
 
     public static final String BENEFITS = BASE + "BenefitsView" + EXTENSION;

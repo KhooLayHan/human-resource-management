@@ -202,13 +202,18 @@ public class MainController {
     private void loadDashboardView() {
         currentViewLabel.setText("Dashboard");
 
+        logger.info("Loading Dashboard View...");
+
+        ViewManager.loadView(contentArea,
+            FXMLPaths.DASHBOARD);
+
         // Uses the ViewManager to load the appropriate dashboard
-        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
-            ViewManager.loadView(contentArea, FXMLPaths.EMPLOYEE_MANAGEMENT);
-        } else {
+//        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
+//            ViewManager.loadView(contentArea, FXMLPaths.EMPLOYEE_MANAGEMENT);
+//        } else {
             // Placeholder to load other employee-specific Dashboard views. For instance:
             // ViewManager.loadView(contentArea, "/org/bhel/hrm/client/view/EmployeeDashboardView.fxml");
-        }
+//        }
     }
 
     /**
@@ -276,6 +281,8 @@ public class MainController {
      */
     private void loadProfileView() {
         logger.info("Loading Profile View...");
+//
+//        ViewManager.loadView(contentArea, FXMLPaths.PROFILE);
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.PROFILE));

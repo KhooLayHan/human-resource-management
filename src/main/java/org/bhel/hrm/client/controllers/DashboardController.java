@@ -9,9 +9,9 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import org.bhel.hrm.client.services.ServiceManager;
+import org.bhel.hrm.client.utils.DialogManager;
 import org.bhel.hrm.common.dtos.DashboardDTO;
 import org.bhel.hrm.common.dtos.UserDTO;
-import org.controlsfx.control.spreadsheet.Picker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,14 +111,25 @@ public class DashboardController implements Initializable {
     }
 
     private void loadDashboardData() {
-        Task<DashboardDTO> task = new Task<>() {
+        Task<DashboardDTO> loadDashboardTask = new Task<>() {
             @Override
             protected DashboardDTO call() throws Exception {
-//                return serviceManager.getHrmService().get;
+                return serviceManager.getHrmService().generateDashboard(currentUser.id());
             }
         };
 
-        task.setOnSucceeded(e -> updateUI(task.getValue()));
+        loadDashboardTask.setOnSucceeded(e -> updateUI(loadDashboardTask.getValue()));
+
+        loadDashboardTask.setOnFailed(e ->
+            DialogManager.showErrorDialog(
+                "Dashboard Error",
+                "Failed to load dashboard data."
+            ));
+
+        if (executorService != null)
+            executorService.submit(loadDashboardTask);
+        else
+            new Thread(loadDashboardTask).start();
     }
 
     private void updateUI(DashboardDTO dashboard) {
