@@ -1,0 +1,97 @@
+/* COMPONENT STYLES */
+
+/* Buttons */
+.button-primary {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-primary:hover {
+    -fx-background-color: #0056b3;
+}
+
+.button-secondary {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-secondary:hover {
+    -fx-background-color: #5a6268;
+}
+
+.button-secondary-small {
+    -fx-font-size: 12px;
+    -fx-padding: 5 12 5 12;
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+}
+
+.button-secondary-small:hover {
+    -fx-background-color: #5a6268;
+}
+
+.button-success {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-success:hover {
+    -fx-background-color: #218838;
+}
+
+.button-danger {
+    -fx-background-color: #f8d7da;
+    -fx-text-fill: #721c24;
+}
+
+.button-danger:hover {
+    -fx-background-color: #f5c6cb;
+}
+
+.button-bar {
+    -fx-padding: 10 0 0 0;
+}
+
+/* Profile View Specific Styles */
+.profile-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);
+}
+
+/* Badges */
+.role-badge {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #1976d2;
+    -fx-padding: 4 12 4 12;
+    -fx-background-radius: 12;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.edit-indicator {
+    -fx-background-color: #fff3cd;
+    -fx-text-fill: #856404;
+    -fx-padding: 4 12 4 12;
+    -fx-background-radius: 12;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Form Fields */
+.readonly-field {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e9ecef;
+    -fx-text-fill: #495057;
+}
+
+.password-placeholder {
+    -fx-font-size: 18px;
+    -fx-text-fill: #6c757d;
+    -fx-padding: 5 10 5 10;
+}

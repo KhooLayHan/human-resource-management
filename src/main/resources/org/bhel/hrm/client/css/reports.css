@@ -1,0 +1,6 @@
+/* REPORT MANAGEMENT STYLES */
+
+.report-text-area {
+    -fx-font-family: Monospaced;
+    -fx-font-size: 13px;
+}
