@@ -110,9 +110,9 @@
     -fx-background-color: #d5dbdb;
 }
 
-.dashboard-action-button:pressed {
-    -fx-background-color: #bdc3c7;
-}
+/*.dashboard-action-button:m {*/
+/*    -fx-background-color: #bdc3c7;*/
+/*}*/
 
 .dashboard-action-button .ikonli-font-icon {
     -fx-icon-color: #7f8c8d;
@@ -125,9 +125,9 @@
     -fx-border-width: 0 0 1 0;
 }
 
-.activity-item:last-child {
-    -fx-border-width: 0;
-}
+/*.activity-item:last-child {*/
+/*    -fx-border-width: 0;*/
+/*}*/
 
 .activity-text {
     -fx-font-size: 13px;
@@ -183,13 +183,13 @@
     -fx-background-color: transparent;
 }
 
-.dashboard-scroll-pane .scroll-bar:vertical {
-    -fx-pref-width: 8px;
-}
+/*.dashboard-scroll-pane .scroll-bar:vertical {*/
+/*    -fx-pref-width: 8px;*/
+/*}*/
 
-.dashboard-scroll-pane .scroll-bar:horizontal {
-    -fx-pref-height: 8px;
-}
+/*.dashboard-scroll-pane .scroll-bar:horizontal {*/
+/*    -fx-pref-height: 8px;*/
+/*}*/
 
 .dashboard-scroll-pane .scroll-bar .thumb {
     -fx-background-color: #bdc3c7;

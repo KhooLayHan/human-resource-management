@@ -4,18 +4,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="mainPane" prefHeight="720.0" prefWidth="1280.0"
-            stylesheets="@../css/style.css"
+            stylesheets="
+                @../css/base.css,
+                @../css/layout.css,
+                @../css/components.css,
+                @../css/dashboard.css,
+                @../css/employee.css,
+                @../css/login.css,
+                @../css/reports.css
+            "
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.bhel.hrm.client.controllers.MainController">
-
-<!--    <stylesheets>-->
-<!--        <String fx:value="../css/style.css"/>-->
-<!--        <String fx:value="@../css/layout.css"/>-->
-<!--        <String fx:value="@../css/components.css"/>-->
-<!--        <String fx:value="@../css/dashboard.css"/>-->
-<!--        <String fx:value="@../css/employee.css"/>-->
-<!--        <String fx:value="@../css/login.css"/>-->
-<!--    </stylesheets>-->
 
     <!-- LEFT: Vertical Navigation Bar -->
     <left>
