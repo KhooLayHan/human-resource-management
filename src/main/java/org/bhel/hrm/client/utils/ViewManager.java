@@ -7,6 +7,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import org.bhel.hrm.client.controllers.DashboardController;
+import org.bhel.hrm.client.controllers.MainController;
+import org.bhel.hrm.client.services.ServiceManager;
+import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +82,51 @@ public class ViewManager {
                     "Could not load the requested view. Please try again."
             );
             return null;
+        }
+    }
+
+    /**
+     * Loads a view with proper dependency injection for controllers that need it.
+     */
+    public static void loadViewWithDependencies(
+        StackPane container,
+        String fxmlPath,
+        ServiceManager serviceManager,
+        ExecutorService executorService,
+        UserDTO currentUser,
+        MainController mainController
+    ) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                Objects.requireNonNull(ViewManager.class.getResource(fxmlPath)));
+            Parent view = loader.load();
+
+            Object controller = loader.getController();
+
+            switch (controller) {
+                case DashboardController dashboardController -> {
+                    dashboardController.initDependencies(
+                        serviceManager,
+                        executorService,
+                        currentUser,
+                        mainController
+                    );
+                }
+                default -> {
+                    throw new UnsupportedOperationException("not yet");
+                }
+            }
+
+            container.getChildren().setAll(view);
+            logger.debug("Loading view: {}", fxmlPath);
+        } catch (IOException | NullPointerException e) {
+            logger.error("Failed to load view: {}", fxmlPath, e);
+            showErrorInContainer(container, fxmlPath);
+
+            DialogManager.showErrorDialog(
+                "View Load Error",
+                "Could not load the requested view. Please try again."
+            );
         }
     }
 

@@ -18,5 +18,8 @@ public record DashboardDTO(
     int openJobPositions,
 
     // Charts
-    Map<String, Integer> departmentDistribution
+    Map<String, Integer> departmentDistribution,
+    Map<String, Integer> leaveStatusBreakdown,
+    Map<String, Integer> recruitmentPipelineData,
+    Map<String, Integer> trainingEnrollmentTrend
 ) implements Serializable {}

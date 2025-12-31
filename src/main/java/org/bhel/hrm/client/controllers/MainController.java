@@ -201,11 +201,16 @@ public class MainController {
      */
     private void loadDashboardView() {
         currentViewLabel.setText("Dashboard");
-
         logger.info("Loading Dashboard View...");
 
-        ViewManager.loadView(contentArea,
-            FXMLPaths.DASHBOARD);
+        ViewManager.loadViewWithDependencies(
+            contentArea,
+            FXMLPaths.DASHBOARD,
+            serviceManager,
+            executorService,
+            currentUser,
+            this
+        );
 
         // Uses the ViewManager to load the appropriate dashboard
 //        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
@@ -471,6 +476,13 @@ public class MainController {
         } else {
             logger.error("MainClient reference is null, cannot return to login.");
         }
+    }
+
+    /**
+     * Public method to allow dashboard to trigger navigation
+     */
+    public void navigateToView() {
+
     }
 
     public ServiceManager getServiceManager() {

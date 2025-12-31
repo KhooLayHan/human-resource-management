@@ -185,7 +185,7 @@
                               iconColor="#7f8c8d"/>
                 </graphic>
             </Label>
-            <PieChart fx:id="deptPieChart"
+            <PieChart fx:id="departmentPieChart"
                       legendVisible="false"
                       VBox.vgrow="ALWAYS"
                       minHeight="280"/>
@@ -337,7 +337,8 @@
                 <Button fx:id="buttonGenerateReports"
                         text="Generate Reports"
                         maxWidth="Infinity"
-                        styleClass="button-secondary">
+                        styleClass="button-secondary"
+                        onAction="#handleNavigateToReports">
                     <graphic>
                         <FontIcon iconLiteral="mdi2f-file-chart"
                                   iconSize="16"/>
