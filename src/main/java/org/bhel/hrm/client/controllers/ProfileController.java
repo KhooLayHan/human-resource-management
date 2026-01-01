@@ -40,7 +40,7 @@ public class ProfileController {
 
     private ServiceManager serviceManager;
     private ExecutorService executorService;
-    private MainController mainController
+    private MainController mainController;
 
     @FXML
     public void initialize() {
