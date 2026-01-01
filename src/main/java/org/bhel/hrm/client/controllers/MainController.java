@@ -7,8 +7,6 @@ import javafx.application.Platform;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -29,7 +27,6 @@ import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
@@ -114,7 +111,7 @@ public class MainController {
         buildNavigationMenu();
 
         // Load initial dashboard view
-        loadDashboardView();
+        navigateToView(ViewType.DASHBOARD);
 
         // Start background services
         startClock();
@@ -221,23 +218,6 @@ public class MainController {
     }
 
     /**
-     * Loads the dashboard view based on user role.
-     */
-    private void loadDashboardView() {
-        currentViewLabel.setText("Dashboard");
-        logger.info("Loading Dashboard View...");
-
-        ViewManager.loadViewWithDependencies(
-            contentArea,
-            FXMLPaths.DASHBOARD,
-            serviceManager,
-            executorService,
-            currentUser,
-            this
-        );
-    }
-
-    /**
      * Loads the employee management view.
      */
     private void loadEmployeeManagementView() {
@@ -297,30 +277,30 @@ public class MainController {
             FXMLPaths.TRAINING_CATALOG);
     }
 
-    /**
-     * Loads the profile view.
-     */
-    private void loadProfileView() {
-        logger.info("Loading Profile View...");
+//    /**
+//     * Loads the profile view.
+//     */
+//    private void loadProfileView() {
+//        logger.info("Loading Profile View...");
+////
+////        ViewManager.loadView(contentArea, FXMLPaths.PROFILE);
 //
-//        ViewManager.loadView(contentArea, FXMLPaths.PROFILE);
-
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.PROFILE));
-            Parent view = loader.load();
-
-            ProfileController controller = loader.getController();
-            controller.setDependencies(serviceManager, executorService, currentUser);
-
-            contentArea.getChildren().setAll(view);
-        } catch (IOException e) {
-            logger.error("Failed to load Profile view.");
-            DialogManager.showErrorDialog(
-                "View Load Error",
-                "Could not load the profile view. Please try again."
-            );
-        }
-    }
+//        try {
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.PROFILE));
+//            Parent view = loader.load();
+//
+//            ProfileController controller = loader.getController();
+//            controller.setDependencies(serviceManager, executorService, currentUser);
+//
+//            contentArea.getChildren().setAll(view);
+//        } catch (IOException e) {
+//            logger.error("Failed to load Profile view.");
+//            DialogManager.showErrorDialog(
+//                "View Load Error",
+//                "Could not load the profile view. Please try again."
+//            );
+//        }
+//    }
 
     /**
      * Starts the clock that updates the current time display.

@@ -9,7 +9,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import org.bhel.hrm.client.constants.ViewType;
 import org.bhel.hrm.client.controllers.DashboardController;
-import org.bhel.hrm.client.controllers.EmployeeManagementController;
 import org.bhel.hrm.client.controllers.MainController;
 import org.bhel.hrm.client.controllers.ProfileController;
 import org.bhel.hrm.client.services.ServiceManager;
@@ -175,52 +174,6 @@ public class ViewManager {
             return null;
         }
     }
-
-//    /**
-//     * @deprecated  Loads a view with proper dependency injection for controllers that need it.
-//     */
-//    @Deprecated(since="0.7.0", forRemoval=false)
-//    public static void loadViewWithDependencies(
-//        StackPane container,
-//        String fxmlPath,
-//        ServiceManager serviceManager,
-//        ExecutorService executorService,
-//        UserDTO currentUser,
-//        MainController mainController
-//    ) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(
-//                Objects.requireNonNull(ViewManager.class.getResource(fxmlPath)));
-//            Parent view = loader.load();
-//
-//            Object controller = loader.getController();
-//
-//            switch (controller) {
-//                case DashboardController dashboardController -> {
-//                    dashboardController.initDependencies(
-//                        serviceManager,
-//                        executorService,
-//                        currentUser,
-//                        mainController
-//                    );
-//                }
-//                default -> {
-//                    throw new UnsupportedOperationException("not yet");
-//            }
-//            }
-//
-//            container.getChildren().setAll(view);
-//            logger.debug("Loading view: {}", fxmlPath);
-//        } catch (IOException | NullPointerException e) {
-//            logger.error("Failed to load view: {}", fxmlPath, e);
-//            showErrorInContainer(container, fxmlPath);
-//
-//            DialogManager.showErrorDialog(
-//                LOAD_TITLE_ERROR,
-//                LOAD_MESSAGE_ERROR
-//            );
-//        }
-//    }
 
     /**
      * Loads a view asynchronously with a loading indicator.
