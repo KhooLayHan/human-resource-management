@@ -7,7 +7,10 @@ import java.util.Set;
 
 /**
  * Enumeration of all available views in the application.
- * Each view has an associated FXML path and role permissions.
+ * <p>
+ * Each enum constant represents a distinct UI view with an associated display name,
+ * FXML file path, and a set of user roles that are permitted to access it.
+ * This design enables centralized, type-safe view management and role-based access control.
  */
 public enum ViewType {
     // Common
@@ -22,7 +25,7 @@ public enum ViewType {
     // HR Staff
     EMPLOYEE_MANAGEMENT("Employee Management", FXMLPaths.EMPLOYEE_MANAGEMENT, EnumSet.of(UserDTO.Role.HR_STAFF)),
     RECRUITMENT("Recruitment", FXMLPaths.RECRUITMENT, EnumSet.of(UserDTO.Role.HR_STAFF)),
-    TRAINING_ADMIN("Training Admin", FXMLPaths.TRAINING_ADMIN, EnumSet.of(UserDTO.Role.HR_STAFF))
+    TRAINING_ADMIN("Training Admin", FXMLPaths.TRAINING_ADMIN, EnumSet.of(UserDTO.Role.HR_STAFF));
 
     private final String displayName;
     private final String fxmlPath;
@@ -50,17 +53,26 @@ public enum ViewType {
         return allowedRoles;
     }
 
+    /**
+     * Checks if this view is accessible to the specified user role.
+     *
+     * @param role The user role to check
+     * @return {@code true} if the role is allowed to access this view, false otherwise
+     */
     public boolean isAllowedForRole(UserDTO.Role role) {
         return allowedRoles.contains(role);
     }
 
     /**
-     * Get all views accessible by a specific role
+     * Retrieves all views that are accessible to the specified user role.
+     *
+     * @param role The user role for which to find accessible views
+     * @return An EnumSet containing all {@link ViewType} constants accessible to the role
      */
     public static Set<ViewType> getViewsForRole(UserDTO.Role role) {
         Set<ViewType> views = EnumSet.noneOf(ViewType.class);
 
-        for (ViewType view: values()) {
+        for (ViewType view : values()) {
             if (view.isAllowedForRole(role))
                 views.add(view);
         }
