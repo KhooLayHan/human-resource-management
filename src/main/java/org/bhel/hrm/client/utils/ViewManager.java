@@ -7,8 +7,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import org.bhel.hrm.client.constants.ViewType;
 import org.bhel.hrm.client.controllers.DashboardController;
+import org.bhel.hrm.client.controllers.EmployeeManagementController;
 import org.bhel.hrm.client.controllers.MainController;
+import org.bhel.hrm.client.controllers.ProfileController;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
@@ -21,8 +24,96 @@ import java.util.concurrent.ExecutorService;
 public class ViewManager {
     private static final Logger logger = LoggerFactory.getLogger(ViewManager.class);
 
+    private static final String LOAD_TITLE_ERROR = "View Load Error";
+    private static final String LOAD_MESSAGE_ERROR = "Could not load the requested view. Please try again.";
+
     private ViewManager() {
         throw new UnsupportedOperationException("ViewManager is a utility class and should not be instantiated.");
+    }
+
+    /**
+     * Load a view using ViewType enum with automatic dependency injection.
+     * This is the PREFERRED method for loading views.
+     */
+    public static void loadView(
+        StackPane container,
+        ViewType viewType,
+        ServiceManager serviceManager,
+        ExecutorService executorService,
+        UserDTO currentUser,
+        MainController mainController
+    ) {
+        // Check permissions
+        if (!viewType.isAllowedForRole(currentUser.role())) {
+            logger.warn("User {} attempted to access unauthorized view: {}",
+                currentUser.username(), viewType.getDisplayName());
+            DialogManager.showWarningDialog(
+                "Access Denied",
+                "You do not have permission to access this view."
+            );
+
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    Objects.requireNonNull(ViewManager.class.getResource(viewType.getFxmlPath())));
+            Parent view = loader.load();
+
+            Object controller = loader.getController();
+            navigateToController(controller, serviceManager, executorService, currentUser, mainController);
+
+            container.getChildren().setAll(view);
+            logger.debug("Loaded view: {} for user: {}",
+                viewType.getDisplayName(), currentUser.username());
+        } catch (IOException e) {
+            logger.error("Failed to load view: {}", viewType.getDisplayName(), e);
+            showErrorInContainer(container, viewType.getFxmlPath());
+
+            DialogManager.showErrorDialog(
+                LOAD_TITLE_ERROR,
+                LOAD_MESSAGE_ERROR
+            );
+        }
+    }
+
+    private static void navigateToController(
+        Object controller,
+        ServiceManager serviceManager,
+        ExecutorService executorService,
+        UserDTO currentUser,
+        MainController mainController
+    ) {
+        if (controller == null) {
+            logger.warn("Controller is null, cannot inject dependencies.");
+            return;
+        }
+
+        switch (controller) {
+            case DashboardController dashboardController ->
+                dashboardController.initDependencies(
+                    serviceManager,
+                    executorService,
+                    currentUser,
+                    mainController
+                );
+            case ProfileController profileController ->
+                profileController.initDependencies(
+                    serviceManager,
+                    executorService,
+                    currentUser,
+                    mainController
+                );
+//            case EmployeeManagementController employeeManagementController ->
+//                employeeManagementController.setDependencies(
+//                    serviceManager,
+//                    executorService,
+//                    currentUser
+//                );
+            default ->
+                logger.debug("No dependency injection configured for controller: {}",
+                    controller.getClass().getSimpleName());
+        }
     }
 
     /**
@@ -43,7 +134,7 @@ public class ViewManager {
             showErrorInContainer(container, fxmlPath);
 
             DialogManager.showErrorDialog(
-                "View Load Error",
+                LOAD_TITLE_ERROR,
                 "Could not load the requested view: " + fxmlPath
             );
         } catch (NullPointerException e) {
@@ -74,61 +165,62 @@ public class ViewManager {
 
             return loader.getController();
         } catch (IOException | NullPointerException e) {
-            logger.error("Failed to load view: {}", fxmlPath, e);
+            logger.error("Failed to load view with controller: {}", fxmlPath, e);
             showErrorInContainer(container, fxmlPath);
 
             DialogManager.showErrorDialog(
-                    "View Load Error",
-                    "Could not load the requested view. Please try again."
+                LOAD_TITLE_ERROR,
+                LOAD_MESSAGE_ERROR
             );
             return null;
         }
     }
 
-    /**
-     * Loads a view with proper dependency injection for controllers that need it.
-     */
-    public static void loadViewWithDependencies(
-        StackPane container,
-        String fxmlPath,
-        ServiceManager serviceManager,
-        ExecutorService executorService,
-        UserDTO currentUser,
-        MainController mainController
-    ) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                Objects.requireNonNull(ViewManager.class.getResource(fxmlPath)));
-            Parent view = loader.load();
-
-            Object controller = loader.getController();
-
-            switch (controller) {
-                case DashboardController dashboardController -> {
-                    dashboardController.initDependencies(
-                        serviceManager,
-                        executorService,
-                        currentUser,
-                        mainController
-                    );
-                }
-                default -> {
-                    throw new UnsupportedOperationException("not yet");
-                }
-            }
-
-            container.getChildren().setAll(view);
-            logger.debug("Loading view: {}", fxmlPath);
-        } catch (IOException | NullPointerException e) {
-            logger.error("Failed to load view: {}", fxmlPath, e);
-            showErrorInContainer(container, fxmlPath);
-
-            DialogManager.showErrorDialog(
-                "View Load Error",
-                "Could not load the requested view. Please try again."
-            );
-        }
-    }
+//    /**
+//     * @deprecated  Loads a view with proper dependency injection for controllers that need it.
+//     */
+//    @Deprecated(since="0.7.0", forRemoval=false)
+//    public static void loadViewWithDependencies(
+//        StackPane container,
+//        String fxmlPath,
+//        ServiceManager serviceManager,
+//        ExecutorService executorService,
+//        UserDTO currentUser,
+//        MainController mainController
+//    ) {
+//        try {
+//            FXMLLoader loader = new FXMLLoader(
+//                Objects.requireNonNull(ViewManager.class.getResource(fxmlPath)));
+//            Parent view = loader.load();
+//
+//            Object controller = loader.getController();
+//
+//            switch (controller) {
+//                case DashboardController dashboardController -> {
+//                    dashboardController.initDependencies(
+//                        serviceManager,
+//                        executorService,
+//                        currentUser,
+//                        mainController
+//                    );
+//                }
+//                default -> {
+//                    throw new UnsupportedOperationException("not yet");
+//            }
+//            }
+//
+//            container.getChildren().setAll(view);
+//            logger.debug("Loading view: {}", fxmlPath);
+//        } catch (IOException | NullPointerException e) {
+//            logger.error("Failed to load view: {}", fxmlPath, e);
+//            showErrorInContainer(container, fxmlPath);
+//
+//            DialogManager.showErrorDialog(
+//                LOAD_TITLE_ERROR,
+//                LOAD_MESSAGE_ERROR
+//            );
+//        }
+//    }
 
     /**
      * Loads a view asynchronously with a loading indicator.

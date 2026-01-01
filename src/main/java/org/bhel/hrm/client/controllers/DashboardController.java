@@ -12,6 +12,7 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.bhel.hrm.client.constants.ViewType;
@@ -30,6 +31,7 @@ public class DashboardController {
 
     // Header
     @FXML private Label welcomeLabel;
+    @FXML private FlowPane cardsContainer;
 
     // Employee Cards
     @FXML private HBox cardAnnualLeave;

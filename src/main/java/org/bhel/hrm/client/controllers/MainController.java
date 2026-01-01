@@ -21,6 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.bhel.hrm.client.MainClient;
 import org.bhel.hrm.client.constants.FXMLPaths;
+import org.bhel.hrm.client.constants.ViewType;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
 import org.bhel.hrm.client.utils.ViewManager;
@@ -130,7 +131,7 @@ public class MainController {
     public void refreshNavigation() {
         activeButton = null;
         buildNavigationMenu();
-        loadDashboardView();
+        navigateToView(ViewType.DASHBOARD);
     }
 
     /**
@@ -139,32 +140,38 @@ public class MainController {
     private void buildNavigationMenu() {
         navigationVBox.getChildren().clear(); // Clear any existing buttons
 
-        // Always add a Dashboard button
-        addNavigationBtn("Dashboard", this::loadDashboardView);
+        // Get all views allowed for current user's role
+        for (ViewType viewType : ViewType.getViewsForRole(currentUser.role()))
+            addNavigationBtn(viewType);
 
-        // Role-based navigation
-        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
-            addNavigationBtn("Employee Management", this::loadEmployeeManagementView);
-            addNavigationBtn("Recruitment", this::loadRecruitmentView);
-            addNavigationBtn("Training Admin", this::loadTrainingAdminView);
-        }
-
-        if (
-            currentUser.role() == UserDTO.Role.EMPLOYEE ||
-            currentUser.role() == UserDTO.Role.HR_STAFF
-        ) {
-            addNavigationBtn("Leave", this::loadLeaveView);
-            addNavigationBtn("Benefits", this::loadBenefitsView);
-            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
-            addNavigationBtn("My Profile", this::loadProfileView);
-        }
+//        // Always add a Dashboard button
+//        addNavigationBtn("Dashboard", this::loadDashboardView);
+//
+//        // Role-based navigation
+//        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
+//            addNavigationBtn("Employee Management", this::loadEmployeeManagementView);
+//            addNavigationBtn("Recruitment", this::loadRecruitmentView);
+//            addNavigationBtn("Training Admin", this::loadTrainingAdminView);
+//        }
+//
+//        if (
+//            currentUser.role() == UserDTO.Role.EMPLOYEE ||
+//            currentUser.role() == UserDTO.Role.HR_STAFF
+//        ) {
+//            addNavigationBtn("Leave", this::loadLeaveView);
+//            addNavigationBtn("Benefits", this::loadBenefitsView);
+//            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
+//            addNavigationBtn("My Profile", this::loadProfileView);
+//        }
     }
 
-    /** Helper method to create and add a styled navigation button. */
-    private void addNavigationBtn(String text, Runnable action) {
+    /**
+     * Helper method to create and add a styled navigation button.
+     */
+    private void addNavigationBtn(ViewType viewType) {
         final String NAV_BUTTON_STYLE = "nav-button-active";
 
-        Button button = new Button(text);
+        Button button = new Button(viewType.getDisplayName());
         button.setMaxWidth(Double.MAX_VALUE);
         button.getStyleClass().add("nav-button");
 
@@ -178,13 +185,13 @@ public class MainController {
             activeButton = button;
 
             // Update current view label
-            currentViewLabel.setText(text);
+            currentViewLabel.setText(viewType.getDisplayName());
 
             // Reset session timer on user activity
             // resetSessionTimer();
 
             // Execute the navigation action
-            action.run();
+            navigateToView(viewType);
         });
 
         navigationVBox.getChildren().add(button);
@@ -194,6 +201,23 @@ public class MainController {
             button.getStyleClass().add(NAV_BUTTON_STYLE);
             activeButton = button;
         }
+    }
+
+    /**
+     * Navigate to a specific view using ViewManager with ViewType enum.
+     * This is the main navigation method used throughout the application.
+     */
+    public void navigateToView(ViewType viewType) {
+        logger.info("Navigating to view: {}", viewType.getDisplayName());
+
+        ViewManager.loadView(
+            contentArea,
+            viewType,
+            serviceManager,
+            executorService,
+            currentUser,
+            this
+        );
     }
 
     /**
@@ -211,14 +235,6 @@ public class MainController {
             currentUser,
             this
         );
-
-        // Uses the ViewManager to load the appropriate dashboard
-//        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
-//            ViewManager.loadView(contentArea, FXMLPaths.EMPLOYEE_MANAGEMENT);
-//        } else {
-            // Placeholder to load other employee-specific Dashboard views. For instance:
-            // ViewManager.loadView(contentArea, "/org/bhel/hrm/client/view/EmployeeDashboardView.fxml");
-//        }
     }
 
     /**
@@ -476,13 +492,6 @@ public class MainController {
         } else {
             logger.error("MainClient reference is null, cannot return to login.");
         }
-    }
-
-    /**
-     * Public method to allow dashboard to trigger navigation
-     */
-    public void navigateToView() {
-
     }
 
     public ServiceManager getServiceManager() {
