@@ -5,7 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
@@ -15,17 +14,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.bhel.hrm.client.constants.ViewType;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
-import org.bhel.hrm.client.utils.ViewManager;
 import org.bhel.hrm.common.dtos.DashboardDTO;
 import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
 public class DashboardController {
@@ -82,9 +79,6 @@ public class DashboardController {
     @FXML private Button buttonManageRecruitment;
     @FXML private Button buttonGenerateReports;
 
-    @FXML private URL url;
-    @FXML private ResourceBundle resourceBundle;
-
     private ServiceManager serviceManager;
     private ExecutorService executorService;
     private UserDTO currentUser;
@@ -98,21 +92,7 @@ public class DashboardController {
         }
 
         setupRoleBasedView();
-        setupQuickActions();
         loadDashboardData();
-
-//        departmentPieChart.setAnimated(true);
-//
-//        cardTotalEmployees.sceneProperty().addListener(
-//            (
-//            observable,
-//            oldScene,
-//            newScene
-//            ) -> {
-//                if (newScene != null)
-//                    initDependencies();
-//            }
-//        );
     }
 
     public void initDependencies(
@@ -127,41 +107,6 @@ public class DashboardController {
         this.mainController = mainController;
 
         initialize();
-//        try {
-//            MainController mainController = getMainController();
-//
-//            if (mainController != null) {
-//                serviceManager = mainController.getServiceManager();
-//                this.executorService = mainController.getExecutorService();
-//
-//                if (serviceManager != null)
-//                    this.currentUser = mainController.getCurrentUser();
-//            }
-//
-//            setupRoleBasedView();
-//            loadDashboardData();
-//        } catch (Exception e) {
-//            logger.error("Failed to inject dependencies", e);
-//        }
-    }
-
-    /**
-     * Gets the MainController from the scene graph.
-     */
-    private MainController getMainController() {
-        try {
-            if (
-                cardTotalEmployees.getScene() != null &&
-                cardTotalEmployees.getScene().getRoot() != null
-            ) {
-                return (MainController) cardTotalEmployees.getScene()
-                    .getRoot().getProperties().get("mainController");
-            }
-        } catch (Exception e) {
-            logger.error("Failed to get MainController.", e);
-        }
-
-        return null;
     }
 
     /**
@@ -199,14 +144,6 @@ public class DashboardController {
         setVisible(buttonGenerateReports, isHr);
     }
 
-    /**
-     * Setup quick action button handlers
-     */
-    private void setupQuickActions() {
-//        if (buttonApplyLeave != null)
-//            buttonApplyLeave.setOnAction(e -> navigateToLeave());
-    }
-
     private void loadDashboardData() {
         Task<DashboardDTO> loadDashboardTask = new Task<>() {
             @Override
@@ -232,20 +169,6 @@ public class DashboardController {
     }
 
     private void updateUI(DashboardDTO dashboard) {
-//        labelTotalEmployees.setText(String.valueOf(dashboard.totalEmployees()));
-//        labelPendingLeaves.setText(String.valueOf(dashboard.pendingLeaveRequests()));
-//        labelOpenJobs.setText(String.valueOf(dashboard.openJobPositions()));
-//        labelAnnualLeave.setText(String.valueOf(dashboard.annualLeaveBalance()));
-//
-//        if (dashboard.departmentDistribution() != null) {
-//            ObservableList<PieChart.Data> chartData = FXCollections.observableArrayList();
-//
-//            dashboard.departmentDistribution().forEach((dept, count) ->
-//                chartData.add(new PieChart.Data(dept, count)));
-//
-//            departmentPieChart.setData(chartData);
-//        }
-
         updateStatCards(dashboard);
         updateCharts(dashboard);
     }
@@ -378,45 +301,51 @@ public class DashboardController {
         }
     }
 
-//    private void navigateToLeave() {
-//        if (mainController != null) {
-//            // Trigger navigation in MainController
-//            // You'll need to expose a method like mainController.navigateToView("Leave")
-//            logger.info("Navigate to Leave view");
+    @FXML
+    private void handleNavigateToLeave() {
+        if (mainController != null) {
+            logger.info("Navigate to Leave view");
+            mainController.navigateToView(ViewType.LEAVE);
+        }
+    }
 
-//            mainController
-//        }
-//    }
-//
-//    private void navigateToProfile() {
-//        if (mainController != null) {
-//            logger.info("Navigate to Profile view");
-//        }
-//    }
-//
-//    private void navigateToTraining() {
-//        if (mainController != null) {
-//            logger.info("Navigate to Training view");
-//        }
-//    }
-//
-//    private void navigateToLeaveManagement() {
-//        if (mainController != null) {
-//            logger.info("Navigate to Leave Management view");
-//        }
-//    }
-//
-//    private void navigateToRecruitment() {
-//        if (mainController != null) {
-//            logger.info("Navigate to Recruitment view");
-//        }
-//    }
+    @FXML
+    private void handleNavigateToProfile() {
+        if (mainController != null) {
+            logger.info("Navigate to Profile view");
+            mainController.navigateToView(ViewType.PROFILE);
+        }
+    }
+
+    @FXML
+    private void handleNavigateToTraining() {
+        if (mainController != null) {
+            logger.info("Navigate to Training view");
+            mainController.navigateToView(ViewType.TRAINING_CATALOG);
+        }
+    }
+
+    @FXML
+    private void handleNavigateToLeaveManagement() {
+        if (mainController != null) {
+            logger.info("Navigate to Leave Management view");
+            mainController.navigateToView(ViewType.LEAVE);
+        }
+    }
+
+    @FXML
+    private void handleNavigateToRecruitment() {
+        if (mainController != null) {
+            logger.info("Navigate to Recruitment view");
+            mainController.navigateToView(ViewType.RECRUITMENT);
+        }
+    }
 
     @FXML
     private void handleNavigateToReports() {
         if (mainController != null) {
             logger.info("Navigate to Reports view");
-            ViewManager.loadView(c);
+            mainController.navigateToView(ViewType.EMPLOYEE_MANAGEMENT);
         }
     }
 }

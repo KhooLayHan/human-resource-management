@@ -284,7 +284,8 @@
                 <Button fx:id="buttonApplyLeave"
                         text="Apply for Leave"
                         maxWidth="Infinity"
-                        styleClass="button-secondary">
+                        styleClass="button-secondary"
+                        onAction="#handleNavigateToLeave">
                     <graphic>
                         <FontIcon iconLiteral="mdi2c-calendar-plus"
                                   iconSize="16"/>
@@ -294,7 +295,8 @@
                 <Button fx:id="buttonViewProfile"
                         text="View My Profile"
                         maxWidth="Infinity"
-                        styleClass="button-secondary">
+                        styleClass="button-secondary"
+                        onAction="#handleNavigateToProfile">
                     <graphic>
                         <FontIcon iconLiteral="mdi2a-account-circle"
                                   iconSize="16"/>
@@ -304,7 +306,8 @@
                 <Button fx:id="buttonBrowseTraining"
                         text="Browse Training Courses"
                         maxWidth="Infinity"
-                        styleClass="button-secondary">
+                        styleClass="button-secondary"
+                        onAction="#handleNavigateToTraining">
                     <graphic>
                         <FontIcon iconLiteral="mdi2b-book-open-variant"
                                   iconSize="16"/>
@@ -317,7 +320,8 @@
                 <Button fx:id="buttonManageLeaveRequests"
                         text="Manage Leave Requests"
                         maxWidth="Infinity"
-                        styleClass="button-secondary">
+                        styleClass="button-secondary"
+                        onAction="#handleNavigateToLeaveManagement">
                     <graphic>
                         <FontIcon iconLiteral="mdi2c-clipboard-check"
                                   iconSize="16"/>
@@ -327,7 +331,8 @@
                 <Button fx:id="buttonManageRecruitment"
                         text="Manage Recruitment"
                         maxWidth="Infinity"
-                        styleClass="button-secondary">
+                        styleClass="button-secondary"
+                        onAction="#handleNavigateToRecruitment">
                     <graphic>
                         <FontIcon iconLiteral="mdi2a-account-plus"
                                   iconSize="16"/>
