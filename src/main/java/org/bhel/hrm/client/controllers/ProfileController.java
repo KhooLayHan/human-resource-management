@@ -23,7 +23,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
-public class ProfileController implements Initializable {
+public class ProfileController {
     private static final Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
     @FXML private PageHeaderController pageHeaderController;
@@ -43,21 +43,24 @@ public class ProfileController implements Initializable {
 
     private ServiceManager serviceManager;
     private ExecutorService executorService;
+    private MainController mainController
 
-    @Override
-    public void initialize(URL location, ResourceBundle resourceBundle) {
+    @FXML
+    public void initialize() {
         pageHeaderController.setTitle("My Profile");
         pageHeaderController.setSubtitle("View and manage your personal information.");
     }
 
-    public void setDependencies(
+    public void initDependencies(
         ServiceManager serviceManager,
         ExecutorService executorService,
-        UserDTO currentUser
+        UserDTO currentUser,
+        MainController mainController
     ) {
         this.serviceManager = serviceManager;
         this.executorService = executorService;
         this.currentUser = currentUser;
+        this.mainController = mainController;
 
         loadProfileData();
     }
