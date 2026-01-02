@@ -95,14 +95,6 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
             case TrainingEnrollmentDTO.Status.CANCELLED -> status = 3;
             default -> status = 4;
         }
-
-//        int status =
-//            enrollment.getStatus() == TrainingEnrollmentDTO.Status.ENROLLED ? 1
-//            : enrollment.getStatus() == TrainingEnrollmentDTO.Status.COMPLETED ? 2
-//            : enrollment.getStatus() == TrainingEnrollmentDTO.Status.CANCELLED ? 3
-//            : 4
-//        ;
-
         stmt.setInt(3, status);
     }
 

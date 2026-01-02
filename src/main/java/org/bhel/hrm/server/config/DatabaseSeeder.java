@@ -164,30 +164,21 @@ public class DatabaseSeeder {
 
             for (int i = 0; i < 10; i++) {
                 TrainingCourse randomCourse = courses.get(random.nextInt(courses.size()));
-//                TrainingEnrollment enrollment = new TrainingEnrollment();
-//                enrollment.setEmployeeId(emp.getId());
-//                enrollment.setCourseId(randomCourse.getId());
-//                // Use the enum
-//                enrollment.setStatus(random.nextBoolean() ? EnrollmentStatus.COMPLETED : EnrollmentStatus.ENROLLED);
 
                 boolean alreadyEnrolled = trainingEnrollmentDAO.findByEmployeeId(emp.getId())
-                        .stream().anyMatch(e -> e.getCourseId() == randomCourse.getId());
+                    .stream().anyMatch(e -> e.getCourseId() == randomCourse.getId());
 
                 if (!alreadyEnrolled) {
-                    TrainingEnrollment enrollment = new TrainingEnrollment();
-                    enrollment.setEmployeeId(emp.getId());
-                    enrollment.setCourseId(randomCourse.getId());
-                    enrollment.setStatus(random.nextBoolean() ? "COMPLETED" : "ENROLLED");
+                    TrainingEnrollment enrollment = new TrainingEnrollment(
+                        emp.getId(),
+                        randomCourse.getId(),
+                        status[random.nextInt(status.length)]
+                    );
+                    // enrollment.setEmployeeId(emp.getId());
+                    // enrollment.setCourseId(randomCourse.getId());
+                    // enrollment.setStatus(r);
 
                     trainingEnrollmentDAO.save(enrollment);
-                }
-//            course.setTitle(faker.educator().course()); // e.g., "Advanced Mathematics"
-//            course.setDescription(faker.lorem().sentence(10));
-//            course.setDurationInHours(faker.number().numberBetween(4, 40));
-//            course.setDepartment();
-
-//                    trainingEnrollmentDAO.save(enrollment);
-                    // ...
                 }
 
             }

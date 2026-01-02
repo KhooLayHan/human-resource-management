@@ -54,36 +54,41 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
     @Override
     protected void insert(TrainingCourse course) {
         String sql = """
-            INSERT INTO
-                training_courses (
-                    title,
-                    description,
-                    duration_in_hours,
-                    department
-                )
-            VALUES (
-                ?,
-                ?,
-                ?,
-                ?
-            )
-        """;
+                    INSERT INTO
+                        training_courses (
+                            title,
+                            description,
+                            duration_in_hours,
+                            department
+                        )
+                    VALUES (
+                        ?,
+                        ?,
+                        ?,
+                        ?
+                    )
+                """;
 
 
         // We use a manual try-catch here because we need the Generated Keys (the new ID)
-        try (Connection conn = dbManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        Connection conn = null;
 
-            setSaveParameters(stmt, course);
+        try {
+            conn = dbManager.getConnection();
 
-            stmt.executeUpdate();
+            try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                setSaveParameters(stmt, course);
+                stmt.executeUpdate();
 
-            // Get the new ID from the database and set it on our object
-            try (ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) course.setId(keys.getInt(1));
+                // Get the new ID from the database and set it on our object
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) course.setId(keys.getInt(1));
+                }
+            } catch (SQLException e) {
+                throw new DataAccessException("Error inserting new training course", e);
             }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error inserting new training course", e);
+        } finally {
+            dbManager.releaseConnection(conn);
         }
     }
 
@@ -110,8 +115,19 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
         stmt.setString(1, course.getTitle());
         stmt.setString(2, course.getDescription());
         stmt.setInt(3, course.getDurationInHours());
-        stmt.setString(4, course.getDepartment());
+
+
+        int department;
+        switch (course.getDepartment()){
+            case TrainingCourseDTO.Department.IT -> department = 1;
+            case TrainingCourseDTO.Department.HR -> department = 2;
+            case TrainingCourseDTO.Department.FINANCE -> department = 3;
+            case TrainingCourseDTO.Department.OPERATIONS -> department = 4;
+            default -> department = 5;
+        }
     }
+
+
 
     // Now, update your save() method to look like this.
     // It uses setSaveParameters for the INSERT logic to keep it clean.
