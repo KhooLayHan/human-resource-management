@@ -88,13 +88,7 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
-        if (currentUser == null) {
-            logger.error("Cannot initialize dashboard without user data");
-            return;
-        }
-
-        setupRoleBasedView();
-        loadDashboardData();
+        logger.info("Initialized DashboardController.");
     }
 
     public void initDependencies(
@@ -108,7 +102,8 @@ public class DashboardController {
         this.currentUser = currentUser;
         this.mainController = mainController;
 
-        initialize();
+        setupRoleBasedView();
+        loadDashboardData();
     }
 
     /**
