@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutorService;
  * Controller for the Employee Management view.
  * Handles displaying, searching, adding, editing, and deleting employees.
  */
-public class EmployeeManagementController implements Initializable {
+public class EmployeeManagementController {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeManagementController.class);
     private static final String EMPLOYEE_TABLE_PLACEHOLDER_MESSAGE =
         "No employees found. Click 'Add New Employee' to get started.";
@@ -62,8 +62,8 @@ public class EmployeeManagementController implements Initializable {
 
     private boolean initialized = false;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    @FXML
+    public void initialize() {
         logger.info("Employee Management Controller initialized.");
 
         // Initialize table columns immediately (doesn't require scene)
