@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
-import com.github.javafaker.Faker;
+import net.datafaker.Faker ;
 import org.bhel.hrm.server.config.DatabaseManager;
 import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.TrainingCourseDAO;
@@ -138,32 +138,62 @@ public class DatabaseSeeder {
 
         for (int i = 0; i < 10; i++) {
             TrainingCourse course = new TrainingCourse(
-                faker.educator().course(),
-                faker.lorem().sentence(10),
-                faker.number().numberBetween(4, 40),
-                departments[random.nextInt(departments.length)]
+                    faker.educator().course(),
+                    faker.lorem().sentence(10),
+                    faker.number().numberBetween(4, 40),
+                    departments[random.nextInt(departments.length)]
             );
 
             trainingCourseDAO.save(course);
         }
     }
-    private void seedEnrollments() {
-        TrainingEnrollmentDTO.Status[] status = TrainingEnrollmentDTO.Status.values();
 
-        for (int i = 0; i < 10; i++) {
-            TrainingEnrollment enrollment = new TrainingEnrollment(
-                faker.educator().course(),
-                faker.lorem().sentence(10),
-                faker.number().numberBetween(4, 40),
-                status[random.nextInt(status.length)]
-            );
+    private void seedEnrollments() {
+        logger.info("Seeding Training Enrollments...");
+
+        List<Employee> employees = employeeDAO.findAll();
+        List<TrainingCourse> courses = trainingCourseDAO.findAll();
+
+        if (employees.isEmpty() || courses.isEmpty()) return;
+
+        // Randomly enroll employees in courses
+        for (Employee emp : employees) {
+            // Enroll each employee in 0 to 3 random courses
+            int numCourses = random.nextInt(4);
+            TrainingEnrollmentDTO.Status[] status = TrainingEnrollmentDTO.Status.values();
+
+            for (int i = 0; i < 10; i++) {
+                TrainingCourse randomCourse = courses.get(random.nextInt(courses.size()));
+//                TrainingEnrollment enrollment = new TrainingEnrollment();
+//                enrollment.setEmployeeId(emp.getId());
+//                enrollment.setCourseId(randomCourse.getId());
+//                // Use the enum
+//                enrollment.setStatus(random.nextBoolean() ? EnrollmentStatus.COMPLETED : EnrollmentStatus.ENROLLED);
+
+                boolean alreadyEnrolled = trainingEnrollmentDAO.findByEmployeeId(emp.getId())
+                        .stream().anyMatch(e -> e.getCourseId() == randomCourse.getId());
+
+                if (!alreadyEnrolled) {
+                    TrainingEnrollment enrollment = new TrainingEnrollment();
+                    enrollment.setEmployeeId(emp.getId());
+                    enrollment.setCourseId(randomCourse.getId());
+                    enrollment.setStatus(random.nextBoolean() ? "COMPLETED" : "ENROLLED");
+
+                    trainingEnrollmentDAO.save(enrollment);
+                }
 //            course.setTitle(faker.educator().course()); // e.g., "Advanced Mathematics"
 //            course.setDescription(faker.lorem().sentence(10));
 //            course.setDurationInHours(faker.number().numberBetween(4, 40));
 //            course.setDepartment();
 
-        trainingEnrollmentDAO.save(enrollment);
-        // ...
-    }
+//                    trainingEnrollmentDAO.save(enrollment);
+                    // ...
+                }
 
+            }
+        }
+    }
 }
+
+
+

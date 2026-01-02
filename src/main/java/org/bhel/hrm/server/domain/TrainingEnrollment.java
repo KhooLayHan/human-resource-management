@@ -28,6 +28,9 @@ public class TrainingEnrollment {
         this.status = status;
     }
 
+    public TrainingEnrollment(String course, String sentence, int i, TrainingEnrollmentDTO.Status status) {
+    }
+
 //    public TrainingEnrollment(int employeeId, int courseId, TrainingEnrollmentDTO.Status status) {
 //        this.employeeId = employeeId;
 //        this.courseId = courseId;
