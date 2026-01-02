@@ -31,8 +31,15 @@ public class ViewManager {
     }
 
     /**
-     * Load a view using ViewType enum with automatic dependency injection.
-     * This is the PREFERRED method for loading views.
+     * Loads a view into the specified container using the given ViewType, with automatic dependency injection.
+     * This is the preferred method for loading views in the application.
+     *
+     * @param container The StackPane where the view will be displayed; must not be null.
+     * @param viewType The enum constant specifying which view to load; must not be null.
+     * @param serviceManager Provides services required by the view's controller; must not be null.
+     * @param executorService Handles background tasks for the controller; must not be null.
+     * @param currentUser The currently logged-in user; used for role-based access control; must not be null.
+     * @param mainController The main application controller; used for navigation coordination; must not be null.
      */
     public static void loadView(
         StackPane container,
@@ -60,6 +67,8 @@ public class ViewManager {
             Parent view = loader.load();
 
             Object controller = loader.getController();
+
+            logger.info("{}", controller);
             navigateToController(controller, serviceManager, executorService, currentUser, mainController);
 
             container.getChildren().setAll(view);
@@ -103,12 +112,6 @@ public class ViewManager {
                     currentUser,
                     mainController
                 );
-//            case EmployeeManagementController employeeManagementController ->
-//                employeeManagementController.setDependencies(
-//                    serviceManager,
-//                    executorService,
-//                    currentUser
-//                );
             default ->
                 logger.debug("No dependency injection configured for controller: {}",
                     controller.getClass().getSimpleName());
