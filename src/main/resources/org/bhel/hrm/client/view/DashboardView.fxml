@@ -19,13 +19,11 @@
             <Label fx:id="welcomeLabel"
                    text="Welcome, User!"
                    styleClass="page-title"/>
-            <Label text="Here is what's happening today."
-                   styleClass="page-subtitle"/>
         </VBox>
 
         <!-- Stats Card Container -->
         <FlowPane fx:id="cardsContainer"
-                  hgap="20" vgap="20"
+                  hgap="15" vgap="15"
                   prefWrapLength="1000">
 
             <!-- Employee Cards -->
@@ -33,7 +31,7 @@
             <!-- Annual Leave Balance -->
             <HBox fx:id="cardAnnualLeave"
                   styleClass="stat-card"
-                  spacing="15"
+                  spacing="12"
                   alignment="CENTER_LEFT">
                 <StackPane styleClass="icon-container, icon-green">
                     <FontIcon iconLiteral="mdi2b-beach"
@@ -41,11 +39,11 @@
                               iconColor="white"/>
                 </StackPane>
                 <VBox spacing="5">
+                    <Label text="Annual Leave"
+                           styleClass="stat-label"/>
                     <Label fx:id="labelAnnualLeave"
                            text="0"
                            styleClass="stat-value"/>
-                    <Label text="Annual Leave"
-                           styleClass="stat-label"/>
                     <Label fx:id="labelAnnualLeaveSubtext"
                            text="days remaining"
                            styleClass="mini-stat"/>
@@ -55,7 +53,7 @@
             <!-- Medical Leave Balance -->
             <HBox fx:id="cardMedicalLeave"
                   styleClass="stat-card"
-                  spacing="15"
+                  spacing="12"
                   alignment="CENTER_LEFT">
                 <StackPane styleClass="icon-container, icon-blue">
                     <FontIcon iconLiteral="mdi2m-medical-bag"
@@ -63,11 +61,11 @@
                               iconColor="white"/>
                 </StackPane>
                 <VBox spacing="5">
+                    <Label text="Medical Leave"
+                           styleClass="stat-label"/>
                     <Label fx:id="labelMedicalLeave"
                            text="0"
                            styleClass="stat-value"/>
-                    <Label text="Medical Leave"
-                           styleClass="stat-label"/>
                     <Label fx:id="labelMedicalLeaveSubtext"
                            text="days remaining"
                            styleClass="mini-stat"/>
@@ -77,7 +75,7 @@
             <!-- Upcoming Trainings -->
             <HBox fx:id="cardUpcomingTrainings"
                   styleClass="stat-card"
-                  spacing="15"
+                  spacing="12"
                   alignment="CENTER_LEFT">
                 <StackPane styleClass="icon-container, icon-purple">
                     <FontIcon iconLiteral="mdi2s-school"
@@ -85,11 +83,11 @@
                               iconColor="white"/>
                 </StackPane>
                 <VBox spacing="5">
+                    <Label text="Upcoming Trainings"
+                           styleClass="stat-label"/>
                     <Label fx:id="labelUpcomingTrainings"
                            text="0"
                            styleClass="stat-value"/>
-                    <Label text="Upcoming Trainings"
-                           styleClass="stat-label"/>
                     <Label fx:id="labelUpcomingTrainingsSubtext"
                            text="courses enrolled"
                            styleClass="mini-stat"/>
@@ -101,7 +99,7 @@
             <!-- Total Employees -->
             <HBox fx:id="cardTotalEmployees"
                   styleClass="stat-card"
-                  spacing="15"
+                  spacing="12"
                   alignment="CENTER_LEFT">
                 <StackPane styleClass="icon-container, icon-blue">
                     <FontIcon iconLiteral="mdi2a-account-group"
@@ -109,13 +107,13 @@
                               iconColor="white"/>
                 </StackPane>
                 <VBox>
+                    <Label text="Total Employees"
+                           styleClass="stat-label"/>
                     <Label fx:id="labelTotalEmployees"
                            text="0"
                            styleClass="stat-value"/>
-                    <Label text="Total Employees"
-                           styleClass="stat-label"/>
                     <Label fx:id="labelTotalEmployeesSubtext"
-                           text="active staff"
+                           text="active staffs"
                            styleClass="mini-stat"/>
                 </VBox>
             </HBox>
@@ -123,7 +121,7 @@
             <!-- Pending Leave Approvals -->
             <HBox fx:id="cardPendingLeaves"
                   styleClass="stat-card"
-                  spacing="15"
+                  spacing="12"
                   alignment="CENTER_LEFT">
                 <StackPane styleClass="icon-container, icon-orange">
                     <FontIcon iconLiteral="mdi2f-file-document-alert"
@@ -131,13 +129,13 @@
                               iconColor="white"/>
                 </StackPane>
                 <VBox>
+                    <Label text="Pending Approvals"
+                           styleClass="stat-label"/>
                     <Label fx:id="labelPendingLeaves"
                            text="0"
                            styleClass="stat-value"/>
-                    <Label text="Pending Approvals"
-                           styleClass="stat-label"/>
                     <Label fx:id="labelPendingLeavesSubtext"
-                           text="require action"
+                           text="requires action"
                            styleClass="mini-stat"/>
                 </VBox>
             </HBox>
@@ -145,7 +143,7 @@
             <!-- Open Job Position -->
             <HBox fx:id="cardOpenJobs"
                   styleClass="stat-card"
-                  spacing="15"
+                  spacing="12"
                   alignment="CENTER_LEFT">
                 <StackPane styleClass="icon-container, icon-purple">
                     <FontIcon iconLiteral="mdi2b-briefcase-search"
@@ -153,11 +151,11 @@
                               iconColor="white"/>
                 </StackPane>
                 <VBox>
+                    <Label text="Open Positions"
+                           styleClass="stat-label"/>
                     <Label fx:id="labelOpenJobs"
                            text="0"
                            styleClass="stat-value"/>
-                    <Label text="Open Positions"
-                           styleClass="stat-label"/>
                     <Label fx:id="labelOpenJobsSubtext"
                            text="actively recruiting"
                            styleClass="mini-stat"/>
@@ -194,7 +192,7 @@
         <!-- Leave Status Overview (HR Only) -->
         <VBox fx:id="chartLeaveStatus"
               styleClass="chart-card"
-              GridPane.rowIndex="1" GridPane.columnIndex="0">
+              GridPane.rowIndex="0" GridPane.columnIndex="1">
             <Label text="Leave Requests Status"
                    styleClass="section-title">
                 <graphic>
@@ -314,8 +312,6 @@
                     </graphic>
                 </Button>
 
-                <Separator/>
-
                 <!-- HR Staff Actions -->
                 <Button fx:id="buttonManageLeaveRequests"
                         text="Manage Leave Requests"
@@ -351,57 +347,5 @@
                 </Button>
             </VBox>
         </VBox>
-
-        <!-- Recent Activity Feed -->
-        <VBox styleClass="chart-card"
-              GridPane.columnIndex="1" GridPane.rowIndex="2">
-            <Label text="Recent Activity"
-                   styleClass="section-title">
-                <graphic>
-                    <FontIcon iconLiteral="mdi2h-history" iconSize="18" iconColor="#7f8c8d"/>
-                </graphic>
-            </Label>
-
-            <ScrollPane fitToWidth="true"
-                        styleClass="dashboard-scroll-pane"
-                        minHeight="250" maxHeight="250">
-                <VBox fx:id="activityFeed" spacing="8" style="-fx-padding: 10 5 0 0;">
-                    <!-- Activity items will be dynamically added here -->
-                    <HBox spacing="10"
-                          styleClass="activity-item">
-                        <FontIcon iconLiteral="mdi2c-circle"
-                                  iconSize="8"
-                                  iconColor="#3498db"
-                                  style="-fx-translate-y: 6;"/>
-                        <VBox spacing="2">
-                            <Label text="System initialized"
-                                   styleClass="activity-text"/>
-                            <Label text="Just now"
-                                   styleClass="activity-time"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
-            </ScrollPane>
-
-        </VBox>
-
-
-<!--        &lt;!&ndash; Charts Section &ndash;&gt;-->
-<!--        <HBox spacing="20" VBox.vgrow="ALWAYS">-->
-<!--            <VBox styleClass="chart-card" HBox.hgrow="ALWAYS">-->
-<!--                <Label text="Department Distribution" styleClass="section-title"/>-->
-<!--&lt;!&ndash;                <PieChart fx:id="deptPieChart" labelsVisible="true" legendVisible="false"/>&ndash;&gt;-->
-<!--            </VBox>-->
-
-<!--            &lt;!&ndash; Placeholder for another widget (e.g. Announcements) &ndash;&gt;-->
-<!--            <VBox styleClass="chart-card" HBox.hgrow="ALWAYS">-->
-<!--                <Label text="Quick Actions" styleClass="section-title"/>-->
-<!--                <VBox spacing="10" style="-fx-padding: 10 0 0 0;">-->
-<!--                    <Button text="Apply for Leave" maxWidth="Infinity" styleClass="button-secondary"/>-->
-<!--                    <Button text="View Profile" maxWidth="Infinity" styleClass="button-secondary"/>-->
-<!--                </VBox>-->
-<!--            </VBox>-->
-<!--        </HBox>-->
-
     </VBox>
 </ScrollPane>
