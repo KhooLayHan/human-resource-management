@@ -111,7 +111,7 @@ public class MainController {
         buildNavigationMenu();
 
         // Load initial dashboard view
-        navigateToView(ViewType.DASHBOARD);
+        loadDashboardView();
 
         // Start background services
         startClock();
@@ -128,7 +128,7 @@ public class MainController {
     public void refreshNavigation() {
         activeButton = null;
         buildNavigationMenu();
-        navigateToView(ViewType.DASHBOARD);
+        loadDashboardView();
     }
 
     /**
@@ -138,28 +138,66 @@ public class MainController {
         navigationVBox.getChildren().clear(); // Clear any existing buttons
 
         // Get all views allowed for current user's role
-        for (ViewType viewType : ViewType.getViewsForRole(currentUser.role()))
-            addNavigationBtn(viewType);
+//        for (ViewType viewType : ViewType.getViewsForRole(currentUser.role()))
+//            addNavigationBtn(viewType);
 
-//        // Always add a Dashboard button
-//        addNavigationBtn("Dashboard", this::loadDashboardView);
-//
-//        // Role-based navigation
-//        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
-//            addNavigationBtn("Employee Management", this::loadEmployeeManagementView);
-//            addNavigationBtn("Recruitment", this::loadRecruitmentView);
-//            addNavigationBtn("Training Admin", this::loadTrainingAdminView);
-//        }
-//
-//        if (
-//            currentUser.role() == UserDTO.Role.EMPLOYEE ||
-//            currentUser.role() == UserDTO.Role.HR_STAFF
-//        ) {
-//            addNavigationBtn("Leave", this::loadLeaveView);
-//            addNavigationBtn("Benefits", this::loadBenefitsView);
-//            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
-//            addNavigationBtn("My Profile", this::loadProfileView);
-//        }
+        // Always add a Dashboard button
+        addNavigationBtn("Dashboard", this::loadDashboardView);
+
+        // Role-based navigation
+        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
+            addNavigationBtn("Employee Management", this::loadEmployeeManagementView);
+            addNavigationBtn("Recruitment", this::loadRecruitmentView);
+            addNavigationBtn("Training Admin", this::loadTrainingAdminView);
+        }
+
+        if (
+            currentUser.role() == UserDTO.Role.EMPLOYEE ||
+            currentUser.role() == UserDTO.Role.HR_STAFF
+        ) {
+            addNavigationBtn("Leave", this::loadLeaveView);
+            addNavigationBtn("Benefits", this::loadBenefitsView);
+            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
+            addNavigationBtn("My Profile", this::loadProfileView);
+        }
+    }
+
+    /**
+     * Helper method to create and add a styled navigation button.
+     */
+    private void addNavigationBtn(String text, Runnable action) {
+        final String NAV_BUTTON_STYLE = "nav-button-active";
+
+        Button button = new Button(text);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.getStyleClass().add("nav-button");
+
+        button.setOnAction(e -> {
+            // Removes active state from previous button
+            if (activeButton != null)
+                activeButton.getStyleClass().remove(NAV_BUTTON_STYLE);
+
+            // Sets active state on current button
+            button.getStyleClass().add(NAV_BUTTON_STYLE);
+            activeButton = button;
+
+            // Update current view label
+            currentViewLabel.setText(text);
+
+            // Reset session timer on user activity
+            // resetSessionTimer();
+
+            // Execute the navigation action
+            action.run();
+        });
+
+        navigationVBox.getChildren().add(button);
+
+        // Sets first button as active by default
+        if (activeButton == null) {
+            button.getStyleClass().add(NAV_BUTTON_STYLE);
+            activeButton = button;
+        }
     }
 
     /**
@@ -207,6 +245,15 @@ public class MainController {
     public void navigateToView(ViewType viewType) {
         logger.info("Navigating to view: {}", viewType.getDisplayName());
 
+        if (activeButton != null)
+            activeButton.getStyleClass().remove("nav-button-active");
+
+        // Sets active state on current button
+//        button.getStyleClass().add(NAV_BUTTON_STYLE);
+//        activeButton = button;
+
+        currentViewLabel.setText(viewType.getDisplayName());
+
         ViewManager.loadView(
             contentArea,
             viewType,
@@ -215,6 +262,19 @@ public class MainController {
             currentUser,
             this
         );
+    }
+
+    /**
+     * Loads the dashboard view based on user role.
+     */
+    private void loadDashboardView() {
+        logger.info("Loading Dashboard View...");
+
+//        DashboardController controller = ViewManager.loadViewWithController(contentArea, FXMLPaths.DASHBOARD);
+        ViewManager.loadView(contentArea, ViewType.DASHBOARD, serviceManager, executorService, currentUser, this);
+
+//        assert controller != null;
+//        controller.initDependencies(serviceManager, executorService, currentUser, this);
     }
 
     /**
@@ -277,30 +337,16 @@ public class MainController {
             FXMLPaths.TRAINING_CATALOG);
     }
 
-//    /**
-//     * Loads the profile view.
-//     */
-//    private void loadProfileView() {
-//        logger.info("Loading Profile View...");
-////
-////        ViewManager.loadView(contentArea, FXMLPaths.PROFILE);
-//
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.PROFILE));
-//            Parent view = loader.load();
-//
-//            ProfileController controller = loader.getController();
-//            controller.setDependencies(serviceManager, executorService, currentUser);
-//
-//            contentArea.getChildren().setAll(view);
-//        } catch (IOException e) {
-//            logger.error("Failed to load Profile view.");
-//            DialogManager.showErrorDialog(
-//                "View Load Error",
-//                "Could not load the profile view. Please try again."
-//            );
-//        }
-//    }
+    /**
+     * Loads the profile view.
+     */
+    private void loadProfileView() {
+        logger.info("Loading Profile View...");
+
+        ProfileController controller = ViewManager.loadViewWithController(contentArea, FXMLPaths.PROFILE);
+        assert controller != null;
+        controller.initDependencies(serviceManager, executorService, currentUser, this);
+    }
 
     /**
      * Starts the clock that updates the current time display.
