@@ -40,7 +40,6 @@ public class ProfileController {
 
     private ServiceManager serviceManager;
     private ExecutorService executorService;
-    private MainController mainController;
 
     @FXML
     public void initialize() {
@@ -51,13 +50,11 @@ public class ProfileController {
     public void initDependencies(
         ServiceManager serviceManager,
         ExecutorService executorService,
-        UserDTO currentUser,
-        MainController mainController
+        UserDTO currentUser
     ) {
         this.serviceManager = serviceManager;
         this.executorService = executorService;
         this.currentUser = currentUser;
-        this.mainController = mainController;
 
         loadProfileData();
     }

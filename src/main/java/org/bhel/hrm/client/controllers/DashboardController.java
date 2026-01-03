@@ -102,6 +102,12 @@ public class DashboardController {
         UserDTO currentUser,
         MainController mainController
     ) {
+        if (serviceManager == null || currentUser == null) {
+            logger.error("Required dependencies are null - serviceManager: {}, currentUser: {}",
+                serviceManager != null, currentUser != null);
+            return;
+        }
+
         this.serviceManager = serviceManager;
         this.executorService = executorService;
         this.currentUser = currentUser;

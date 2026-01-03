@@ -118,8 +118,7 @@ public class ViewManager {
                 profileController.initDependencies(
                     serviceManager,
                     executorService,
-                    currentUser,
-                    mainController
+                    currentUser
                 );
             default ->
                 logger.debug("No dependency injection configured for controller: {}",
