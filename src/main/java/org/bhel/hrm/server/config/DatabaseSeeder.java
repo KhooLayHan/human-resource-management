@@ -65,13 +65,14 @@ public class DatabaseSeeder {
         logger.info("Database is empty; seeding with initial fake data...");
 
         try {
-            dbManager.executeInTransaction(() -> {
-                seedUsersAndEmployees();
-                seedTrainingCourses();
-                seedEnrollments();
+            dbManager.beginTransaction();
 
-                logger.info("Successfully seeded the database with {} users.", userDAO.count());
-            });
+            seedUsersAndEmployees();
+            seedTrainingCourses();
+            seedEnrollments();
+
+            dbManager.commitTransaction();
+            logger.info("Successfully seeded the database with {} users.", userDAO.count());
         } catch (Exception e) {
             logger.error("Database seeding failed. Rolling back transaction.", e);
             dbManager.rollbackTransaction();
@@ -118,6 +119,7 @@ public class DatabaseSeeder {
                     PasswordService.hashPassword("password"),
                     UserDTO.Role.EMPLOYEE
             );
+
             userDAO.save(randomUser);
 
             Employee randomEmployee = new Employee(

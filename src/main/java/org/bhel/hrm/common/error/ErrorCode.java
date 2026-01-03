@@ -69,7 +69,15 @@ public enum ErrorCode {
     FILE_NOT_FOUND("HRM-FILE-001", "File not found", 404),
     FILE_UPLOAD_FAILED("HRM-FILE-002", "File upload failed", 500),
     FILE_INVALID_TYPE("HRM-FILE-003", "Invalid file type", 400),
-    FILE_SIZE_EXCEEDED("HRM-FILE-004", "File size exceeds maximum length", 413);
+    FILE_SIZE_EXCEEDED("HRM-FILE-004", "File size exceeds maximum length", 413),
+
+    // --- Training Management ---
+
+    TRAINING_COURSE_NOT_FOUND("HRM-TRN-001", "Training course not found", 404),
+    TRAINING_ALREADY_ENROLLED("HRM-TRN-002", "Employee is already enrolled in this training course", 409),
+    TRAINING_COURSE_FULL("HRM-TRN-003", "Training course is full", 409),
+    TRAINING_ENROLLMENT_NOT_FOUND("HRM-TRN-004", "Enrollment record not found", 404),
+    TRAINING_INVALID_DATES("HRM-TRN-005", "Invalid training course dates", 400);
 
     private final String code;
     private final String defaultMessage;

@@ -10,11 +10,11 @@ public class TrainingEnrollment {
     private int id;
     private int employeeId;
     private int courseId;
-    private LocalDate enrollmentDate;
+    private LocalDateTime enrollmentDate;
     private TrainingEnrollmentDTO.Status status;
     // Getters and Setters...
 
-    public TrainingEnrollment(int id, int employeeId, int courseId, LocalDate enrollmentDate, TrainingEnrollmentDTO.Status status) {
+    public TrainingEnrollment(int id, int employeeId, int courseId, LocalDateTime enrollmentDate, TrainingEnrollmentDTO.Status status) {
         this.id = id;
         this.employeeId = employeeId;
         this.courseId = courseId;
@@ -28,7 +28,11 @@ public class TrainingEnrollment {
         this.status = status;
     }
 
-    public TrainingEnrollment(String course, String sentence, int i, TrainingEnrollmentDTO.Status status) {
+    public TrainingEnrollment(int employeeId, int courseId, LocalDateTime dateTime, TrainingEnrollmentDTO.Status status) {
+        this.employeeId = employeeId;
+        this.courseId = courseId;
+        this.enrollmentDate = dateTime;
+        this.status = status;
     }
 
 //    public TrainingEnrollment(int employeeId, int courseId, TrainingEnrollmentDTO.Status status) {
@@ -49,7 +53,7 @@ public class TrainingEnrollment {
         return courseId;
     }
 
-    public LocalDate getEnrollmentDate() {
+    public LocalDateTime getEnrollmentDate() {
         return enrollmentDate;
     }
 
@@ -69,7 +73,7 @@ public class TrainingEnrollment {
         this.courseId = courseId;
     }
 
-    public void setEnrollmentDate(LocalDate enrollmentDate) {
+    public void setEnrollmentDate(LocalDateTime enrollmentDate) {
         this.enrollmentDate = enrollmentDate;
     }
 

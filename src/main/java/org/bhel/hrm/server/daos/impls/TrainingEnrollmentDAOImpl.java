@@ -22,7 +22,7 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
         rs.getInt("employee_id"),
         rs.getInt("course_id"),
 
-            rs.getDate("enrollment_date").toLocalDate(),
+            rs.getDate("enrollment_date").toLocalDate().atStartOfDay(),
 //        if (ts != null) {
 //            rs.setEnrollmentDate(ts.toLocalDateTime());
 //        }
@@ -88,45 +88,82 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
         stmt.setInt(1, enrollment.getEmployeeId());
         stmt.setInt(2, enrollment.getCourseId());
 
-        int status;
+        int statusId;
+        if (enrollment.getStatus() == null) {
+            statusId = 4; // Default
+        } else {
         switch (enrollment.getStatus()) {
-            case TrainingEnrollmentDTO.Status.ENROLLED -> status = 1;
-            case TrainingEnrollmentDTO.Status.COMPLETED -> status = 2;
-            case TrainingEnrollmentDTO.Status.CANCELLED -> status = 3;
-            default -> status = 4;
+            case TrainingEnrollmentDTO.Status.ENROLLED -> statusId = 1;
+            case TrainingEnrollmentDTO.Status.COMPLETED -> statusId = 2;
+            case TrainingEnrollmentDTO.Status.CANCELLED -> statusId = 3;
+            case TrainingEnrollmentDTO.Status.FAILED -> statusId = 4;
+            default -> statusId = 4;
         }
-        stmt.setInt(3, status);
+    }
+        stmt.setInt(3, statusId);
+
+        if (enrollment.getEnrollmentDate() != null) {
+            stmt.setTimestamp(4, Timestamp.valueOf(enrollment.getEnrollmentDate()));
+        } else {
+            stmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+        }
+    }
+
+    private static TrainingEnrollmentDTO.Status mapStatus(Integer statusId) {
+        if (statusId == null) return TrainingEnrollmentDTO.Status.FAILED ;
+
+        return switch (statusId) {
+            case 1 -> TrainingEnrollmentDTO.Status.ENROLLED;
+            case 2 -> TrainingEnrollmentDTO.Status.COMPLETED;
+            case 3 -> TrainingEnrollmentDTO.Status.CANCELLED;
+            case 4 -> TrainingEnrollmentDTO.Status.FAILED;
+            default -> TrainingEnrollmentDTO.Status.FAILED;
+        };
     }
 
     // Update your save() method to utilize it
     @Override
     public void save(TrainingEnrollment enrollment) {
-        // We focus on INSERT for enrollments usually
-        String sql = "INSERT INTO training_enrollments (employee_id, course_id, status) VALUES (?, ?, ?)";
 
-        ErrorContext errorContext = ErrorContext.forOperation(
-            "training-enrollment.create"
-        );
-
-        try (java.sql.Connection conn = dbManager.getConnection();
-             java.sql.PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
-
-            // USE THE HELPER METHOD HERE
-            setSaveParameters(stmt, enrollment);
-
-            stmt.executeUpdate();
-
-            try (java.sql.ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) enrollment.setId(keys.getInt(1));
-            }
-        } catch (SQLException e) {
-            throw config.translate(e, errorContext);
+        if (enrollment.getId() == 0) {
+            insert(enrollment);
+        } else {
+            update(enrollment);
         }
+        // We focus on INSERT for enrollments usually
+//        String sql = "INSERT INTO training_enrollments (employee_id, course_id, status) VALUES (?, ?, ?)";
+//
+//        ErrorContext errorContext = ErrorContext.forOperation(
+//            "training-enrollment.create"
+//        );
+//
+//        try (java.sql.Connection conn = dbManager.getConnection();
+//             java.sql.PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+//
+//            // USE THE HELPER METHOD HERE
+//            setSaveParameters(stmt, enrollment);
+//
+//            stmt.executeUpdate();
+//
+//            try (java.sql.ResultSet keys = stmt.getGeneratedKeys()) {
+//                if (keys.next()) enrollment.setId(keys.getInt(1));
+//            }
+//        } catch (SQLException e) {
+//            throw config.translate(e, errorContext);
+//        }
+
     }
 
     @Override
     protected void insert(TrainingEnrollment enrollment) {
-        String sql = "INSERT INTO training_enrollments (employee_id, course_id, status) VALUES (?, ?, ?)";
+        String sql = """
+                INSERT INTO training_enrollments (
+                                employee_id,
+                                course_id,
+                                status_id,
+                                enrollment_date
+                            ) VALUES (?, ?, ?, ?)
+                """;
         Connection conn = null;
         try {
             conn = dbManager.getConnection();
@@ -147,10 +184,17 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
 
     @Override
     protected void update(TrainingEnrollment enrollment) {
-        String sql = "UPDATE training_enrollments SET employee_id=?, course_id=?, status=? WHERE id=?";
+        String sql = """
+        UPDATE training_enrollments SET
+                            employee_id = ?,
+                            course_id = ?,
+                            status_id = ?,
+                            enrollment_date = ?
+                            where id = ?
+        """;
         executeUpdate(sql, stmt -> {
             setSaveParameters(stmt, enrollment);
-            stmt.setInt(4, enrollment.getId());
+            stmt.setInt(5, enrollment.getId());
         });
     }
 
