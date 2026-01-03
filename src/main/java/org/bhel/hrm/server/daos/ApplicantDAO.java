@@ -9,10 +9,10 @@ import java.util.List;
  */
 public interface ApplicantDAO extends DAO<Applicant, Integer> {
     /**
-     * Finds all applicants who have applied for a specific job opening.
-     *
-     * @param jobOpeningId The ID of the job opening.
-     * @return A {@link List} of applicants for that job.
-     */
+ * Finds applicants that applied for the specified job opening.
+ *
+ * @param jobOpeningId the identifier of the job opening
+ * @return a {@link List} of {@link Applicant} instances who applied for the job opening
+ */
     List<Applicant> findByJobOpeningId(int jobOpeningId);
 }
