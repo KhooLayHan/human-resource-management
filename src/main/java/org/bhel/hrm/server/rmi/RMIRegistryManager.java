@@ -61,7 +61,6 @@ public class RMIRegistryManager {
             logger.info("HRM service '{}' bound successfully to registry", serviceName);
         } catch (RemoteException e) {
             logger.error("Failed to bind service '{}'to registry", serviceName, e);
-            throw e;
         }
     }
 
@@ -100,7 +99,6 @@ public class RMIRegistryManager {
             logger.info("Service '{}' unbound from registry", serviceName);
         } catch (Exception e) {
             logger.error("Failed to unbind service '{}'", serviceName, e);
-            throw e;
         }
     }
 

@@ -45,7 +45,6 @@ public class ServiceManager {
                 host, port, serviceName);
         } catch (ConfigurationException e) {
             logger.error("Failed to initialize ServiceManager due to configuration error", e);
-            throw e;
         }
 
         connect();
