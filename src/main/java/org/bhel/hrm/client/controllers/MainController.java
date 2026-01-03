@@ -137,66 +137,25 @@ public class MainController {
     private void buildNavigationMenu() {
         navigationVBox.getChildren().clear(); // Clear any existing buttons
 
-        // Get all views allowed for current user's role
-//        for (ViewType viewType : ViewType.getViewsForRole(currentUser.role()))
-//            addNavigationBtn(viewType);
+        // 1. Always add Dashboard
+        addNavigationBtn(ViewType.DASHBOARD);
 
-        // Always add a Dashboard button
-        addNavigationBtn("Dashboard", this::loadDashboardView);
+        // 2. Add other views based on role permissions
+        // Define the order you want them to appear
+        ViewType[] menuOrder = {
+            ViewType.EMPLOYEE_MANAGEMENT,
+            ViewType.RECRUITMENT,
+            ViewType.TRAINING_ADMIN,
+            ViewType.LEAVE,
+            ViewType.BENEFITS,
+            ViewType.TRAINING_CATALOG,
+            ViewType.PROFILE
+        };
 
-        // Role-based navigation
-        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
-            addNavigationBtn("Employee Management", this::loadEmployeeManagementView);
-            addNavigationBtn("Recruitment", this::loadRecruitmentView);
-            addNavigationBtn("Training Admin", this::loadTrainingAdminView);
-        }
-
-        if (
-            currentUser.role() == UserDTO.Role.EMPLOYEE ||
-            currentUser.role() == UserDTO.Role.HR_STAFF
-        ) {
-            addNavigationBtn("Leave", this::loadLeaveView);
-            addNavigationBtn("Benefits", this::loadBenefitsView);
-            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
-            addNavigationBtn("My Profile", this::loadProfileView);
-        }
-    }
-
-    /**
-     * Helper method to create and add a styled navigation button.
-     */
-    private void addNavigationBtn(String text, Runnable action) {
-        final String NAV_BUTTON_STYLE = "nav-button-active";
-
-        Button button = new Button(text);
-        button.setMaxWidth(Double.MAX_VALUE);
-        button.getStyleClass().add("nav-button");
-
-        button.setOnAction(e -> {
-            // Removes active state from previous button
-            if (activeButton != null)
-                activeButton.getStyleClass().remove(NAV_BUTTON_STYLE);
-
-            // Sets active state on current button
-            button.getStyleClass().add(NAV_BUTTON_STYLE);
-            activeButton = button;
-
-            // Update current view label
-            currentViewLabel.setText(text);
-
-            // Reset session timer on user activity
-            // resetSessionTimer();
-
-            // Execute the navigation action
-            action.run();
-        });
-
-        navigationVBox.getChildren().add(button);
-
-        // Sets first button as active by default
-        if (activeButton == null) {
-            button.getStyleClass().add(NAV_BUTTON_STYLE);
-            activeButton = button;
+        for (ViewType view : menuOrder) {
+            if (view.isAllowedForRole(currentUser.role())) {
+                addNavigationBtn(view);
+            }
         }
     }
 
@@ -226,7 +185,14 @@ public class MainController {
             // resetSessionTimer();
 
             // Execute the navigation action
-            navigateToView(viewType);
+            ViewManager.loadView(
+                contentArea,
+                viewType,
+                serviceManager,
+                executorService,
+                currentUser,
+                this
+            );
         });
 
         navigationVBox.getChildren().add(button);
@@ -248,10 +214,6 @@ public class MainController {
         if (activeButton != null)
             activeButton.getStyleClass().remove("nav-button-active");
 
-        // Sets active state on current button
-//        button.getStyleClass().add(NAV_BUTTON_STYLE);
-//        activeButton = button;
-
         currentViewLabel.setText(viewType.getDisplayName());
 
         ViewManager.loadView(
@@ -270,82 +232,14 @@ public class MainController {
     private void loadDashboardView() {
         logger.info("Loading Dashboard View...");
 
-//        DashboardController controller = ViewManager.loadViewWithController(contentArea, FXMLPaths.DASHBOARD);
-        ViewManager.loadView(contentArea, ViewType.DASHBOARD, serviceManager, executorService, currentUser, this);
-
-//        assert controller != null;
-//        controller.initDependencies(serviceManager, executorService, currentUser, this);
-    }
-
-    /**
-     * Loads the employee management view.
-     */
-    private void loadEmployeeManagementView() {
-        logger.info("Loading Employee Management View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.EMPLOYEE_MANAGEMENT);
-    }
-
-    /**
-     * Loads the leave view.
-     */
-    private void loadLeaveView() {
-        logger.info("Loading Leave View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.LEAVE);
-    }
-
-    /**
-     * Loads the benefits view.
-     */
-    private void loadBenefitsView() {
-        logger.info("Loading Benefits View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.BENEFITS);
-    }
-
-    /**
-     * Loads the recruitment view.
-     */
-    private void loadRecruitmentView() {
-        logger.info("Loading Recruitment View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.RECRUITMENT);
-    }
-
-    /**
-     * Loads the training admin view.
-     */
-    private void loadTrainingAdminView() {
-        logger.info("Loading Training Admin View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.TRAINING_ADMIN);
-    }
-
-    /**
-     * Loads the training catalog view.
-     */
-    private void loadTrainingCatalogView() {
-        logger.info("Loading Training Catalog View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.TRAINING_CATALOG);
-    }
-
-    /**
-     * Loads the profile view.
-     */
-    private void loadProfileView() {
-        logger.info("Loading Profile View...");
-
-        ProfileController controller = ViewManager.loadViewWithController(contentArea, FXMLPaths.PROFILE);
-        assert controller != null;
-        controller.initDependencies(serviceManager, executorService, currentUser, this);
+        ViewManager.loadView(
+            contentArea,
+            ViewType.DASHBOARD,
+            serviceManager,
+            executorService,
+            currentUser,
+            this
+        );
     }
 
     /**

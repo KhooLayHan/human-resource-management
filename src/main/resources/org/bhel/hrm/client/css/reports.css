@@ -1,6 +1,7 @@
 /* REPORT MANAGEMENT STYLES */
 
 .report-text-area {
-    -fx-font-family: Monospaced;
+    -fx-background-color: #f8f9fa;
+    -fx-font-family: "Consolas", "Monaco", "Courier New", monospace;
     -fx-font-size: 13px;
 }

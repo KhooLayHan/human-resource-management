@@ -65,6 +65,13 @@
     -fx-padding: 10 0 0 0;
 }
 
+.chart-card .chart-plot-background {
+    -fx-background-color: transparent;
+}
+.chart-card .chart-content {
+    -fx-padding: 10px;
+}
+
 .chart-legend {
     -fx-padding: 10;
 }
