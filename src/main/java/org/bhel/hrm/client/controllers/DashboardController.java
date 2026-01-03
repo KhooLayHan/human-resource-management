@@ -258,9 +258,9 @@ public class DashboardController {
         leave.forEach((status, count) ->
             series.getData().add(new XYChart.Data<>(status, count)));
 
+        leaveStatusChart.setAnimated(false);
         leaveStatusChart.getData().clear();
         leaveStatusChart.getData().add(series);
-        leaveStatusChart.setAnimated(true);
     }
 
     /**
@@ -276,9 +276,9 @@ public class DashboardController {
         pipeline.forEach((stage, count) ->
             series.getData().add(new XYChart.Data<>(stage, count)));
 
+        recruitmentPipelineChart.setAnimated(false);
         recruitmentPipelineChart.getData().clear();
         recruitmentPipelineChart.getData().add(series);
-        recruitmentPipelineChart.setAnimated(true);
     }
 
     /**
@@ -294,9 +294,10 @@ public class DashboardController {
         trend.forEach((month, count) ->
                 series.getData().add(new XYChart.Data<>(month, count)));
 
+        trainingTrendsChart.setAnimated(false);
         trainingTrendsChart.getData().clear();
         trainingTrendsChart.getData().add(series);
-        trainingTrendsChart.setAnimated(true);
+
     }
 
     /**

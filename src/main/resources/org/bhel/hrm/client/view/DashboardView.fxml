@@ -203,7 +203,8 @@
                 <BarChart fx:id="leaveStatusChart"
                           legendVisible="false"
                           VBox.vgrow="ALWAYS"
-                          minHeight="280">
+                          minHeight="280"
+                          animated="false">
                     <xAxis>
                         <CategoryAxis label="Status"/>
                     </xAxis>
@@ -228,7 +229,8 @@
                 <BarChart fx:id="recruitmentPipelineChart"
                           legendVisible="false"
                           VBox.vgrow="ALWAYS"
-                          minHeight="280">
+                          minHeight="280"
+                          animated="false">
                     <xAxis>
                         <CategoryAxis label="Stage"/>
                     </xAxis>
@@ -253,7 +255,8 @@
                 <LineChart fx:id="trainingTrendsChart"
                            legendVisible="false"
                            VBox.vgrow="ALWAYS"
-                           minHeight="280">
+                           minHeight="280"
+                           animated="false">
                     <xAxis>
                         <CategoryAxis label="Month"/>
                     </xAxis>
