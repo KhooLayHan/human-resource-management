@@ -32,7 +32,7 @@ public class ViewManager {
 
     /**
      * Loads a view into the specified container using the given ViewType, with automatic dependency injection.
-     * This is the preferred method for loading views in the application.
+     * This is the another method for loading views in the application.
      *
      * @param container The StackPane where the view will be displayed; must not be null.
      * @param viewType The enum constant specifying which view to load; must not be null.
@@ -49,6 +49,15 @@ public class ViewManager {
         UserDTO currentUser,
         MainController mainController
     ) {
+        if (currentUser == null) {
+            logger.error("Cannot load view: currentUser is null");
+            DialogManager.showErrorDialog(
+                LOAD_TITLE_ERROR,
+                "User session is invalid. Please login again."
+            );
+            return;
+        }
+
         // Check permissions
         if (!viewType.isAllowedForRole(currentUser.role())) {
             logger.warn("User {} attempted to access unauthorized view: {}",

@@ -169,183 +169,183 @@
                 <ColumnConstraints percentWidth="50" hgrow="ALWAYS"/>
                 <ColumnConstraints percentWidth="50" hgrow="ALWAYS"/>
             </columnConstraints>
-        </GridPane>
 
-        <!-- Department Distribution (HR Only) -->
-        <VBox fx:id="chartDepartmentDistribution"
-              styleClass="chart-card"
-              GridPane.rowIndex="0" GridPane.columnIndex="0">
-            <Label text="Department Distribution"
-                   styleClass="section-title">
-                <graphic>
-                    <FontIcon iconLiteral="mdi2c-chart-pie"
-                              iconSize="18"
-                              iconColor="#7f8c8d"/>
-                </graphic>
-            </Label>
-            <PieChart fx:id="departmentPieChart"
-                      legendVisible="false"
-                      VBox.vgrow="ALWAYS"
-                      minHeight="280"/>
-        </VBox>
-
-        <!-- Leave Status Overview (HR Only) -->
-        <VBox fx:id="chartLeaveStatus"
-              styleClass="chart-card"
-              GridPane.rowIndex="0" GridPane.columnIndex="1">
-            <Label text="Leave Requests Status"
-                   styleClass="section-title">
-                <graphic>
-                    <FontIcon iconLiteral="mdi2c-chart-bar"
-                              iconSize="18"
-                              iconColor="#7f8c8d"/>
-                </graphic>
-            </Label>
-            <BarChart fx:id="leaveStatusChart"
-                      legendVisible="false"
-                      VBox.vgrow="ALWAYS"
-                      minHeight="280">
-                <xAxis>
-                    <CategoryAxis label="Status"/>
-                </xAxis>
-                <yAxis>
-                    <NumberAxis label="Count" side="LEFT"/>
-                </yAxis>
-            </BarChart>
-        </VBox>
-
-        <!-- Recruitment Pipeline (HR Only) -->
-        <VBox fx:id="chartRecruitmentPipeline"
-              styleClass="chart-card"
-              GridPane.rowIndex="1" GridPane.columnIndex="0">
-            <Label text="Recruitment Pipeline"
-                   styleClass="section-title">
-                <graphic>
-                    <FontIcon iconLiteral="mdi2a-account-arrow-right"
-                              iconSize="18"
-                              iconColor="#7f8c8d"/>
-                </graphic>
-            </Label>
-            <BarChart fx:id="recruitmentPipelineChart"
-                      legendVisible="false"
-                      VBox.vgrow="ALWAYS"
-                      minHeight="280">
-                <xAxis>
-                    <CategoryAxis label="Stage"/>
-                </xAxis>
-                <yAxis>
-                    <NumberAxis label="Applicants" side="LEFT"/>
-                </yAxis>
-            </BarChart>
-        </VBox>
-
-        <!-- Training Enrollment Trends (HR Only) -->
-        <VBox fx:id="chartTrainingTrends"
-              styleClass="chart-card"
-              GridPane.rowIndex="1" GridPane.columnIndex="1">
-            <Label text="Monthly Training Enrollment"
-                   styleClass="section-title">
-                <graphic>
-                    <FontIcon iconLiteral="mdi2c-chart-line"
-                              iconSize="18"
-                              iconColor="#7f8c8d"/>
-                </graphic>
-            </Label>
-            <LineChart fx:id="trainingTrendsChart"
-                       legendVisible="false"
-                       VBox.vgrow="ALWAYS"
-                       minHeight="280">
-                <xAxis>
-                    <CategoryAxis label="Month"/>
-                </xAxis>
-                <yAxis>
-                    <NumberAxis label="Enrollments" side="LEFT"/>
-                </yAxis>
-            </LineChart>
-        </VBox>
-
-        <!-- Quick Actions Panel -->
-        <VBox styleClass="chart-card"
-              GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <Label text="Quick Actions"
-                   styleClass="section-title">
-                <graphic>
-                    <FontIcon iconLiteral="mdi2f-flash"
-                              iconSize="18"
-                              iconColor="#7f8c8d"/>
-                </graphic>
-            </Label>
-            <VBox spacing="12"
-                  styleClass="vbox-padding">
-
-                <!-- Employee Actions -->
-                <Button fx:id="buttonApplyLeave"
-                        text="Apply for Leave"
-                        maxWidth="Infinity"
-                        styleClass="button-secondary"
-                        onAction="#handleNavigateToLeave">
+            <!-- Department Distribution (HR Only) -->
+            <VBox fx:id="chartDepartmentDistribution"
+                  styleClass="chart-card"
+                  GridPane.rowIndex="0" GridPane.columnIndex="0">
+                <Label text="Department Distribution"
+                       styleClass="section-title">
                     <graphic>
-                        <FontIcon iconLiteral="mdi2c-calendar-plus"
-                                  iconSize="16"/>
+                        <FontIcon iconLiteral="mdi2c-chart-pie"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
                     </graphic>
-                </Button>
-
-                <Button fx:id="buttonViewProfile"
-                        text="View My Profile"
-                        maxWidth="Infinity"
-                        styleClass="button-secondary"
-                        onAction="#handleNavigateToProfile">
-                    <graphic>
-                        <FontIcon iconLiteral="mdi2a-account-circle"
-                                  iconSize="16"/>
-                    </graphic>
-                </Button>
-
-                <Button fx:id="buttonBrowseTraining"
-                        text="Browse Training Courses"
-                        maxWidth="Infinity"
-                        styleClass="button-secondary"
-                        onAction="#handleNavigateToTraining">
-                    <graphic>
-                        <FontIcon iconLiteral="mdi2b-book-open-variant"
-                                  iconSize="16"/>
-                    </graphic>
-                </Button>
-
-                <!-- HR Staff Actions -->
-                <Button fx:id="buttonManageLeaveRequests"
-                        text="Manage Leave Requests"
-                        maxWidth="Infinity"
-                        styleClass="button-secondary"
-                        onAction="#handleNavigateToLeaveManagement">
-                    <graphic>
-                        <FontIcon iconLiteral="mdi2c-clipboard-check"
-                                  iconSize="16"/>
-                    </graphic>
-                </Button>
-
-                <Button fx:id="buttonManageRecruitment"
-                        text="Manage Recruitment"
-                        maxWidth="Infinity"
-                        styleClass="button-secondary"
-                        onAction="#handleNavigateToRecruitment">
-                    <graphic>
-                        <FontIcon iconLiteral="mdi2a-account-plus"
-                                  iconSize="16"/>
-                    </graphic>
-                </Button>
-
-                <Button fx:id="buttonGenerateReports"
-                        text="Generate Reports"
-                        maxWidth="Infinity"
-                        styleClass="button-secondary"
-                        onAction="#handleNavigateToReports">
-                    <graphic>
-                        <FontIcon iconLiteral="mdi2f-file-chart"
-                                  iconSize="16"/>
-                    </graphic>
-                </Button>
+                </Label>
+                <PieChart fx:id="departmentPieChart"
+                          legendVisible="false"
+                          VBox.vgrow="ALWAYS"
+                          minHeight="280"/>
             </VBox>
-        </VBox>
+
+            <!-- Leave Status Overview (HR Only) -->
+            <VBox fx:id="chartLeaveStatus"
+                  styleClass="chart-card"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <Label text="Leave Requests Status"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2c-chart-bar"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <BarChart fx:id="leaveStatusChart"
+                          legendVisible="false"
+                          VBox.vgrow="ALWAYS"
+                          minHeight="280">
+                    <xAxis>
+                        <CategoryAxis label="Status"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Count" side="LEFT"/>
+                    </yAxis>
+                </BarChart>
+            </VBox>
+
+            <!-- Recruitment Pipeline (HR Only) -->
+            <VBox fx:id="chartRecruitmentPipeline"
+                  styleClass="chart-card"
+                  GridPane.rowIndex="1" GridPane.columnIndex="0">
+                <Label text="Recruitment Pipeline"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2a-account-arrow-right"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <BarChart fx:id="recruitmentPipelineChart"
+                          legendVisible="false"
+                          VBox.vgrow="ALWAYS"
+                          minHeight="280">
+                    <xAxis>
+                        <CategoryAxis label="Stage"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Applicants" side="LEFT"/>
+                    </yAxis>
+                </BarChart>
+            </VBox>
+
+            <!-- Training Enrollment Trends (HR Only) -->
+            <VBox fx:id="chartTrainingTrends"
+                  styleClass="chart-card"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <Label text="Monthly Training Enrollment"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2c-chart-line"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <LineChart fx:id="trainingTrendsChart"
+                           legendVisible="false"
+                           VBox.vgrow="ALWAYS"
+                           minHeight="280">
+                    <xAxis>
+                        <CategoryAxis label="Month"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Enrollments" side="LEFT"/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+
+            <!-- Quick Actions Panel -->
+            <VBox styleClass="chart-card"
+                  GridPane.columnIndex="0" GridPane.rowIndex="2">
+                <Label text="Quick Actions"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-flash"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <VBox spacing="12"
+                      styleClass="vbox-padding">
+
+                    <!-- Employee Actions -->
+                    <Button fx:id="buttonApplyLeave"
+                            text="Apply for Leave"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToLeave">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-calendar-plus"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="buttonViewProfile"
+                            text="View My Profile"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToProfile">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2a-account-circle"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="buttonBrowseTraining"
+                            text="Browse Training Courses"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToTraining">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2b-book-open-variant"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <!-- HR Staff Actions -->
+                    <Button fx:id="buttonManageLeaveRequests"
+                            text="Manage Leave Requests"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToLeaveManagement">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-clipboard-check"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="buttonManageRecruitment"
+                            text="Manage Recruitment"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToRecruitment">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2a-account-plus"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="buttonGenerateReports"
+                            text="Generate Reports"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToReports">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-file-chart"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+                </VBox>
+            </VBox>
+        </GridPane>
     </VBox>
 </ScrollPane>
