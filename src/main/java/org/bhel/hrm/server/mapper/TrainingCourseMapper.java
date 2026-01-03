@@ -39,7 +39,13 @@ public final class TrainingCourseMapper {
     }
 
     public static List<TrainingCourseDTO> toDtoList(List<TrainingCourse> all) {
-        return List.of();
+        if (all == null) {
+            return List.of();
+        }
+        return all.stream()
+                .map(TrainingCourseMapper::mapToDto)
+                .toList();
+
     }
 }
 

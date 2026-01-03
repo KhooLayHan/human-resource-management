@@ -128,7 +128,7 @@ public class TrainingService {
 public void updateEnrollmentStatus(int enrollmentId, TrainingEnrollmentDTO.Status newStatus) throws SQLException, HRMException {
     dbManager.executeInTransaction(() -> {
         TrainingEnrollment enrollment = trainingEnrollmentDAO.findById(enrollmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, "TrainingEnrollment", enrollmentId));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TRAINING_ENROLLMENT_NOT_FOUND, "TrainingEnrollment", enrollmentId));
 
         enrollment.setStatus(newStatus);
         trainingEnrollmentDAO.save(enrollment);

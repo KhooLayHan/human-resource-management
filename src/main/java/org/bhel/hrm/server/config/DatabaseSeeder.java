@@ -5,23 +5,14 @@ import org.bhel.hrm.common.dtos.TrainingCourseDTO;
 import org.bhel.hrm.common.dtos.TrainingEnrollmentDTO;
 import org.bhel.hrm.common.dtos.UserDTO;
 import org.bhel.hrm.server.daos.EmployeeDAO;
-import org.bhel.hrm.server.daos.UserDAO;
-import org.bhel.hrm.server.domain.Employee;
-import org.bhel.hrm.server.domain.User;
-import org.bhel.hrm.server.services.PasswordService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Locale;
-import net.datafaker.Faker ;
-import org.bhel.hrm.server.config.DatabaseManager;
-import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.TrainingCourseDAO;
 import org.bhel.hrm.server.daos.TrainingEnrollmentDAO;
 import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.domain.Employee;
 import org.bhel.hrm.server.domain.TrainingCourse;
 import org.bhel.hrm.server.domain.TrainingEnrollment;
+import org.bhel.hrm.server.domain.User;
+import org.bhel.hrm.server.services.PasswordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

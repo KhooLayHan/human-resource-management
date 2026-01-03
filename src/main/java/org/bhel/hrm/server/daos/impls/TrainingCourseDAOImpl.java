@@ -100,7 +100,7 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
                     description = ?,
                     duration_in_hours = ?,
                     department = ?
-                    WHERE id = ?";
+                    WHERE id = ?
                 """;
 
         executeUpdate(sql, stmt -> {
@@ -163,7 +163,7 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
 
     private static TrainingCourseDTO.Department mapRole(Integer departmentId) {
         if (departmentId == null)
-            throw new IllegalStateException("users.department_id is NULL");
+            throw new IllegalStateException("training_courses.department_id is NULL");
 
         return switch (departmentId) {
             case 1 -> TrainingCourseDTO.Department.IT;
@@ -172,7 +172,7 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
             case 4 -> TrainingCourseDTO.Department.OPERATIONS;
             case 5 -> TrainingCourseDTO.Department.SALES;
 
-            default -> throw new IllegalArgumentException("Unknown users.department_id=" + departmentId);
+            default -> throw new IllegalArgumentException("Unknown training_courses.department_id=" + departmentId);
         };
     }
 
