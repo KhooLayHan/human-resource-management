@@ -18,7 +18,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.bhel.hrm.client.MainClient;
-import org.bhel.hrm.client.constants.FXMLPaths;
 import org.bhel.hrm.client.constants.ViewType;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
