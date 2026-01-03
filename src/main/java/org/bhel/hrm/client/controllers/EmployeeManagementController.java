@@ -212,6 +212,11 @@ public class EmployeeManagementController {
             filteredEmployees = FXCollections.observableArrayList(employees);
 
             employeeTable.setItems(filteredEmployees);
+
+            employeeTable.getSortOrder().add(idColumn);
+            idColumn.setSortType(TableColumn.SortType.ASCENDING);
+            employeeTable.sort();
+
             employeeTable.setDisable(false);
 
             logger.info("Loaded {} employees", employees.size());
