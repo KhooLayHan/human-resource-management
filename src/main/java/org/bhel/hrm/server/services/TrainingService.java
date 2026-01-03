@@ -100,41 +100,22 @@ public class TrainingService {
                 LocalDateTime.now(),
                 TrainingEnrollmentDTO.Status.ENROLLED
             );
-//            enrollment.setEmployeeId(employeeId);
-//            enrollment.setCourseId(courseId);
-//            enrollment.setEnrollmentDate(LocalDateTime.now());
-//            enrollment.setStatus(TrainingEnrollmentDTO.Status.ENROLLED);
 
             trainingEnrollmentDAO.save(enrollment);
             logger.info("Employee {} successfully enrolled in course {}", employeeId, courseId);
         });
     }
 
+    public void updateEnrollmentStatus(int enrollmentId, TrainingEnrollmentDTO.Status newStatus) throws SQLException, HRMException {
+        dbManager.executeInTransaction(() -> {
+            TrainingEnrollment enrollment = trainingEnrollmentDAO.findById(enrollmentId)
+                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TRAINING_ENROLLMENT_NOT_FOUND, "TrainingEnrollment", enrollmentId));
 
-    // 3. Create Enrollment
-//            TrainingEnrollment enrollment = new TrainingEnrollment(
-//                employeeId,
-//                    courseId,
-//                    TrainingEnrollmentDTO.Status.ENROLLED
-//            );
-////            enrollment.setEmployeeId(employeeId);
-////            enrollment.setCourseId(courseId);
-////            enrollment.setStatus("ENROLLED");
-//
-//            enrollmentDAO.save(enrollment);
-//        });
-//    }
-
-public void updateEnrollmentStatus(int enrollmentId, TrainingEnrollmentDTO.Status newStatus) throws SQLException, HRMException {
-    dbManager.executeInTransaction(() -> {
-        TrainingEnrollment enrollment = trainingEnrollmentDAO.findById(enrollmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TRAINING_ENROLLMENT_NOT_FOUND, "TrainingEnrollment", enrollmentId));
-
-        enrollment.setStatus(newStatus);
-        trainingEnrollmentDAO.save(enrollment);
-        logger.info("Updated enrollment {} status to {}", enrollmentId, newStatus);
-    });
-}
+            enrollment.setStatus(newStatus);
+            trainingEnrollmentDAO.save(enrollment);
+            logger.info("Updated enrollment {} status to {}", enrollmentId, newStatus);
+        });
+    }
 
     private void validateCourse(TrainingCourseDTO dto) throws InvalidInputException {
         ErrorContext title = ErrorContext.forUser(

@@ -137,7 +137,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             return trainingService.getAllCourses();
         } catch (Exception e) {
             exceptionHandler.handle(e, "getAllTrainingCourses");
-            return null;
+            throw new AssertionError("unreachable code");
         }
     }
 
@@ -148,6 +148,9 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             trainingService.createOrUpdateCourse(courseDTO);
         } catch (Exception e) {
             exceptionHandler.handle(e, "saveTrainingCourse: " + courseDTO.title());
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
         }
     }
 
@@ -158,6 +161,9 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             trainingService.enrollEmployee(employeeId, courseId);
         } catch (Exception e) {
             exceptionHandler.handle(e, "enrollInTraining");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
         }
     }
 

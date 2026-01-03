@@ -23,7 +23,7 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
             rs.getString("title"),
             rs.getString("description"),
             rs.getInt("duration_in_hours"),
-            mapRole(rs.getObject("department", Integer.class))
+            mapRole(rs.getObject("department_id", Integer.class))
     );
 
     public TrainingCourseDAOImpl(DatabaseManager dbManager) {
@@ -59,7 +59,7 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
                             title,
                             description,
                             duration_in_hours,
-                            department
+                            department_id
                         )
                     VALUES (
                         ?,
@@ -99,7 +99,7 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
                 UPDATE training_courses SET title = ?,
                     description = ?,
                     duration_in_hours = ?,
-                    department = ?
+                    department_id = ?
                     WHERE id = ?
                 """;
 

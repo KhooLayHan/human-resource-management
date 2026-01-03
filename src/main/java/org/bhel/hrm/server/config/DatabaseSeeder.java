@@ -151,10 +151,10 @@ public class DatabaseSeeder {
 
         // Randomly enroll employees in courses
         for (Employee emp : employees) {
-            // Enroll each employee in 0 to 3 random courses
-            int numCourses = random.nextInt(4);
             TrainingEnrollmentDTO.Status[] status = TrainingEnrollmentDTO.Status.values();
 
+            // Enroll each employee in 0 to 3 random courses
+            int numCourses = random.nextInt(4);
             for (int i = 0; i < 10; i++) {
                 TrainingCourse randomCourse = courses.get(random.nextInt(courses.size()));
 
