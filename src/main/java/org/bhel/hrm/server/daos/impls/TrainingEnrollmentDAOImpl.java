@@ -1,8 +1,6 @@
 package org.bhel.hrm.server.daos.impls;
 
 import org.bhel.hrm.common.dtos.TrainingEnrollmentDTO;
-import org.bhel.hrm.common.dtos.UserDTO;
-import org.bhel.hrm.common.error.ErrorContext;
 import org.bhel.hrm.common.error.ExceptionMappingConfig;
 import org.bhel.hrm.common.exceptions.DataAccessException;
 import org.bhel.hrm.server.config.DatabaseManager;
@@ -22,12 +20,10 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
         rs.getInt("employee_id"),
         rs.getInt("course_id"),
 
-            rs.getDate("enrollment_date").toLocalDate().atStartOfDay(),
-//        if (ts != null) {
-//            rs.setEnrollmentDate(ts.toLocalDateTime());
-//        }
-            mapRole(rs.getObject("status_id", Integer.class))
-//        return rs;
+        rs.getDate("enrollment_date") != null
+            ? rs.getDate("enrollment_date").toLocalDate().atStartOfDay()
+            : null,
+        mapStatus(rs.getObject("status_id", Integer.class))
     );
 
     public TrainingEnrollmentDAOImpl(DatabaseManager dbManager) {
@@ -124,34 +120,11 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
     // Update your save() method to utilize it
     @Override
     public void save(TrainingEnrollment enrollment) {
-
         if (enrollment.getId() == 0) {
             insert(enrollment);
         } else {
             update(enrollment);
         }
-        // We focus on INSERT for enrollments usually
-//        String sql = "INSERT INTO training_enrollments (employee_id, course_id, status) VALUES (?, ?, ?)";
-//
-//        ErrorContext errorContext = ErrorContext.forOperation(
-//            "training-enrollment.create"
-//        );
-//
-//        try (java.sql.Connection conn = dbManager.getConnection();
-//             java.sql.PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
-//
-//            // USE THE HELPER METHOD HERE
-//            setSaveParameters(stmt, enrollment);
-//
-//            stmt.executeUpdate();
-//
-//            try (java.sql.ResultSet keys = stmt.getGeneratedKeys()) {
-//                if (keys.next()) enrollment.setId(keys.getInt(1));
-//            }
-//        } catch (SQLException e) {
-//            throw config.translate(e, errorContext);
-//        }
-
     }
 
     @Override
@@ -210,11 +183,4 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
             default -> throw new IllegalArgumentException("Unknown users.status_id=" + statusId);
         };
     }
-
-
-//    protected void setSaveParameters(PreparedStatement stmt, TrainingEnrollment enrollment) throws SQLException {
-//        stmt.setInt(1, enrollment.getEmployeeId());
-//        stmt.setInt(2, enrollment.getCourseId());
-//        stmt.setString(3, enrollment.getStatus());
-//    }
 }
