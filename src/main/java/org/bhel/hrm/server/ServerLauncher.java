@@ -56,6 +56,7 @@ public class ServerLauncher {
             context.getDatabaseManager(),
             context.getEmployeeService(),
             context.getUserService(),
+            context.getDashboardService(),
             context.getGlobalExceptionHandler()
         );
     }

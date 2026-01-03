@@ -1,0 +1,25 @@
+/* LOGIN VIEW STYLES */
+
+.login-container {
+    -fx-background-color: #f4f4f4;
+}
+
+.login-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.login-subtitle {
+    -fx-text-fill: #666666;
+    -fx-font-size: 12px;
+}
+
+.login-error-label {
+    -fx-text-fill: red;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.login-forgot-password-hyperlink {
+    -fx-font-size: 11px;
+}

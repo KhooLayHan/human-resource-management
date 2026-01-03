@@ -8,7 +8,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
@@ -24,16 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
 /**
  * Controller for the Employee Management view.
  * Handles displaying, searching, adding, editing, and deleting employees.
  */
-public class EmployeeManagementController implements Initializable {
+public class EmployeeManagementController {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeManagementController.class);
     private static final String EMPLOYEE_TABLE_PLACEHOLDER_MESSAGE =
         "No employees found. Click 'Add New Employee' to get started.";
@@ -62,8 +59,8 @@ public class EmployeeManagementController implements Initializable {
 
     private boolean initialized = false;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    @FXML
+    public void initialize() {
         logger.info("Employee Management Controller initialized.");
 
         // Initialize table columns immediately (doesn't require scene)
@@ -215,6 +212,11 @@ public class EmployeeManagementController implements Initializable {
             filteredEmployees = FXCollections.observableArrayList(employees);
 
             employeeTable.setItems(filteredEmployees);
+
+            employeeTable.getSortOrder().add(idColumn);
+            idColumn.setSortType(TableColumn.SortType.ASCENDING);
+            employeeTable.sort();
+
             employeeTable.setDisable(false);
 
             logger.info("Loaded {} employees", employees.size());

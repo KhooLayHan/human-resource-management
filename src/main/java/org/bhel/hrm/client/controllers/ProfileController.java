@@ -3,7 +3,6 @@ package org.bhel.hrm.client.controllers;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -19,11 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
-public class ProfileController implements Initializable {
+public class ProfileController {
     private static final Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
     @FXML private PageHeaderController pageHeaderController;
@@ -44,13 +41,13 @@ public class ProfileController implements Initializable {
     private ServiceManager serviceManager;
     private ExecutorService executorService;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resourceBundle) {
+    @FXML
+    public void initialize() {
         pageHeaderController.setTitle("My Profile");
         pageHeaderController.setSubtitle("View and manage your personal information.");
     }
 
-    public void setDependencies(
+    public void initDependencies(
         ServiceManager serviceManager,
         ExecutorService executorService,
         UserDTO currentUser

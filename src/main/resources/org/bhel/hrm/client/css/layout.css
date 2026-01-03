@@ -1,0 +1,66 @@
+/* LAYOUT STYLES */
+
+/* Sidebar Styles */
+.sidebar {
+    -fx-background-color: #e8e8e8;
+    -fx-padding: 10;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-color: #cccccc;
+}
+
+.sidebar-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.sidebar .button {
+    -fx-background-color: #dcdcdc;
+    -fx-text-fill: #222222;
+    -fx-font-size: 14px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar .button:hover {
+    -fx-background-color: #cccccc;
+}
+
+/* Navigation Button Active State */
+.nav-button-active {
+    -fx-background-color: #0078d4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Logout Button Styles */
+.logout-button {
+    -fx-background-color: #f8d7da; /* Light red */
+}
+
+.logout-button:hover {
+    -fx-background-color: #f5c6cb;
+}
+
+/* Content Area Styles */
+.content-area {
+    -fx-padding: 20;
+    -fx-background-color: #ffffff;
+}
+
+/* Status Bar Styles */
+.status-bar {
+    -fx-padding: 5 10 5 10;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: #cccccc;
+    -fx-background-color: #f8f8f8;
+}
+
+/* TableView Styles */
+.table-view .column-header-background {
+    -fx-background-color: #e0e0e0;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+}

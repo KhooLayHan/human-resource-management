@@ -19,17 +19,20 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     private final transient DatabaseManager dbManager;
     private final transient EmployeeService employeeService;
     private final transient UserService userService;
+    private final transient DashboardService dashboardService;
     private final transient GlobalExceptionHandler exceptionHandler;
 
     public HRMServer(
         DatabaseManager databaseManager,
         EmployeeService employeeService,
         UserService userService,
+        DashboardService dashboardService,
         GlobalExceptionHandler exceptionHandler
     ) throws RemoteException {
         this.dbManager = databaseManager;
         this.employeeService = employeeService;
         this.userService = userService;
+        this.dashboardService = dashboardService;
         this.exceptionHandler = exceptionHandler;
     }
 
@@ -173,13 +176,34 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
-    public EmployeeReportDTO generateEmployeeReport(int employeeId) throws RemoteException, HRMException {
+    public EmployeeReportDTO generateEmployeeReport(
+        int employeeId
+    ) throws RemoteException, HRMException {
         logger.info("RMI Call: generateEmployeeReport() for ID: {}", employeeId);
         ErrorContext context = ErrorContext.forUser(
             "generateEmployeeReport", String.valueOf(employeeId));
 
         try {
             return employeeService.generateYearlyReport(employeeId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
+    public DashboardDTO generateDashboard(
+        int userId
+    ) throws RemoteException, HRMException {
+        logger.info("RMI Call: generateDashboard() for ID: {}", userId);
+        ErrorContext context = ErrorContext.forUser(
+            "generateDashboard", String.valueOf(userId));
+
+        try {
+            return dashboardService.getDashboardData(userId);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
