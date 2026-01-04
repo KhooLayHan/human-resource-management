@@ -21,16 +21,29 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     private final transient UserService userService;
     private final transient GlobalExceptionHandler exceptionHandler;
 
+    private final transient RecruitmentService recruitmentService;
+    private final transient LeaveService leaveService;
+    private final transient BenefitService benefitService;
+    private final transient TrainingService trainingService;
+
     public HRMServer(
         DatabaseManager databaseManager,
         EmployeeService employeeService,
         UserService userService,
-        GlobalExceptionHandler exceptionHandler
+        GlobalExceptionHandler exceptionHandler,
+        RecruitmentService recruitmentService,
+        LeaveService leaveService,
+        BenefitService benefitService,
+        TrainingService trainingService
     ) throws RemoteException {
         this.dbManager = databaseManager;
         this.employeeService = employeeService;
         this.userService = userService;
         this.exceptionHandler = exceptionHandler;
+        this.recruitmentService = recruitmentService;
+        this.leaveService = leaveService;
+        this.benefitService = benefitService;
+        this.trainingService = trainingService;
     }
 
     @Override

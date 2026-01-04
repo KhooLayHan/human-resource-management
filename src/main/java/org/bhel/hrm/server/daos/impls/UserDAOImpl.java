@@ -101,9 +101,10 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error inserting new user: " + user.getUsername(), e);
-        } finally {
-            dbManager.releaseConnection(conn);
         }
+//        finally {
+//            dbManager.releaseConnection(conn);
+//        }
     }
 
     @Override

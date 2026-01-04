@@ -20,6 +20,7 @@ public final class ApplicantMapper {
             domain.getFullName(),
             domain.getEmail(),
             domain.getPhone(),
+            domain.getResumeUrl(),
             domain.getStatus()
         );
     }
@@ -34,6 +35,7 @@ public final class ApplicantMapper {
             dto.fullName(),
             dto.email(),
             dto.phone(),
+            dto.resumeUrl(),
             dto.status()
         );
     }

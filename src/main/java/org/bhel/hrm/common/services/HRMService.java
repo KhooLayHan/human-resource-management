@@ -5,6 +5,7 @@ import org.bhel.hrm.common.exceptions.HRMException;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -108,7 +109,7 @@ public interface HRMService extends Remote {
      * @param leaveApplicationDTO The DTO containing the details of the leave request.
      * @throws RemoteException if the application is invalid or a communication error occurs.
      */
-    void applyForLeave(LeaveApplicationDTO leaveApplicationDTO) throws RemoteException;
+    void applyForLeave(LeaveApplicationDTO leaveApplicationDTO) throws RemoteException, SQLException;
 
     /**
      * Retrieves the leave history for a specific employee.
@@ -117,7 +118,7 @@ public interface HRMService extends Remote {
      * @return A List of the employee's LeaveApplicationDTOs.
      * @throws RemoteException if a communication-related error occurs.
      */
-    List<LeaveApplicationDTO> getLeaveHistoryForEmployees(int employeeId) throws RemoteException;
+    List<LeaveApplicationDTO> getLeaveHistoryForEmployees(int employeeId) throws RemoteException, SQLException;
 
     // --- 4. Training Management (For Employees and HR) ---
 

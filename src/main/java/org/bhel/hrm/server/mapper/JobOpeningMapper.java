@@ -19,7 +19,9 @@ public final class JobOpeningMapper {
             domain.getTitle(),
             domain.getDescription(),
             domain.getDepartment(),
-            domain.getStatus()
+            domain.getStatus(),
+            domain.getPostedDate(),
+            domain.getClosingDate()
         );
     }
 
@@ -32,7 +34,9 @@ public final class JobOpeningMapper {
             dto.title(),
             dto.description(),
             dto.department(),
-            dto.status()
+            dto.status(),
+            dto.postedDate(),
+            dto.closingDate()
         );
     }
 }

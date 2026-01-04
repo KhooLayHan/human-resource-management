@@ -122,9 +122,10 @@ public class EmployeeDAOImpl extends AbstractDAO<Employee> implements EmployeeDA
             }
         } catch (SQLException e) {
             logger.error("Error inserting new employee: {} {}", employee.getFirstName(), employee.getLastName(), e);
-        } finally {
-            dbManager.releaseConnection(conn);
         }
+//        finally {
+//            dbManager.releaseConnection(conn);
+//        }
     }
 
     @Override

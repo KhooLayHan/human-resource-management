@@ -19,7 +19,9 @@ public final class RecruitmentMapper {
             domain.getTitle(),
             domain.getDescription(),
             domain.getDepartment(),
-            domain.getStatus()
+            domain.getStatus(),
+            domain.getPostedDate(),
+            domain.getClosingDate()
         );
     }
 
@@ -32,7 +34,9 @@ public final class RecruitmentMapper {
             dto.title(),
             dto.description(),
             dto.department(),
-            dto.status()
+            dto.status(),
+            dto.postedDate(),
+            dto.closingDate()
         );
     }
 
@@ -46,6 +50,7 @@ public final class RecruitmentMapper {
                 domain.getFullName(),
                 domain.getEmail(),
                 domain.getPhone(),
+                domain.getResumeUrl(),
                 domain.getStatus()
         );
     }
@@ -60,6 +65,7 @@ public final class RecruitmentMapper {
                 dto.fullName(),
                 dto.email(),
                 dto.phone(),
+                dto.resumeUrl(),
                 dto.status()
         );
     }

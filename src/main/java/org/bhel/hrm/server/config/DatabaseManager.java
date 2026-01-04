@@ -347,7 +347,7 @@ public final class DatabaseManager {
             )
         """);
 
-        // 6. JobOpenings, and JobOpeningStatuses Table
+        // 6. JobOpenings and Statuses
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS job_opening_statuses (
                 id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -358,9 +358,9 @@ public final class DatabaseManager {
 
         stmt.execute("""
             INSERT IGNORE INTO job_opening_statuses (id, name, sort_order) VALUES
-            (1, 'open', 1),
-            (2, 'closed', 2),
-            (3, 'on_hold', 3)
+                (1, 'open', 1),
+                (2, 'closed', 2),
+                (3, 'on_hold', 3)
         """);
 
         stmt.execute("""
@@ -369,18 +369,20 @@ public final class DatabaseManager {
                 title VARCHAR(255) NOT NULL,
                 description TEXT,
                 department VARCHAR(255),
-                status_id TINYINT UNSIGNED NOT NULL,
+                status_id TINYINT UNSIGNED NOT NULL DEFAULT 1, -- Default to OPEN
+                posted_date DATE,
+                closing_date DATE,
+        
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
                 CONSTRAINT fk_job_openings_status_id
                     FOREIGN KEY (status_id) REFERENCES job_opening_statuses(id)
-                    ON UPDATE CASCADE
-                    ON DELETE RESTRICT
+                    ON UPDATE CASCADE ON DELETE RESTRICT
             )
         """);
 
-        // 7. Applicants, and ApplicantStatuses Table
+// 7. Applicants and Statuses
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS applicant_statuses (
                 id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -406,19 +408,19 @@ public final class DatabaseManager {
                 full_name VARCHAR(255) NOT NULL,
                 email VARCHAR(255) NOT NULL,
                 phone VARCHAR(50),
-                status_id TINYINT UNSIGNED NOT NULL,
+                resume_url VARCHAR(255), -- New field for file path
+                status_id TINYINT UNSIGNED NOT NULL DEFAULT 1, -- Default to NEW
+        
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
                 CONSTRAINT fk_applicants_job_opening_id
                     FOREIGN KEY (job_opening_id) REFERENCES job_openings(id)
-                    ON UPDATE CASCADE
-                    ON DELETE CASCADE,
+                    ON UPDATE CASCADE ON DELETE CASCADE,
 
                 CONSTRAINT fk_applicants_status_id
                     FOREIGN KEY (status_id) REFERENCES applicant_statuses(id)
-                    ON UPDATE CASCADE
-                    ON DELETE RESTRICT
+                    ON UPDATE CASCADE ON DELETE RESTRICT
             )
         """);
     }

@@ -33,6 +33,15 @@ public enum ErrorCode {
     LEAVE_OVERLAPPING_DATES("HRM-LEAVE-002", "Leave dates overlap with existing request", 409),
     LEAVE_INVALID_DATE_RANGE("HRM-LEAVE-003", "Invalid date range for leave request", 400),
     LEAVE_CANNOT_CANCEL("HRM-LEAVE-004", "Cannot cancel leave request in current status", 400),
+    LEAVE_REQUEST_NOT_FOUND("HRM-LEAVE-005", "Leave request not found", 404),
+
+    // --- Recruitment (New Section) ---
+
+    JOB_OPENING_NOT_FOUND("HRM-REC-001", "Job opening not found", 404),
+    APPLICANT_NOT_FOUND("HRM-REC-002", "Applicant record not found", 404),
+    JOB_NOT_OPEN("HRM-REC-003", "Job opening is not currently accepting applications", 400),
+    DUPLICATE_APPLICATION("HRM-REC-004", "Applicant has already applied for this job", 409),
+    INVALID_STATUS_TRANSITION("HRM-REC-005", "Invalid status transition for applicant", 400),
 
     // --- Payroll ---
 
