@@ -1,1 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox spacing="20.0" styleClass="content-area" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.bhel.hrm.client.controllers.LeaveController">
+
+    <fx:include source="components/PageHeader.fxml" fx:id="pageHeader"/>
+
+    <!-- Balance Summary Cards -->
+    <HBox spacing="20.0">
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="Annual Leave" styleClass="stat-label"/>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <FontIcon iconLiteral="mdi2b-beach" iconSize="24" iconColor="#2ecc71"/>
+                <Label fx:id="annualBalLabel" text="14 Days" styleClass="stat-value"/>
+            </HBox>
+        </VBox>
+
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="Medical Leave" styleClass="stat-label"/>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <FontIcon iconLiteral="mdi2m-medical-bag" iconSize="24" iconColor="#e74c3c"/>
+                <Label fx:id="medicalBalLabel" text="10 Days" styleClass="stat-value"/>
+            </HBox>
+        </VBox>
+
+        <!-- "Apply" Button in a card or standalone -->
+        <Pane HBox.hgrow="ALWAYS" />
+        <Button text="Apply for Leave" onAction="#handleApplyLeave"
+                styleClass="button-primary" prefHeight="50" prefWidth="150">
+            <graphic>
+                <FontIcon iconLiteral="mdi2p-plus" iconSize="16" iconColor="white"/>
+            </graphic>
+        </Button>
+    </HBox>
+
+    <Separator />
+
+    <!-- Leave History Table -->
+    <VBox spacing="10" VBox.vgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT">
+            <Label text="My Leave History" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Refresh" onAction="#handleRefresh"/>
+        </HBox>
+
+        <TableView fx:id="leaveTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="typeCol" text="Type" prefWidth="100"/>
+                <TableColumn fx:id="startCol" text="Start Date" prefWidth="120"/>
+                <TableColumn fx:id="endCol" text="End Date" prefWidth="120"/>
+                <TableColumn fx:id="daysCol" text="Days" prefWidth="80"/>
+                <TableColumn fx:id="statusCol" text="Status" prefWidth="120"/>
+                <TableColumn fx:id="reasonCol" text="Reason" prefWidth="250"/>
+            </columns>
+            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /></columnResizePolicy>
+            <placeholder>
+                <Label text="No leave applications found."/>
+            </placeholder>
+        </TableView>
+    </VBox>
+</VBox>

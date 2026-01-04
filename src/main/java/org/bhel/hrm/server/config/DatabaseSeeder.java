@@ -57,7 +57,7 @@ public class DatabaseSeeder {
             dbManager.beginTransaction();
 
             // 1. Seed Users and Employees
-            seedUserAndEmployeeData();
+            //seedUserAndEmployeeData();
 
             // 2. Seed Recruitment (Jobs and Applicants)
 //            seedRecruitmentData();
@@ -94,7 +94,7 @@ public class DatabaseSeeder {
                 UserDTO.Role.EMPLOYEE
         );
         userDAO.save(employeeUser);
-
+//
         Employee testEmployee = new Employee(
                 employeeUser.getId(),
                 "John",

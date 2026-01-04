@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15.0" style="-fx-padding: 20;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.bhel.hrm.client.controllers.dialogs.LeaveApplicationFormController">
+
+    <Label text="New Leave Application">
+        <font><Font name="System Bold" size="18.0" /></font>
+    </Label>
+
+    <GridPane hgap="10" vgap="15">
+        <columnConstraints>
+            <ColumnConstraints minWidth="100"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Leave Type:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="typeComboBox" maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Start Date:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="startDatePicker" maxWidth="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="End Date:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="endDatePicker" maxWidth="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Reason:" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.valignment="TOP"/>
+        <TextArea fx:id="reasonArea" prefRowCount="3" wrapText="true" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label fx:id="errorLabel" textFill="RED" visible="false" wrapText="true"/>
+
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+        <Button text="Cancel" onAction="#handleCancel" cancelButton="true"/>
+        <Button fx:id="submitButton" text="Submit Application" onAction="#handleSubmit" defaultButton="true" styleClass="button-primary"/>
+    </HBox>
+</VBox>
