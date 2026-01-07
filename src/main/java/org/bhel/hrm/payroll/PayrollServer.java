@@ -14,11 +14,12 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A simple, multithreaded socket server to simulate a Payroll System (PRS).
- * It listens on a port, accepts one connection at a time, reads a single line of data,
- * prints it, and then waits for the next connection.
+ * A multithreaded TLS socket server to simulate a Payroll System (PRS).
+ * It listens on a port and handles multiple concurrent connections using a thread pool.
+ * Each connection receives encrypted payroll instructions via SSL/TLS.
  */
 public class PayrollServer {
     private static final Logger logger = LoggerFactory.getLogger(PayrollServer.class);
@@ -53,11 +54,11 @@ public class PayrollServer {
             TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(QUEUE_SIZE),
             new ThreadFactory() {
-                private int counter = 0;
+                private final AtomicInteger counter = new AtomicInteger(0);
 
                 @Override
                 public Thread newThread(Runnable r) {
-                    Thread t = new Thread(r, "PayrollServer-Worker-" + counter++);
+                    Thread t = new Thread(r, "PayrollServer-Worker-" + counter.getAndIncrement());
                     t.setDaemon(false);
 
                     return t;
@@ -87,8 +88,10 @@ public class PayrollServer {
             serverSocket.setSoTimeout(1_000); // Checks running flag every second
 
             logger.info("Payroll System (PRS) Server started successfully on port {}", port);
-            logger.info("Enabled protocols: {}",
+            if (logger.isInfoEnabled()) {
+                logger.info("Enabled protocols: {}",
                     String.join(", ", SslContextFactory.getEnabledProtocols()));
+            }
 
             acceptConnections();
         } catch (SocketTimeoutException e) {
@@ -100,7 +103,7 @@ public class PayrollServer {
     }
 
     private void acceptConnections() {
-        while (running.get()) {
+        while (running.getAcquire()) {
             try {
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 executorService.submit(new PayrollClientHandler(clientSocket, cryptoUtils));
@@ -119,7 +122,7 @@ public class PayrollServer {
 
     public void shutdown() {
         logger.info("Initiating shutdown...");
-        running.set(false);
+        running.setRelease(false);
 
         try {
             if (serverSocket != null && !serverSocket.isClosed())

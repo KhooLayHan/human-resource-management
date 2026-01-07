@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Handles individual client connections.
@@ -24,6 +26,9 @@ public class PayrollClientHandler implements Runnable {
     private final CryptoUtils cryptoUtils;
 
     PayrollClientHandler(SSLSocket clientSocket, CryptoUtils cryptoUtils) {
+        if (clientSocket == null || cryptoUtils == null)
+            throw new IllegalArgumentException("Dependencies cannot be null");
+
         this.clientSocket = clientSocket;
         this.cryptoUtils = cryptoUtils;
     }
@@ -93,14 +98,26 @@ public class PayrollClientHandler implements Runnable {
         logger.debug("Processing instruction: {}", instruction);
 
         // ACTION=NEW_HIRE;ID=%d;FIRST_NAME=%s;LAST_NAME=%s;IC=%s;TIMESTAMP=%d
-        return
-            instruction.contains("ACTION=") &&
-            instruction.contains("ID=") &&
-            instruction.contains("FIRST_NAME=") &&
-            instruction.contains("LAST_NAME=") &&
-            instruction.contains("IC=") &&
-            instruction.contains("TIMESTAMP=")
-        ;
+
+        // Split and validate each field has a non-empty value
+        String[] fields = instruction.split(";");
+        Map<String, String> fieldMap = new HashMap<>();
+
+        for (String field : fields) {
+            String[] parts = field.split("=", 2);
+
+            if (parts.length == 2 && !parts[1].isBlank()) {
+                fieldMap.put(parts[0], parts[1]);
+            }
+        }
+
+        // Verify all required fields are present with non-empty values
+        return fieldMap.containsKey("ACTION") &&
+           fieldMap.containsKey("ID") &&
+           fieldMap.containsKey("FIRST_NAME") &&
+           fieldMap.containsKey("LAST_NAME") &&
+           fieldMap.containsKey("IC") &&
+           fieldMap.containsKey("TIMESTAMP");
     }
 
     private void closeSocket() {

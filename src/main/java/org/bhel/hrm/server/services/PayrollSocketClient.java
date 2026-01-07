@@ -45,6 +45,9 @@ public class PayrollSocketClient {
         SslContextFactory sslContextFactory,
         CryptoUtils cryptoUtils
     ) {
+        if (configuration == null || sslContextFactory == null || cryptoUtils == null)
+            throw new IllegalArgumentException("Dependencies cannot be null");
+
         this.host = configuration.getPayrollHost();
         this.port = configuration.getPayrollPort();
         this.sslContextFactory = sslContextFactory;
@@ -237,7 +240,6 @@ public class PayrollSocketClient {
         if (input == null)
             return "";
 
-        // not production-ready...
         return input.replaceAll("[;=\n\r]", "_");
     }
 
