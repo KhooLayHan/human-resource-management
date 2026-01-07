@@ -13,7 +13,9 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.*;
 
@@ -79,7 +81,6 @@ public class CryptoUtils {
 
             return Base64.getEncoder().encodeToString(byteBuffer.array());
         } catch (Exception e) {
-            logger.error("Encryption failed", e);
             throw new CryptoException("Failed to encrypt data", e);
         }
     }
@@ -134,7 +135,6 @@ public class CryptoUtils {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
-            logger.error("Decryption failed - data may be corrupted or tampered", e);
             throw new CryptoException("Failed to decrypt data", e);
         }
     }
@@ -142,7 +142,7 @@ public class CryptoUtils {
     /**
      * Derives a cryptographic key using PBKDF2 with salt.
      */
-    private SecretKey deriveKey(byte[] salt) throws Exception {
+    private SecretKey deriveKey(byte[] salt) throws InvalidKeySpecException, NoSuchAlgorithmException {
         String masterSecret = configuration.getSecretKey();
 
         if (masterSecret == null || masterSecret.isBlank()) {

@@ -45,8 +45,9 @@ public class SslContextFactory {
         if (cachedSslContext == null) {
             cachedSslContext = initializeSslContext();
 
-            logger.info("SSLContext initialized successfully with protocols: {}",
-                Arrays.toString(TLSProtocol.toStringArray()));
+            if (logger.isInfoEnabled())
+                logger.info("SSLContext initialized successfully with protocols: {}",
+                    Arrays.toString(TLSProtocol.toStringArray()));
         }
 
         return cachedSslContext;

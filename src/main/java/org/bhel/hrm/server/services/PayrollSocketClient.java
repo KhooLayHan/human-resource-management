@@ -3,6 +3,7 @@ package org.bhel.hrm.server.services;
 import org.bhel.hrm.common.config.Configuration;
 import org.bhel.hrm.common.error.ErrorCode;
 import org.bhel.hrm.common.error.ErrorContext;
+import org.bhel.hrm.common.exceptions.CryptoException;
 import org.bhel.hrm.common.exceptions.NetworkException;
 import org.bhel.hrm.common.exceptions.SecurityException;
 import org.bhel.hrm.common.utils.CryptoUtils;
@@ -56,7 +57,7 @@ public class PayrollSocketClient {
         try {
             this.sslSocketFactory = sslContextFactory.createSslContext().getSocketFactory();
         } catch (Exception e) {
-            throw new RuntimeException("SSL initialization failed", e);
+            throw new CryptoException("SSL initialization failed", e);
         }
 
         // Thread pool for async operations
@@ -92,14 +93,6 @@ public class PayrollSocketClient {
         do {
             attempts++;
 
-//            ErrorContext attemptContext = ErrorContext.builder()
-//                .operation("payroll.client.notify.attempt")
-//                .addData("employeeId", employee.getId())
-//                .addData("attempt", attempts)
-//                .addData("maxAttempts", MAX_ATTEMPTS)
-//                .build();
-//            }
-
             try {
                 boolean result = sendSecureMessage(message, context);
 
@@ -132,10 +125,10 @@ public class PayrollSocketClient {
     /**
      * Sends encrypted message and validates response.
      */
-    private boolean sendSecureMessage(String message, ErrorContext context) throws Exception {
+    private boolean sendSecureMessage(String message, ErrorContext context) throws IOException {
         String encryptedPayload = cryptoUtils.encrypt(message);
 
-        try (SSLSocket socket = createSecureSocket(context)) {
+        try (SSLSocket socket = createSecureSocket()) {
             try (
                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
                 InputStreamReader inputReader = new InputStreamReader(socket.getInputStream());
@@ -164,7 +157,7 @@ public class PayrollSocketClient {
     /**
      * Creates and configure a secure SSL socket.
      */
-    private SSLSocket createSecureSocket(ErrorContext context) throws IOException {
+    private SSLSocket createSecureSocket() throws IOException {
         try {
             SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(host, port);
 
@@ -178,9 +171,6 @@ public class PayrollSocketClient {
 
             return socket;
         } catch (IOException e) {
-            logger.error("[errorId={}] Failed to create secure socket to {}:{}",
-                context.getErrorId(), host, port, e);
-
             throw new NetworkException(
                 ErrorCode.NETWORK_CONNECTION_FAILED,
                 String.format("Failed to connect to %s:%d - %s", host, port, e.getMessage()),
@@ -214,7 +204,7 @@ public class PayrollSocketClient {
             }
             return false;
         } else {
-            logger.warn("Unexpected server response: {}", response);
+            logger.warn("Unexpected server response: {} [{}]", response, context.getErrorId());
             return false;
         }
     }
@@ -247,7 +237,7 @@ public class PayrollSocketClient {
      * Calculates exponential backoff delay.
      */
     private int calculateRetryDelay(int attempt) {
-        return BASE_RETRY_DELAY_MS * (int) Math.pow(2, attempt - 1);
+        return BASE_RETRY_DELAY_MS * (int) Math.pow(2.0f, attempt - 1f);
     }
 
     /**
@@ -266,10 +256,9 @@ public class PayrollSocketClient {
      * Tests connection to payroll server.
      */
     public boolean testConnection() {
-        ErrorContext context = ErrorContext.forOperation("payroll.client.test");
         logger.info("Testing connection to {}:{}", host, port);
 
-        try (SSLSocket socket = createSecureSocket(context)) {
+        try (SSLSocket socket = createSecureSocket()) {
             logger.info("Connection test successful");
             return true;
         } catch (Exception e) {
