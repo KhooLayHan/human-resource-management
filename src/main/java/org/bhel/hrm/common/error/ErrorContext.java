@@ -1,5 +1,6 @@
 package org.bhel.hrm.common.error;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,14 +10,14 @@ import java.util.UUID;
  * Structured context information for errors.
  * Provides rich diagnostic information for logging, monitoring, and debugging.
  */
-public class ErrorContext {
+public class ErrorContext implements Serializable {
     private final String errorId;
     private final LocalDateTime timestamp;
     private final String operation;
     private final String userId;
     private final String sessionId;
     private final String ipAddress;
-    private final Map<String, Object> additionalData;
+    private final transient Map<String, Object> additionalData;
 
     private ErrorContext(ErrorContextBuilder builder) {
         this.errorId = builder.errorId;

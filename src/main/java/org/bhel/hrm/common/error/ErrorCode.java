@@ -57,6 +57,34 @@ public enum ErrorCode {
     VALIDATION_INVALID_FORMAT("HRM-VAL-003", "Invalid data format", 400),
     VALIDATION_OUT_OF_RANGE("HRM-VAL-004", "Value is out of acceptable range", 400),
 
+    // --- Security ---
+    SECURITY_SSL_INITIALIZATION_FAILED("HRM-SEC-001", "SSL context initialization failed", 500),
+
+    SECURITY_KEYSTORE_NOT_CONFIGURED("HRM-SEC-002", "Keystore configuration missing or invalid", 500),
+    SECURITY_KEYSTORE_NOT_FOUND("HRM-SEC-003", "Keystore file not found", 500),
+    SECURITY_KEYSTORE_LOAD_FAILED("HRM-SEC-004", "Keystore loading failed", 500),
+
+    SECURITY_KEY_MANAGER_INIT_FAILED("HRM-SEC-005", "KeyManager initialization failed", 500),
+    SECURITY_TRUST_MANAGER_INIT_FAILED("HRM-SEC-006", "TrustManager initialization failed", 500),
+
+    SECURITY_ENCRYPTION_FAILED("HRM-SEC-007", "Data encryption failed", 500),
+    SECURITY_DECRYPTION_FAILED("HRM-SEC-008", "Data encryption failed", 500),
+    SECURITY_INVALID_ENCRYPTED_DATA("HRM-SEC-009", "Data encryption corrupted or failed", 400),
+
+    SECURITY_KEY_NOT_CONFIGURED("HRM-SEC-010", "Encryption key not configured", 500),
+    SECURITY_HANDSHAKE_FAILED("HRM-SEC-011", "SSL/TLS handshake failed", 500),
+    SECURITY_CERTIFICATE_INVALID("HRM-SEC-012", "Invalid or expired certificate", 500),
+
+    // --- Network Communication ---
+
+    NETWORK_CONNECTION_FAILED("HRM-NET-001", "Network connection failed to establish", 503),
+    NETWORK_TIMEOUT("HRM-NET-002", "Network operation timed out", 408),
+    NETWORK_IO_ERROR("HRM-NET-003", "Network I/O error occurred", 500),
+    NETWORK_NO_RESPONSE("HRM-NET-004", "No response received from remote server", 504),
+    NETWORK_SERVER_START_FAILED("HRM-NET-005", "Network server failure", 500),
+    NETWORK_CONNECTION_REFUSED("HRM-NET-006", "Connection refused by remote server", 503),
+    NETWORK_HOST_UNREACHABLE("HRM-NET-007", "Remote host is unreachable", 503),
+
     // --- System ---
 
     SYSTEM_ERROR("HRM-SYS-001", "An unexpected system error occurred", 500),
