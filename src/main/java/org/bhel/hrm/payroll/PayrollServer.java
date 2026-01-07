@@ -98,7 +98,7 @@ public class PayrollServer {
           // Expected — allows for periodic checking of running flag
         } catch (Exception e) {
             logger.error("Failed to start server", e);
-            running.set(false);
+            running.setRelease(false);
         }
     }
 
@@ -112,7 +112,7 @@ public class PayrollServer {
             } catch (SocketTimeoutException e) {
                 // Normal timeout, continue checking running flag
             } catch (IOException e) {
-                if (running.get()) {
+                if (running.getAcquire()) {
                     ErrorContext context = ErrorContext.forOperation("payroll.server.accept");
                     logger.error("Error accepting connection. [{}]", context, e);
                 }
