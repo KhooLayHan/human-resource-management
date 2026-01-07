@@ -125,7 +125,7 @@ public class PayrollSocketClient {
     /**
      * Sends encrypted message and validates response.
      */
-    private boolean sendSecureMessage(String message, ErrorContext context) throws IOException {
+    private boolean sendSecureMessage(String message, ErrorContext context) throws IOException, SecurityException {
         String encryptedPayload = cryptoUtils.encrypt(message);
 
         try (SSLSocket socket = createSecureSocket()) {
