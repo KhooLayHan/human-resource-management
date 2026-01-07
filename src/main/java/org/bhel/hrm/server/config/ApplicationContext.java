@@ -135,4 +135,16 @@ public class ApplicationContext {
     public EmployeeService getEmployeeService() {
         return employeeService;
     }
+
+    public SslContextFactory getSslContextFactory() {
+        return sslContextFactory;
+    }
+
+    public CryptoUtils getCryptoUtils() {
+        return cryptoUtils;
+    }
+
+    public PayrollSocketClient getPayrollSocketClient() {
+        return payrollSocketClient;
+    }
 }

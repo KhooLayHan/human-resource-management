@@ -12,9 +12,6 @@ import java.util.UUID;
  * Provides rich diagnostic information for logging, monitoring, and debugging.
  */
 public class ErrorContext implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1905122041950251207L;
-
     private final String errorId;
     private final LocalDateTime timestamp;
     private final String operation;

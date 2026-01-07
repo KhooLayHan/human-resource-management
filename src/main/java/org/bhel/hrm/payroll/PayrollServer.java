@@ -75,7 +75,7 @@ public class PayrollServer {
         }
 
         int port = configuration.getPayrollPort();
-        running.set(true);
+        running.setRelease(true);
 
         try {
             SSLServerSocketFactory sslFactory = sslContextFactory.createSslContext().getServerSocketFactory();
