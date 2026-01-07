@@ -1,6 +1,10 @@
 package org.bhel.hrm.server.services;
 
 import org.bhel.hrm.common.config.Configuration;
+import org.bhel.hrm.common.error.ErrorCode;
+import org.bhel.hrm.common.error.ErrorContext;
+import org.bhel.hrm.common.exceptions.NetworkException;
+import org.bhel.hrm.common.exceptions.SecurityException;
 import org.bhel.hrm.common.utils.CryptoUtils;
 import org.bhel.hrm.common.utils.SslContextFactory;
 import org.bhel.hrm.server.domain.Employee;
@@ -66,21 +70,50 @@ public class PayrollSocketClient {
      * @param employee The newly registered employee.
      */
     public boolean notifyNewEmployee(Employee employee) {
+        final int MAX_ATTEMPTS = 2;
+
         if (employee == null)
             throw new IllegalArgumentException("Employee cannot be null");
+
+        ErrorContext context = ErrorContext.builder()
+            .operation("payroll.client.notify")
+            .addData("employeeId", employee.getId())
+            .addData("maxAttempts", MAX_ATTEMPTS)
+            .build();
 
         String message = buildPayrollMessage(employee);
         logger.info("Initiating payroll notification for employee ID: {}", employee.getId());
 
-        try {
-            return sendSecureMessage(message);
-        } catch (SocketTimeoutException e) {
-            logger.warn("Connection timeout.", e);
-        } catch (IOException e) {
-            logger.warn("Network error: {}", e.getMessage());
-        } catch (Exception e) {
-            logger.error("Unexpected error", e);
-        }
+        int attempts = 0;
+
+        do {
+            attempts++;
+
+//            ErrorContext attemptContext = ErrorContext.builder()
+//                .operation("payroll.client.notify.attempt")
+//                .addData("employeeId", employee.getId())
+//                .addData("attempt", attempts)
+//                .addData("maxAttempts", MAX_ATTEMPTS)
+//                .build();
+//            }
+
+            try {
+                boolean result = sendSecureMessage(message, context);
+
+                if (result) {
+                    logger.info("[errorId={}] Successfully notified PRS for Employee ID: {}",
+                            context.getErrorId(), employee.getId());
+                    return true;
+                }
+            } catch (SocketTimeoutException e) {
+                logger.warn("Connection timeout.", e);
+            } catch (IOException e) {
+                logger.warn("Network error: {}", e.getMessage());
+            } catch (Exception e) {
+                logger.error("Unexpected error", e);
+            }
+
+        } while (attempts < MAX_ATTEMPTS);
 
         logger.error("Failed to notify PRS for Employee ID: {}", employee.getId());
         return false;
@@ -96,58 +129,86 @@ public class PayrollSocketClient {
     /**
      * Sends encrypted message and validates response.
      */
-    private boolean sendSecureMessage(String message) throws Exception {
+    private boolean sendSecureMessage(String message, ErrorContext context) throws Exception {
         String encryptedPayload = cryptoUtils.encrypt(message);
 
-        try (
-            SSLSocket socket = createSecureSocket();
-            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-            InputStreamReader inputReader = new InputStreamReader(socket.getInputStream());
-            BufferedReader reader = new BufferedReader(inputReader);
-        ) {
-            // Sends encrypted data
-            writer.println(encryptedPayload);
-            logger.debug("Encrypted payload send with {} bytes.", encryptedPayload.length());
+        try (SSLSocket socket = createSecureSocket(context)) {
+            try (
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                InputStreamReader inputReader = new InputStreamReader(socket.getInputStream());
+                BufferedReader reader = new BufferedReader(inputReader);
+            ) {
+                // Sends encrypted data
+                writer.println(encryptedPayload);
+                logger.debug("Encrypted payload send with {} bytes.", encryptedPayload.length());
 
-            // Waiting for acknowledgement
-            String response = reader.readLine();
+                // Waiting for acknowledgement
+                String response = reader.readLine();
 
-            if (response == null) {
-                logger.warn("No response received from server.");
-                return false;
+                if (response == null) {
+                    logger.warn("No response received from server.");
+                    throw new NetworkException(
+                        ErrorCode.NETWORK_NO_RESPONSE,
+                        "No response received from payroll server"
+                    );
+                }
+
+                return validateResponse(response, context);
             }
-
-            return validateResponse(response);
         }
     }
 
     /**
      * Creates and configure a secure SSL socket.
      */
-    private SSLSocket createSecureSocket() throws IOException {
-        SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(host, port);
+    private SSLSocket createSecureSocket(ErrorContext context) throws IOException {
+        try {
+            SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(host, port);
 
-        socket.setSoTimeout(SOCKET_TIMEOUT_MS);
+            socket.setSoTimeout(SOCKET_TIMEOUT_MS);
 
-        socket.setEnabledProtocols(SslContextFactory.getEnabledProtocols());
-        socket.setEnabledCipherSuites(SslContextFactory.getPreferredCipherSuites());
+            socket.setEnabledProtocols(SslContextFactory.getEnabledProtocols());
+            socket.setEnabledCipherSuites(SslContextFactory.getPreferredCipherSuites());
 
-        socket.startHandshake(); // Ensure SSL handshake succeeds before sending data
-        logger.debug("SSL handshake completed successfully");
+            socket.startHandshake(); // Ensure SSL handshake succeeds before sending data
+            logger.debug("SSL handshake completed successfully");
 
-        return socket;
+            return socket;
+        } catch (IOException e) {
+            logger.error("[errorId={}] Failed to create secure socket to {}:{}",
+                context.getErrorId(), host, port, e);
+
+            throw new NetworkException(
+                ErrorCode.NETWORK_CONNECTION_FAILED,
+                String.format("Failed to connect to %s:%d - %s", host, port, e.getMessage()),
+                e
+            );
+        }
     }
 
     /**
      * Validates server response.
      */
-    private boolean validateResponse(String response) {
+    private boolean validateResponse(String response, ErrorContext context) {
         if (response.startsWith("ACK:SUCCESS")) {
             logger.info("Server acknowledged: Success");
             return true;
         } else if (response.startsWith("ERROR:")) {
             String errorCode = response.substring(6);
             logger.error("Server returned error: {}", errorCode);
+
+            // Map server error codes to client exceptions
+            if (errorCode.equals("DECRYPTION_FAILED")) {
+                throw new SecurityException(
+                    ErrorCode.SECURITY_DECRYPTION_FAILED,
+                    "Server failed to decrypt message - possible key mismatch"
+                );
+            } else if (errorCode.equals("TIMEOUT")) {
+                throw new NetworkException(
+                        ErrorCode.NETWORK_TIMEOUT,
+                        "Server processing timeout"
+                );
+            }
             return false;
         } else {
             logger.warn("Unexpected server response: {}", response);
@@ -203,9 +264,10 @@ public class PayrollSocketClient {
      * Tests connection to payroll server.
      */
     public boolean testConnection() {
+        ErrorContext context = ErrorContext.forOperation("payroll.client.test");
         logger.info("Testing connection to {}:{}", host, port);
 
-        try (SSLSocket socket = createSecureSocket()) {
+        try (SSLSocket socket = createSecureSocket(context)) {
             logger.info("Connection test successful");
             return true;
         } catch (Exception e) {

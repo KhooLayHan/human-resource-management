@@ -1,6 +1,7 @@
 package org.bhel.hrm.payroll;
 
 import org.bhel.hrm.common.config.Configuration;
+import org.bhel.hrm.common.error.ErrorContext;
 import org.bhel.hrm.common.utils.CryptoUtils;
 import org.bhel.hrm.common.utils.SslContextFactory;
 import org.slf4j.Logger;
@@ -99,13 +100,18 @@ public class PayrollServer {
     }
 
     private void acceptConnections() {
-        while (running.getAcquire()) {
+        while (running.get()) {
             try {
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 executorService.submit(new PayrollClientHandler(clientSocket, cryptoUtils));
+
+                logger.info("Accepted connection from {}", clientSocket.getRemoteSocketAddress());
+            } catch (SocketTimeoutException e) {
+                // Normal timeout, continue checking running flag
             } catch (IOException e) {
                 if (running.get()) {
-                    logger.error("Error accepting connection", e);
+                    ErrorContext context = ErrorContext.forOperation("payroll.server.accept");
+                    logger.error("Error accepting connection. [{}]", context, e);
                 }
             }
         }
