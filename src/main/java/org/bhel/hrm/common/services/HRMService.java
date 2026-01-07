@@ -26,6 +26,17 @@ public interface HRMService extends Remote {
      */
     UserDTO authenticateUser(String username, String password) throws RemoteException, HRMException;
 
+    /**
+     * Changes the password for an existing user.
+     *
+     * @param userId      The ID of the user whose password to change; must be positive.
+     * @param oldPassword The current password for verification; must not be null.
+     * @param newPassword The new password to set; must not be null or empty.
+     * @throws RemoteException If a communication-related error occurs.
+     * @throws HRMException If an authentication-related business rule is violated
+     */
+    void updateUserPassword(int userId, String oldPassword, String newPassword) throws RemoteException, HRMException;
+
     // --- 2. Employee Management (Primarily for HR Staff) ---
 
     /**
@@ -55,6 +66,16 @@ public interface HRMService extends Remote {
      * @throws HRMException If the employee is not found or another business rule is violated
      */
     EmployeeDTO getEmployeeById(int employeeId) throws RemoteException, HRMException;
+
+    /**
+     * Retrieves the full profile details for a single employee by their user ID.
+     *
+     * @param userId The user ID of the employee to fetch; must be positive
+     * @return An {@link EmployeeDTO} containing the employee's details, not null
+     * @throws RemoteException If a communication error occurs
+     * @throws HRMException If the employee is not found or another business rule is violated
+     */
+    EmployeeDTO getEmployeeByUserId(int userId) throws RemoteException, HRMException;
 
     /**
      * Updates the profile information for an existing employee.
@@ -87,6 +108,9 @@ public interface HRMService extends Remote {
      * @throws HRMException    If a business rule violation occurs or the employee is not found
      */
     EmployeeReportDTO generateEmployeeReport(int employeeId) throws RemoteException, HRMException;
+
+    // -- 3. Dashboard Management (For Employees and HR) --
+    DashboardDTO generateDashboard(int userId) throws RemoteException, HRMException;
 
     // --- 3. Leave Management (For Employees and HR) ---
 

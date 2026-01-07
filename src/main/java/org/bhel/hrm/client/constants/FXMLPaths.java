@@ -15,6 +15,8 @@ public class FXMLPaths {
 
     public static final String EMPLOYEE_MANAGEMENT = BASE + "EmployeeManagementView" + EXTENSION;
 
+    public static final String DASHBOARD = BASE + "DashboardView" + EXTENSION;
+
     public static final String LEAVE = BASE + "LeaveView" + EXTENSION;
 
     public static final String BENEFITS = BASE + "BenefitsView" + EXTENSION;
@@ -24,6 +26,8 @@ public class FXMLPaths {
     public static final String TRAINING_ADMIN = BASE + "TrainingAdminView" + EXTENSION;
 
     public static final String TRAINING_CATALOG = BASE + "TrainingCatalogView" + EXTENSION;
+
+    public static final String PROFILE = BASE + "ProfileView" + EXTENSION;
 
     public static class Dialogs {
         private Dialogs() {
@@ -39,6 +43,8 @@ public class FXMLPaths {
         public static final String APPLICANT_STATUS_VIEW = DIALOG + "ApplicantStatusView" + EXTENSION;
 
         public static final String TRAINING_COURSE_FORM = DIALOG + "TrainingCourseFormView" + EXTENSION;
+
+        public static final String CHANGE_PASSWORD = DIALOG + "ChangePasswordView" + EXTENSION;
 
         public static final String REPORT = DIALOG + "ReportDialogView" + EXTENSION;
     }

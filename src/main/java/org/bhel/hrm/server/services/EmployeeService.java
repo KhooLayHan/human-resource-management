@@ -24,6 +24,7 @@ import java.util.List;
  */
 public class EmployeeService {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+    private static final String RESOURCE_TYPE = "Employee";
 
     private final DatabaseManager dbManager;
     private final EmployeeDAO employeeDAO;
@@ -62,12 +63,32 @@ public class EmployeeService {
         Employee employee = employeeDAO.findById(employeeId)
             .orElseThrow(() -> new ResourceNotFoundException(
                 ErrorCode.EMPLOYEE_NOT_FOUND,
-                "Employee",
+                "Employee ID",
                 employeeId
             ));
 
         logger.info("Successfully retrieved employee by ID: {}.",
             employeeId);
+        return EmployeeMapper.mapToDto(employee);
+    }
+
+    /**
+     * Retrieves the employee profile associated with their user ID.
+     *
+     * @param userId The user ID of the employee to fetch; must be positive
+     * @return The {@link EmployeeDTO} for the found employee; never null
+     * @throws ResourceNotFoundException If no employee with the given ID is found
+     */
+    public EmployeeDTO getEmployeeByUserId(int userId) throws ResourceNotFoundException {
+        Employee employee = employeeDAO.findByUserId(userId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                "Employee with User ID",
+                userId
+            ));
+
+        logger.info("Successfully retrieved employee by the associated user ID: {}.",
+            userId);
         return EmployeeMapper.mapToDto(employee);
     }
 
@@ -85,7 +106,7 @@ public class EmployeeService {
             Employee existingEmployee = employeeDAO.findById(employeeDTO.id())
                 .orElseThrow(() -> new ResourceNotFoundException(
                     ErrorCode.EMPLOYEE_NOT_FOUND,
-                    "Employee",
+                    RESOURCE_TYPE,
                     employeeDTO.id()
                 ));
 
@@ -113,7 +134,7 @@ public class EmployeeService {
             Employee employee = employeeDAO.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                     ErrorCode.EMPLOYEE_NOT_FOUND,
-                    "Employee",
+                    RESOURCE_TYPE,
                     employeeId
                 ));
 
@@ -151,7 +172,7 @@ public class EmployeeService {
         Employee employee = employeeDAO.findById(employeeId).
             orElseThrow(() -> new ResourceNotFoundException(
                 ErrorCode.EMPLOYEE_NOT_FOUND,
-                "Employee",
+                RESOURCE_TYPE,
                 employeeId
             ));
 

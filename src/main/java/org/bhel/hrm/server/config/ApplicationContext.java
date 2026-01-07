@@ -10,6 +10,7 @@ import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
 import org.bhel.hrm.server.daos.impls.UserDAOImpl;
+import org.bhel.hrm.server.services.DashboardService;
 import org.bhel.hrm.server.services.EmployeeService;
 import org.bhel.hrm.server.services.PayrollSocketClient;
 import org.bhel.hrm.server.services.UserService;
@@ -38,6 +39,7 @@ public class ApplicationContext {
 
     private final UserService userService;
     private final EmployeeService employeeService;
+    private final DashboardService dashboardService;
 
     private final SslContextFactory sslContextFactory;
     private final CryptoUtils cryptoUtils;
@@ -66,6 +68,7 @@ public class ApplicationContext {
 
         this.userService = new UserService(databaseManager, userDAO, employeeDAO, payrollSocketClient);
         this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
+        this.dashboardService = new DashboardService(userDAO, employeeDAO);
 
         seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
 
@@ -135,8 +138,12 @@ public class ApplicationContext {
     public EmployeeService getEmployeeService() {
         return employeeService;
     }
-
-    public SslContextFactory getSslContextFactory() {
+  
+    public DashboardService getDashboardService() {
+        return dashboardService;
+    }
+  
+  public SslContextFactory getSslContextFactory() {
         return sslContextFactory;
     }
 

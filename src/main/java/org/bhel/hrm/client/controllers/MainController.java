@@ -18,7 +18,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.bhel.hrm.client.MainClient;
-import org.bhel.hrm.client.constants.FXMLPaths;
+import org.bhel.hrm.client.constants.ViewType;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
 import org.bhel.hrm.client.utils.ViewManager;
@@ -136,32 +136,35 @@ public class MainController {
     private void buildNavigationMenu() {
         navigationVBox.getChildren().clear(); // Clear any existing buttons
 
-        // Always add a Dashboard button
-        addNavigationBtn("Dashboard", this::loadDashboardView);
+        // 1. Always add Dashboard
+        addNavigationBtn(ViewType.DASHBOARD);
 
-        // Role-based navigation
-        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
-            addNavigationBtn("Employee Management", this::loadEmployeeManagementView);
-            addNavigationBtn("Recruitment", this::loadRecruitmentView);
-            addNavigationBtn("Training Admin", this::loadTrainingAdminView);
-        }
+        // 2. Add other views based on role permissions
+        // Define the order you want them to appear
+        ViewType[] menuOrder = {
+            ViewType.EMPLOYEE_MANAGEMENT,
+            ViewType.RECRUITMENT,
+            ViewType.TRAINING_ADMIN,
+            ViewType.LEAVE,
+            ViewType.BENEFITS,
+            ViewType.TRAINING_CATALOG,
+            ViewType.PROFILE
+        };
 
-        if (
-            currentUser.role() == UserDTO.Role.EMPLOYEE ||
-            currentUser.role() == UserDTO.Role.HR_STAFF
-        ) {
-            addNavigationBtn("Leave", this::loadLeaveView);
-            addNavigationBtn("Benefits", this::loadBenefitsView);
-            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
-            addNavigationBtn("My Profile", this::loadProfileView);
+        for (ViewType view : menuOrder) {
+            if (view.isAllowedForRole(currentUser.role())) {
+                addNavigationBtn(view);
+            }
         }
     }
 
-    /** Helper method to create and add a styled navigation button. */
-    private void addNavigationBtn(String text, Runnable action) {
+    /**
+     * Helper method to create and add a styled navigation button.
+     */
+    private void addNavigationBtn(ViewType viewType) {
         final String NAV_BUTTON_STYLE = "nav-button-active";
 
-        Button button = new Button(text);
+        Button button = new Button(viewType.getDisplayName());
         button.setMaxWidth(Double.MAX_VALUE);
         button.getStyleClass().add("nav-button");
 
@@ -175,13 +178,20 @@ public class MainController {
             activeButton = button;
 
             // Update current view label
-            currentViewLabel.setText(text);
+            currentViewLabel.setText(viewType.getDisplayName());
 
             // Reset session timer on user activity
             // resetSessionTimer();
 
             // Execute the navigation action
-            action.run();
+            ViewManager.loadView(
+                contentArea,
+                viewType,
+                serviceManager,
+                executorService,
+                currentUser,
+                this
+            );
         });
 
         navigationVBox.getChildren().add(button);
@@ -194,85 +204,41 @@ public class MainController {
     }
 
     /**
+     * Navigate to a specific view using ViewManager with ViewType enum.
+     * This is the main navigation method used throughout the application.
+     */
+    public void navigateToView(ViewType viewType) {
+        logger.info("Navigating to view: {}", viewType.getDisplayName());
+
+        if (activeButton != null)
+            activeButton.getStyleClass().remove("nav-button-active");
+
+        currentViewLabel.setText(viewType.getDisplayName());
+
+        ViewManager.loadView(
+            contentArea,
+            viewType,
+            serviceManager,
+            executorService,
+            currentUser,
+            this
+        );
+    }
+
+    /**
      * Loads the dashboard view based on user role.
      */
     private void loadDashboardView() {
-        currentViewLabel.setText("Dashboard");
+        logger.info("Loading Dashboard View...");
 
-        // Uses the ViewManager to load the appropriate dashboard
-        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
-            ViewManager.loadView(contentArea, FXMLPaths.EMPLOYEE_MANAGEMENT);
-        } else {
-            // Placeholder to load other employee-specific Dashboard views. For instance:
-            // ViewManager.loadView(contentArea, "/org/bhel/hrm/client/view/EmployeeDashboardView.fxml");
-        }
-    }
-
-    /**
-     * Loads the employee management view.
-     */
-    private void loadEmployeeManagementView() {
-        logger.info("Loading Employee Management View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.EMPLOYEE_MANAGEMENT);
-    }
-
-    /**
-     * Loads the leave view.
-     */
-    private void loadLeaveView() {
-        logger.info("Loading Leave View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.LEAVE);
-    }
-
-    /**
-     * Loads the benefits view.
-     */
-    private void loadBenefitsView() {
-        logger.info("Loading Benefits View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.BENEFITS);
-    }
-
-    /**
-     * Loads the recruitment view.
-     */
-    private void loadRecruitmentView() {
-        logger.info("Loading Recruitment View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.RECRUITMENT);
-    }
-
-    /**
-     * Loads the training admin view.
-     */
-    private void loadTrainingAdminView() {
-        logger.info("Loading Training Admin View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.TRAINING_ADMIN);
-    }
-
-    /**
-     * Loads the training catalog view.
-     */
-    private void loadTrainingCatalogView() {
-        logger.info("Loading Training Catalog View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.TRAINING_CATALOG);
-    }
-
-    /**
-     * Loads the profile view.
-     */
-    private void loadProfileView() {
-        logger.info("Loading Profile View...");
+        ViewManager.loadView(
+            contentArea,
+            ViewType.DASHBOARD,
+            serviceManager,
+            executorService,
+            currentUser,
+            this
+        );
     }
 
     /**

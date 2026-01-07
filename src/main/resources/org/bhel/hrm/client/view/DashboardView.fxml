@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+<ScrollPane fitToWidth="true" styleClass="dashboard-scroll-pane"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.bhel.hrm.client.controllers.DashboardController">
+
+    <VBox spacing="25">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header -->
+        <VBox spacing="5">
+            <Label fx:id="welcomeLabel"
+                   text="Welcome, User!"
+                   styleClass="page-title"/>
+        </VBox>
+
+        <!-- Stats Card Container -->
+        <FlowPane fx:id="cardsContainer"
+                  hgap="15" vgap="15"
+                  prefWrapLength="1000">
+
+            <!-- Employee Cards -->
+
+            <!-- Annual Leave Balance -->
+            <HBox fx:id="cardAnnualLeave"
+                  styleClass="stat-card"
+                  spacing="12"
+                  alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-green">
+                    <FontIcon iconLiteral="mdi2b-beach"
+                              iconSize="32"
+                              iconColor="white"/>
+                </StackPane>
+                <VBox spacing="5">
+                    <Label text="Annual Leave"
+                           styleClass="stat-label"/>
+                    <Label fx:id="labelAnnualLeave"
+                           text="0"
+                           styleClass="stat-value"/>
+                    <Label fx:id="labelAnnualLeaveSubtext"
+                           text="days remaining"
+                           styleClass="mini-stat"/>
+                </VBox>
+            </HBox>
+
+            <!-- Medical Leave Balance -->
+            <HBox fx:id="cardMedicalLeave"
+                  styleClass="stat-card"
+                  spacing="12"
+                  alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-blue">
+                    <FontIcon iconLiteral="mdi2m-medical-bag"
+                              iconSize="32"
+                              iconColor="white"/>
+                </StackPane>
+                <VBox spacing="5">
+                    <Label text="Medical Leave"
+                           styleClass="stat-label"/>
+                    <Label fx:id="labelMedicalLeave"
+                           text="0"
+                           styleClass="stat-value"/>
+                    <Label fx:id="labelMedicalLeaveSubtext"
+                           text="days remaining"
+                           styleClass="mini-stat"/>
+                </VBox>
+            </HBox>
+
+            <!-- Upcoming Trainings -->
+            <HBox fx:id="cardUpcomingTrainings"
+                  styleClass="stat-card"
+                  spacing="12"
+                  alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-purple">
+                    <FontIcon iconLiteral="mdi2s-school"
+                              iconSize="32"
+                              iconColor="white"/>
+                </StackPane>
+                <VBox spacing="5">
+                    <Label text="Upcoming Trainings"
+                           styleClass="stat-label"/>
+                    <Label fx:id="labelUpcomingTrainings"
+                           text="0"
+                           styleClass="stat-value"/>
+                    <Label fx:id="labelUpcomingTrainingsSubtext"
+                           text="courses enrolled"
+                           styleClass="mini-stat"/>
+                </VBox>
+            </HBox>
+
+            <!-- HR Staff Cards -->
+
+            <!-- Total Employees -->
+            <HBox fx:id="cardTotalEmployees"
+                  styleClass="stat-card"
+                  spacing="12"
+                  alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-blue">
+                    <FontIcon iconLiteral="mdi2a-account-group"
+                              iconSize="32"
+                              iconColor="white"/>
+                </StackPane>
+                <VBox>
+                    <Label text="Total Employees"
+                           styleClass="stat-label"/>
+                    <Label fx:id="labelTotalEmployees"
+                           text="0"
+                           styleClass="stat-value"/>
+                    <Label fx:id="labelTotalEmployeesSubtext"
+                           text="active staffs"
+                           styleClass="mini-stat"/>
+                </VBox>
+            </HBox>
+
+            <!-- Pending Leave Approvals -->
+            <HBox fx:id="cardPendingLeaves"
+                  styleClass="stat-card"
+                  spacing="12"
+                  alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-orange">
+                    <FontIcon iconLiteral="mdi2f-file-document-alert"
+                              iconSize="32"
+                              iconColor="white"/>
+                </StackPane>
+                <VBox>
+                    <Label text="Pending Approvals"
+                           styleClass="stat-label"/>
+                    <Label fx:id="labelPendingLeaves"
+                           text="0"
+                           styleClass="stat-value"/>
+                    <Label fx:id="labelPendingLeavesSubtext"
+                           text="requires action"
+                           styleClass="mini-stat"/>
+                </VBox>
+            </HBox>
+
+            <!-- Open Job Position -->
+            <HBox fx:id="cardOpenJobs"
+                  styleClass="stat-card"
+                  spacing="12"
+                  alignment="CENTER_LEFT">
+                <StackPane styleClass="icon-container, icon-purple">
+                    <FontIcon iconLiteral="mdi2b-briefcase-search"
+                              iconSize="32"
+                              iconColor="white"/>
+                </StackPane>
+                <VBox>
+                    <Label text="Open Positions"
+                           styleClass="stat-label"/>
+                    <Label fx:id="labelOpenJobs"
+                           text="0"
+                           styleClass="stat-value"/>
+                    <Label fx:id="labelOpenJobsSubtext"
+                           text="actively recruiting"
+                           styleClass="mini-stat"/>
+                </VBox>
+            </HBox>
+
+        </FlowPane>
+
+        <GridPane hgap="20" vgap="20">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50" hgrow="ALWAYS"/>
+                <ColumnConstraints percentWidth="50" hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <!-- Department Distribution (HR Only) -->
+            <VBox fx:id="chartDepartmentDistribution"
+                  styleClass="chart-card"
+                  GridPane.rowIndex="0" GridPane.columnIndex="0">
+                <Label text="Department Distribution"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2c-chart-pie"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <PieChart fx:id="departmentPieChart"
+                          legendVisible="false"
+                          VBox.vgrow="ALWAYS"
+                          minHeight="280"/>
+            </VBox>
+
+            <!-- Leave Status Overview (HR Only) -->
+            <VBox fx:id="chartLeaveStatus"
+                  styleClass="chart-card"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <Label text="Leave Requests Status"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2c-chart-bar"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <BarChart fx:id="leaveStatusChart"
+                          legendVisible="false"
+                          VBox.vgrow="ALWAYS"
+                          minHeight="280"
+                          animated="false">
+                    <xAxis>
+                        <CategoryAxis label="Status"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Count" side="LEFT"/>
+                    </yAxis>
+                </BarChart>
+            </VBox>
+
+            <!-- Recruitment Pipeline (HR Only) -->
+            <VBox fx:id="chartRecruitmentPipeline"
+                  styleClass="chart-card"
+                  GridPane.rowIndex="1" GridPane.columnIndex="0">
+                <Label text="Recruitment Pipeline"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2a-account-arrow-right"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <BarChart fx:id="recruitmentPipelineChart"
+                          legendVisible="false"
+                          VBox.vgrow="ALWAYS"
+                          minHeight="280"
+                          animated="false">
+                    <xAxis>
+                        <CategoryAxis label="Stage"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Applicants" side="LEFT"/>
+                    </yAxis>
+                </BarChart>
+            </VBox>
+
+            <!-- Training Enrollment Trends (HR Only) -->
+            <VBox fx:id="chartTrainingTrends"
+                  styleClass="chart-card"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <Label text="Monthly Training Enrollment"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2c-chart-line"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <LineChart fx:id="trainingTrendsChart"
+                           legendVisible="false"
+                           VBox.vgrow="ALWAYS"
+                           minHeight="280"
+                           animated="false">
+                    <xAxis>
+                        <CategoryAxis label="Month"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Enrollments" side="LEFT"/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+
+            <!-- Quick Actions Panel -->
+            <VBox styleClass="chart-card"
+                  GridPane.columnIndex="0" GridPane.rowIndex="2">
+                <Label text="Quick Actions"
+                       styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-flash"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+                <VBox spacing="12"
+                      styleClass="vbox-padding">
+
+                    <!-- Employee Actions -->
+                    <Button fx:id="buttonApplyLeave"
+                            text="Apply for Leave"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToLeave">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-calendar-plus"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="buttonViewProfile"
+                            text="View My Profile"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToProfile">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2a-account-circle"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="buttonBrowseTraining"
+                            text="Browse Training Courses"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToTraining">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2b-book-open-variant"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <!-- HR Staff Actions -->
+                    <Button fx:id="buttonManageLeaveRequests"
+                            text="Manage Leave Requests"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToLeaveManagement">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-clipboard-check"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="buttonManageRecruitment"
+                            text="Manage Recruitment"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToRecruitment">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2a-account-plus"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="buttonGenerateReports"
+                            text="Generate Reports"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleNavigateToReports">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-file-chart"
+                                      iconSize="16"/>
+                        </graphic>
+                    </Button>
+                </VBox>
+            </VBox>
+        </GridPane>
+    </VBox>
+</ScrollPane>
