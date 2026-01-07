@@ -107,9 +107,9 @@ public class GlobalExceptionHandler {
      * @throws RemoteException If an unexpected/unrecoverable error occurs
      * @throws HRMException    If a business or translated database exception occurs
      */
-    public void handle(Exception e, String operation) throws RemoteException, HRMException {
+    public static void handle(Exception e, String operation) throws RemoteException, HRMException {
         ErrorContext context = ErrorContext.forOperation(operation);
-        handle(e, context);
+
     }
 
     /**

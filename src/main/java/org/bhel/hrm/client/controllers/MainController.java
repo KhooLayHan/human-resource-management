@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -26,6 +27,7 @@ import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
@@ -155,6 +157,16 @@ public class MainController {
             addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
             addNavigationBtn("My Profile", this::loadProfileView);
         }
+        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
+            // ... (Employees, Recruitment)
+            addNavigationBtn("Training Admin", this::loadTrainingAdminView); // Link for HR
+        }
+
+        if (currentUser.role() == UserDTO.Role.EMPLOYEE || currentUser.role() == UserDTO.Role.HR_STAFF) {
+            // ... (My Profile, Leave)
+//            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView); // Link for Employee
+            addNavigationBtn("My Training", this::loadMyTrainingView); // Link for Employee History
+        }
     }
 
     /** Helper method to create and add a styled navigation button. */
@@ -249,26 +261,6 @@ public class MainController {
     }
 
     /**
-     * Loads the training admin view.
-     */
-    private void loadTrainingAdminView() {
-        logger.info("Loading Training Admin View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.TRAINING_ADMIN);
-    }
-
-    /**
-     * Loads the training catalog view.
-     */
-    private void loadTrainingCatalogView() {
-        logger.info("Loading Training Catalog View...");
-
-        ViewManager.loadView(contentArea,
-            FXMLPaths.TRAINING_CATALOG);
-    }
-
-    /**
      * Loads the profile view.
      */
     private void loadProfileView() {
@@ -288,6 +280,58 @@ public class MainController {
         clockTimeline.play();
     }
 
+    /**
+     * Loads the training catalog view.
+     */
+    private void loadTrainingCatalogView() {
+        logger.info("Loading Training Catalog View...");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/bhel/hrm/client/view/TrainingCatalogView.fxml"));
+            javafx.scene.Parent view = loader.load();
+
+            TrainingCatalogController controller = loader.getController();
+            // Inject dependencies
+            controller.setDependencies(serviceManager.getHrmService(), executorService, currentUser);
+
+            contentArea.getChildren().setAll(view);
+            currentViewLabel.setText("Training Catalog");
+        } catch (IOException e) {
+            logger.error("Failed to load catalog view", e);
+        }
+    }
+
+    private void loadMyTrainingView() {
+        logger.info("Loading My Training View...");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/bhel/hrm/client/view/MyTrainingView.fxml"));
+            javafx.scene.Parent view = loader.load();
+
+            MyTrainingController controller = loader.getController();
+            controller.setDependencies(serviceManager.getHrmService(), executorService, currentUser);
+
+            contentArea.getChildren().setAll(view);
+            currentViewLabel.setText("My Training");
+        } catch (IOException e) {
+            logger.error("Failed to load training history view", e);
+        }
+    }
+
+    private void loadTrainingAdminView() {
+        logger.info("Loading Training Admin View...");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/bhel/hrm/client/view/TrainingAdminView.fxml"));
+            javafx.scene.Parent view = loader.load();
+
+            TrainingAdminController controller = loader.getController();
+            // Assuming TrainingAdminController has setDependencies method as previously discussed
+            controller.setDependencies(serviceManager.getHrmService(), executorService);
+
+            contentArea.getChildren().setAll(view);
+            currentViewLabel.setText("Training Admin");
+        } catch (IOException e) {
+            logger.error("Failed to load training admin view", e);
+        }
+    }
     /**
      * Monitors the connection status to the server.
      */

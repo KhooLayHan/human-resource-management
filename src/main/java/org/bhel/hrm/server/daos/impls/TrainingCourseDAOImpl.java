@@ -47,7 +47,7 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
         if (course.getId() == 0) {
             insert(course);
         } else {
-                                                                        update(course);
+            update(course);
         }
     }
 

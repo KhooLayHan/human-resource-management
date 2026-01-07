@@ -1,1 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="20.0" styleClass="content-area"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.bhel.hrm.client.controllers.TrainingCatalogController">
+
+    <!-- Reusable Header -->
+    <fx:include source="components/PageHeader.fxml" fx:id="pageHeader"/>
+
+    <!-- Scrollable Area for Course Cards -->
+    <!-- fitToWidth ensures the FlowPane fills the available width -->
+    <!-- style="-fx-background: transparent" removes the default gray background of ScrollPane -->
+    <ScrollPane fx:id="scrollPane" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                style="-fx-background-color: transparent; -fx-background: transparent;"
+                VBox.vgrow="ALWAYS">
+        <content>
+            <FlowPane fx:id="coursesContainer" hgap="20.0" vgap="20.0" prefWrapLength="800.0">
+                <padding>
+                    <Insets bottom="10.0" left="5.0" right="5.0" top="5.0" />
+                </padding>
+                <!-- Course Cards will be added here dynamically by the Controller -->
+            </FlowPane>
+        </content>
+    </ScrollPane>
+
+</VBox>

@@ -60,12 +60,24 @@ public interface HRMService extends Remote {
     EmployeeDTO getEmployeeById(int employeeId) throws RemoteException, HRMException;
 
     /**
+     * Retrieves the full profile details for a single employee by their user ID.
+     *
+     * @param userId The user ID of the employee to fetch; must be positive
+     * @return An {@link EmployeeDTO} containing the employee's details, not null
+     * @throws RemoteException If a communication error occurs
+     * @throws HRMException If the employee is not found or another business rule is violated
+     */
+
+    EmployeeDTO getEmployeeByUserId(int userId) throws RemoteException, HRMException;
+
+    /**
      * Updates the profile information for an existing employee.
      *
      * @param employeeDTO The DTO containing updated information; must include a valid ID, not null
      * @throws RemoteException If the update fails or a communication error occurs
      * @throws HRMException If the employee ID is invalid or data validation fails
      */
+
     void updateEmployeeProfile(EmployeeDTO employeeDTO) throws RemoteException, HRMException;
 
     // --- 3. Leave Management (For Employees and HR) ---
@@ -106,10 +118,18 @@ public interface HRMService extends Remote {
      * @param courseId The ID of the course to enroll in.
      * @throws RemoteException if enrollment fails (e.g., course is full) or a communication error occurs.
      */
+
+    void deleteTrainingCourse(int courseId) throws RemoteException, HRMException;
+
     void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException;
 
     // --- 5. Recruitment Management (Primarily for HR Staff) ---
-
+    /**
+     * Retrieves all training enrollments for a specific employee.
+     * @param employeeId The ID of the employee.
+     * @return A list of enrollments.
+     */
+    List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException;
     /**
      * Retrieves a list of all open job positions.
      *

@@ -88,17 +88,43 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
 
     @Override
     public EmployeeDTO getEmployeeById(
-        int employeeId
+            int employeeId
     ) throws RemoteException, HRMException {
         logger.debug("RMI Call: getEmployeeById() for ID: {}", employeeId);
         ErrorContext context = ErrorContext.forUser(
-            "getEmployeeById", String.valueOf(employeeId));
+                "getEmployeeById", String.valueOf(employeeId));
 
         try {
             return employeeService.getEmployeeById(employeeId);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
+        }
+    }
+
+    @Override
+    public EmployeeDTO getEmployeeByUserId(
+            int userId
+    ) throws RemoteException, HRMException {
+        logger.debug("RMI Call: getEmployeeByUserId() for User ID: {}", userId);
+        ErrorContext context = ErrorContext.forUser(
+                "getEmployeeByUserId", String.valueOf(userId));
+
+        try {
+            return employeeService.getEmployeeByUserId(userId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        }
+    }
+
+    @Override
+    public List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException {
+        try {
+            return trainingService.getEnrollmentsByEmployee(employeeId);
+        } catch (Exception e) {
+            // Use GlobalExceptionHandler if available, or throw RemoteException
+            throw new RemoteException("Error fetching enrollments", e);
         }
     }
 
@@ -155,6 +181,17 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public void deleteTrainingCourse(int courseId) throws RemoteException, HRMException {
+        logger.info("RMI Call: deleteTrainingCourse ID {}", courseId);
+        try {
+            trainingService.deleteCourse(courseId);
+        } catch (Exception e) {
+            // If this is missing, the client won't know it failed!
+            GlobalExceptionHandler.handle(e, "deleteTrainingCourse");
+        }
+    }
+
+    @Override
     public void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException {
         logger.info("RMI Call: enrollInTraining (Emp: {}, Course: {})", employeeId, courseId);
         try {
@@ -186,4 +223,6 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     public void enrollInBenefitPlan(int employeeId, int planId) throws RemoteException {
         throw new RemoteException("not yet implemented");
     }
+
+
 }

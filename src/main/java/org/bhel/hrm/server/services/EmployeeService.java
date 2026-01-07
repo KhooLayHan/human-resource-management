@@ -50,14 +50,34 @@ public class EmployeeService {
      */
     public EmployeeDTO getEmployeeById(int employeeId) throws ResourceNotFoundException {
         Employee employee = employeeDAO.findById(employeeId)
-            .orElseThrow(() -> new ResourceNotFoundException(
-                ErrorCode.EMPLOYEE_NOT_FOUND,
-                "Employee",
-                employeeId
-            ));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCode.EMPLOYEE_NOT_FOUND,
+                        "Employee ID",
+                        employeeId
+                ));
 
         logger.info("Successfully retrieved employee by ID: {}.",
-            employeeId);
+                employeeId);
+        return EmployeeMapper.mapToDto(employee);
+    }
+
+    /**
+     * Retrieves a single employee by their ID.
+     *
+     *
+     * @return The {@link EmployeeDTO} for the found employee; never null
+     * @throws ResourceNotFoundException If no employee with the given ID is found
+     */
+    public EmployeeDTO getEmployeeByUserId(int userId) throws ResourceNotFoundException {
+        Employee employee = employeeDAO.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCode.EMPLOYEE_NOT_FOUND,
+                        "Employee with User ID",
+                        userId
+                ));
+
+        logger.info("Successfully retrieved employee by the associated user ID: {}.",
+                userId);
         return EmployeeMapper.mapToDto(employee);
     }
 
