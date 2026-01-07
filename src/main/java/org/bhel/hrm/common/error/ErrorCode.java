@@ -68,7 +68,7 @@ public enum ErrorCode {
     SECURITY_TRUST_MANAGER_INIT_FAILED("HRM-SEC-006", "TrustManager initialization failed", 500),
 
     SECURITY_ENCRYPTION_FAILED("HRM-SEC-007", "Data encryption failed", 500),
-    SECURITY_DECRYPTION_FAILED("HRM-SEC-008", "Data encryption failed", 500),
+    SECURITY_DECRYPTION_FAILED("HRM-SEC-008", "Data decryption failed", 500),
     SECURITY_INVALID_ENCRYPTED_DATA("HRM-SEC-009", "Data encryption corrupted or failed", 400),
 
     SECURITY_KEY_NOT_CONFIGURED("HRM-SEC-010", "Encryption key not configured", 500),
