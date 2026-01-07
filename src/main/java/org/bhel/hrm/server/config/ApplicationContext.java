@@ -3,7 +3,9 @@ package org.bhel.hrm.server.config;
 import org.bhel.hrm.common.config.Configuration;
 import org.bhel.hrm.common.error.ErrorMessageProvider;
 import org.bhel.hrm.common.error.ExceptionMappingConfig;
+import org.bhel.hrm.common.utils.CryptoUtils;
 import org.bhel.hrm.common.utils.GlobalExceptionHandler;
+import org.bhel.hrm.common.utils.SslContextFactory;
 import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.UserDAO;
 import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
@@ -39,6 +41,10 @@ public class ApplicationContext {
     private final EmployeeService employeeService;
     private final DashboardService dashboardService;
 
+    private final SslContextFactory sslContextFactory;
+    private final CryptoUtils cryptoUtils;
+    private final PayrollSocketClient payrollSocketClient;
+
     /**
      * Private constructor to enforce the Singleton pattern.
      * Initializes and wires all application components in the correct order.
@@ -53,10 +59,14 @@ public class ApplicationContext {
         this.databaseManager = new DatabaseManager(configuration);
         this.globalExceptionHandler = new GlobalExceptionHandler(exceptionMappingConfig, errorMessageProvider);
 
+        this.sslContextFactory = new SslContextFactory(configuration);
+        this.cryptoUtils = new CryptoUtils(configuration);
+        this.payrollSocketClient = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
+
         this.userDAO = new UserDAOImpl(databaseManager);
         this.employeeDAO = new EmployeeDAOImpl(databaseManager);
 
-        this.userService = new UserService(databaseManager, userDAO, employeeDAO, new PayrollSocketClient(configuration));
+        this.userService = new UserService(databaseManager, userDAO, employeeDAO, payrollSocketClient);
         this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
         this.dashboardService = new DashboardService(userDAO, employeeDAO);
 
@@ -128,8 +138,20 @@ public class ApplicationContext {
     public EmployeeService getEmployeeService() {
         return employeeService;
     }
-
+  
     public DashboardService getDashboardService() {
         return dashboardService;
+    }
+  
+  public SslContextFactory getSslContextFactory() {
+        return sslContextFactory;
+    }
+
+    public CryptoUtils getCryptoUtils() {
+        return cryptoUtils;
+    }
+
+    public PayrollSocketClient getPayrollSocketClient() {
+        return payrollSocketClient;
     }
 }
