@@ -192,7 +192,7 @@ public class PayrollSocketClient {
     /**
      * Validates server response.
      */
-    private boolean validateResponse(String response, ErrorContext context) {
+    private boolean validateResponse(String response, ErrorContext context) throws SecurityException {
         if (response.startsWith("ACK:SUCCESS")) {
             logger.info("Server acknowledged: Success");
             return true;

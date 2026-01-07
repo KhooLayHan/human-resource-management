@@ -8,7 +8,7 @@ import org.bhel.hrm.common.error.ErrorContext;
  * decryption, certificate, and authentication failures.
  *
  */
-public class SecurityException extends RuntimeException {
+public final class SecurityException extends HRMException {
     private final ErrorCode errorCode;
     private final ErrorContext errorContext;
 
@@ -32,21 +32,5 @@ public class SecurityException extends RuntimeException {
 
     private static String formatMessage(ErrorCode errorCode, String message) {
         return String.format("[%s] %s", errorCode.getCode(), message);
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
-
-    public ErrorContext getContext() {
-        return errorContext;
-    }
-
-    public int getHttpStatus() {
-        return errorCode.getHttpStatus();
-    }
-
-    public String getCode() {
-        return errorCode.getCode();
     }
 }
