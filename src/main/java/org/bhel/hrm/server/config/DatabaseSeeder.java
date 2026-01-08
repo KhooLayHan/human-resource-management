@@ -16,6 +16,7 @@ import org.bhel.hrm.server.services.PasswordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -30,7 +31,7 @@ public class DatabaseSeeder {
     private final TrainingEnrollmentDAO trainingEnrollmentDAO;
 
     private final Faker faker;
-    private final Random random;
+    private final SecureRandom random;
 
     public DatabaseSeeder(DatabaseManager dbManager, UserDAO userDAO, EmployeeDAO employeeDAO, TrainingCourseDAO trainingCourseDAO, TrainingEnrollmentDAO trainingEnrollmentDAO) {
         this.dbManager = dbManager;
@@ -38,7 +39,7 @@ public class DatabaseSeeder {
         this.employeeDAO = employeeDAO;
         this.trainingCourseDAO = trainingCourseDAO;
         this.trainingEnrollmentDAO = trainingEnrollmentDAO;
-        this.random = new Random();
+        this.random = new SecureRandom();
         this.faker = new Faker(Locale.of("en-US"));
     }
 

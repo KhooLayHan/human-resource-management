@@ -157,10 +157,6 @@ public class MainController {
             addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
             addNavigationBtn("My Profile", this::loadProfileView);
         }
-
-        if (currentUser.role() == UserDTO.Role.EMPLOYEE || currentUser.role() == UserDTO.Role.HR_STAFF) {
-            addNavigationBtn("My Training", this::loadMyTrainingView); // Link for Employee History
-        }
     }
 
     /** Helper method to create and add a styled navigation button. */
@@ -292,22 +288,6 @@ public class MainController {
         } catch (IOException e) {
             logger.error("Failed to load catalog view", e);
             DialogManager.showErrorDialog("View Load Error", "Could not load the Training Catalog view.");
-        }
-    }
-
-    private void loadMyTrainingView() {
-        logger.info("Loading My Training View...");
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/bhel/hrm/client/view/MyTrainingView.fxml"));
-            javafx.scene.Parent view = loader.load();
-
-            MyTrainingController controller = loader.getController();
-            controller.setDependencies(serviceManager.getHrmService(), executorService, currentUser);
-
-            contentArea.getChildren().setAll(view);
-            currentViewLabel.setText("My Training");
-        } catch (IOException e) {
-            logger.error("Failed to load training history view", e);
         }
     }
 
