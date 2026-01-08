@@ -228,7 +228,7 @@ public class EmployeeFormController {
 
         // If there are validation errors, show them
         if (!errors.isEmpty()) {
-            showError("Please fix the following errors: \n" + errors.toString());
+            showError("Please fix the following errors: \n" + errors);
             return false;
         }
 

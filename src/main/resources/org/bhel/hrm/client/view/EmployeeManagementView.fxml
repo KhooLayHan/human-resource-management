@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox spacing="20.0" styleClass="employee-container"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.bhel.hrm.client.controllers.EmployeeManagementController">
@@ -12,7 +11,8 @@
     <fx:include source="components/PageHeader.fxml" fx:id="pageHeader"/>
 
     <!-- Search and Add Button Bar -->
-    <HBox alignment="CENTER_LEFT" spacing="10" >
+    <HBox alignment="CENTER_LEFT"
+          spacing="10">
         <TextField fx:id="searchField"
                    promptText="Search employees by name or IC..."
                    HBox.hgrow="ALWAYS"/>
@@ -22,7 +22,8 @@
                 onAction="#handleClearSearch"/>
         <Button fx:id="addNewButton" text="Add New Employee"
                 styleClass="button-primary"
-                onAction="#handleAddNewEmployee"/>
+                onAction="#handleAddNewEmployee">
+        </Button>
     </HBox>
 
     <!-- Employee Table -->
@@ -51,5 +52,8 @@
         <Button fx:id="deleteButton" text="Delete Selected"
                 styleClass="button-danger" disable="true"
                 onAction="#handleDeleteSelectedEmployee"/>
+        <Button fx:id="reportButton" text="Generate Report"
+            onAction="#handleGenerateReport"
+            disable="true"/>
     </HBox>
 </VBox>

@@ -1,6 +1,19 @@
 # Application Environment (e.g. development, staging, production)
 app.environment=development
 
+# Application Secret Key
+app.secret.key=BHEL_HRM_SECRET_KEY_2026
+
+# Payroll System (PRS)
+payroll.host=localhost
+payroll.port=12345
+
+# Remote Method Invocation (RMI)
+rmi.host=localhost
+rmi.port=1099
+# A unique name to reference the service from the RMI registry.
+rmi.service.name=HRMService
+
 # MySQL Database Connection
 db.connection=mysql
 db.driver=jdbc

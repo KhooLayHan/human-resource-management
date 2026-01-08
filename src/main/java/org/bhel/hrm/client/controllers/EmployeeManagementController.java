@@ -8,7 +8,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
@@ -18,21 +17,20 @@ import org.bhel.hrm.client.controllers.components.PageHeaderController;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
 import org.bhel.hrm.common.dtos.EmployeeDTO;
+import org.bhel.hrm.common.dtos.EmployeeReportDTO;
 import org.bhel.hrm.common.services.HRMService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
 /**
  * Controller for the Employee Management view.
  * Handles displaying, searching, adding, editing, and deleting employees.
  */
-public class EmployeeManagementController implements Initializable {
+public class EmployeeManagementController {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeManagementController.class);
     private static final String EMPLOYEE_TABLE_PLACEHOLDER_MESSAGE =
         "No employees found. Click 'Add New Employee' to get started.";
@@ -50,19 +48,19 @@ public class EmployeeManagementController implements Initializable {
     @FXML private Button editButton;
     @FXML private Button deleteButton;
     @FXML private Button refreshButton;
+    @FXML private Button reportButton;
 
     @FXML private PageHeaderController pageHeaderController;
 
     private HRMService hrmService;
-    private ServiceManager serviceManager;
     private ExecutorService executorService;
     private ObservableList<EmployeeDTO> allEmployees;
     private ObservableList<EmployeeDTO> filteredEmployees;
 
     private boolean initialized = false;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    @FXML
+    public void initialize() {
         logger.info("Employee Management Controller initialized.");
 
         // Initialize table columns immediately (doesn't require scene)
@@ -96,9 +94,10 @@ public class EmployeeManagementController implements Initializable {
     private void completeInitialization() {
         // Get dependencies from parent controller
         MainController mainController = getMainController();
+        ServiceManager serviceManager;
 
         if (mainController != null) {
-            this.serviceManager = mainController.getServiceManager();
+            serviceManager = mainController.getServiceManager();
             this.executorService = mainController.getExecutorService();
 
             if (serviceManager != null)
@@ -167,6 +166,7 @@ public class EmployeeManagementController implements Initializable {
                 boolean hasSelection = newValue != null;
                 editButton.setDisable(!hasSelection);
                 deleteButton.setDisable(!hasSelection);
+                reportButton.setDisable(!hasSelection);
             }
         );
     }
@@ -212,6 +212,11 @@ public class EmployeeManagementController implements Initializable {
             filteredEmployees = FXCollections.observableArrayList(employees);
 
             employeeTable.setItems(filteredEmployees);
+
+            employeeTable.getSortOrder().add(idColumn);
+            idColumn.setSortType(TableColumn.SortType.ASCENDING);
+            employeeTable.sort();
+
             employeeTable.setDisable(false);
 
             logger.info("Loaded {} employees", employees.size());
@@ -378,7 +383,7 @@ public class EmployeeManagementController implements Initializable {
     }
 
     /**
-     * Handles the delete selected employee button action
+     * Handles the delete selected employee button action.
      */
     @FXML
     private void handleDeleteSelectedEmployee() {
@@ -410,11 +415,25 @@ public class EmployeeManagementController implements Initializable {
             return;
         }
 
+        Task<Void> deleteTask = getDeleteTask(selectedEmployee);
+
+        if (executorService != null)
+            executorService.submit(deleteTask);
+        else
+            new Thread(deleteTask).start();
+    }
+
+    /**
+     * Creates and configures a background task to delete an employee by ID.
+     *
+     * @param selectedEmployee The employee to delete, must not be null
+     * @return A {@link Task} that performs the deletion asynchronously
+     */
+    private Task<Void> getDeleteTask(EmployeeDTO selectedEmployee) {
         Task<Void> deleteTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                // TODO: Implement HRMService method to delete an employee by ID
-                // hrmService.deleteEmployeeById(selectedEmployee.id());
+                hrmService.deleteEmployeeById(selectedEmployee.id());
                 return null;
             }
         };
@@ -430,7 +449,8 @@ public class EmployeeManagementController implements Initializable {
         });
 
         deleteTask.setOnFailed(event -> {
-            logger.error("Failed to delete employee ", deleteTask.getException());
+            logger.error("Failed to delete employee with ID: {}",
+                selectedEmployee.id(), deleteTask.getException());
 
             DialogManager.showErrorDialog(
                 "Delete Error",
@@ -438,9 +458,108 @@ public class EmployeeManagementController implements Initializable {
             );
         });
 
+        return deleteTask;
+    }
+
+    /**
+     * Handles the action when the generate report button is clicked.
+     * Initiates a background task to generate a report for the selected employee.
+     */
+    @FXML
+    private void handleGenerateReport() {
+        EmployeeDTO selectedEmployee =
+            employeeTable.getSelectionModel().getSelectedItem();
+
+        if (selectedEmployee == null)
+            return;
+
+        Task<EmployeeReportDTO> reportTask = getReportTask(selectedEmployee);
+
         if (executorService != null)
-            executorService.submit(deleteTask);
+            executorService.submit(reportTask);
         else
-            new Thread(deleteTask).start();
+            new Thread(reportTask).start();
+    }
+
+    /**
+     * Displays the employee report in a modal dialog.
+     *
+     * @param report The report data to display, must not be null
+     */
+    private void showReportDialog(EmployeeReportDTO report) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource(FXMLPaths.Dialogs.REPORT));
+
+            Stage stage = new Stage();
+            stage.setTitle("Employee Report");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initOwner(employeeTable.getScene().getWindow());
+            stage.setScene(new Scene(loader.load()));
+
+            ReportDialogController controller = loader.getController();
+            if (controller == null) {
+                logger.error("ReportDialogController is null");
+                DialogManager.showErrorDialog(
+                    "Initialization Error",
+                    "Report dialog controller could not be initialized."
+                );
+                return;
+            }
+
+            controller.setDialogStage(stage);
+            controller.setReportData(report);
+
+            stage.showAndWait();
+        } catch (IOException e) {
+            logger.error("Failed to load report dialog.", e);
+            DialogManager.showErrorDialog(
+                "UI Error", "Could not open report window.");
+        }
+    }
+
+    /**
+     * Creates and configures a background task to generate an employee report.
+     * Shows a loading indicator while the report is being generated.
+     *
+     * @param selectedEmployee The employee for whom the report is generated, must not be null
+     * @return A {@link Task} that produces the generated {@link EmployeeReportDTO}
+     */
+    private Task<EmployeeReportDTO> getReportTask(EmployeeDTO selectedEmployee) {
+        // Show progress indicator
+        ProgressIndicator progress = new ProgressIndicator();
+        Alert loadingAlert = new Alert(Alert.AlertType.INFORMATION);
+        loadingAlert.setTitle("Generating Report");
+        loadingAlert.setHeaderText("Please wait...");
+        loadingAlert.setContentText("Generating report for " + selectedEmployee.firstName());
+        loadingAlert.setGraphic(progress);
+        loadingAlert.show();
+
+        Task<EmployeeReportDTO> reportTask = new Task<>() {
+            @Override
+            protected EmployeeReportDTO call() throws Exception {
+                return hrmService.generateEmployeeReport(selectedEmployee.id());
+            }
+        };
+
+        reportTask.setOnSucceeded(event -> {
+            loadingAlert.close();
+            logger.info("Generated employee report successfully.");
+
+            showReportDialog(reportTask.getValue());
+        });
+
+        reportTask.setOnFailed(event -> {
+            loadingAlert.close();
+            logger.error("Failed to generate employee with ID: {}",
+                selectedEmployee.id(), reportTask.getException());
+
+            DialogManager.showErrorDialog(
+                "Report Error",
+                "Failed to generate report: " + reportTask.getException().getMessage()
+            );
+        });
+
+        return reportTask;
     }
 }

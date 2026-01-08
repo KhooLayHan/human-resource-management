@@ -1,0 +1,207 @@
+/* DASHBOARD MANAGEMENT STYLES */
+
+.vbox-padding {
+    -fx-padding: 15 0 0 0;
+}
+
+/* Dashboard Stat Card */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);
+    -fx-padding: 20;
+    -fx-min-width: 240;
+    -fx-max-width: 280;
+}
+
+.stat-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0, 0, 4);
+    -fx-cursor: hand;
+}
+
+.stat-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.stat-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+    -fx-font-weight: 500;
+}
+
+.mini-stat {
+    -fx-font-size: 11px;
+    -fx-text-fill: #95a5a6;
+    -fx-font-style: italic;
+}
+
+/* Icon Containers in Cards */
+.icon-container {
+    -fx-background-radius: 50%;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+    -fx-max-width: 50;
+    -fx-max-height: 50;
+}
+
+.icon-blue   { -fx-background-color: #3498db; }
+.icon-green  { -fx-background-color: #2ecc71; }
+.icon-orange { -fx-background-color: #f39c12; }
+.icon-purple { -fx-background-color: #9b59b6; }
+.icon-red    { -fx-background-color: #e74c3c; }
+
+/* Chart/Generic Card */
+.chart-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
+    -fx-padding: 20;
+}
+
+/* Chart Styling */
+.chart {
+    -fx-padding: 10 0 0 0;
+}
+
+.chart-card .chart-plot-background {
+    -fx-background-color: transparent;
+}
+.chart-card .chart-content {
+    -fx-padding: 10px;
+}
+
+.chart-legend {
+    -fx-padding: 10;
+}
+
+.chart-title {
+    -fx-font-size: 14px;
+    -fx-text-fill: #34495e;
+}
+
+/* Pie Chart Colors */
+.default-color0.chart-pie { -fx-pie-color: #3498db; }
+.default-color1.chart-pie { -fx-pie-color: #2ecc71; }
+.default-color2.chart-pie { -fx-pie-color: #f39c12; }
+.default-color3.chart-pie { -fx-pie-color: #9b59b6; }
+.default-color4.chart-pie { -fx-pie-color: #e74c3c; }
+.default-color5.chart-pie { -fx-pie-color: #1abc9c; }
+.default-color6.chart-pie { -fx-pie-color: #34495e; }
+
+/* Bar Chart Colors */
+.default-color0.chart-bar { -fx-bar-fill: #3498db; }
+.default-color1.chart-bar { -fx-bar-fill: #2ecc71; }
+.default-color2.chart-bar { -fx-bar-fill: #f39c12; }
+.default-color3.chart-bar { -fx-bar-fill: #e74c3c; }
+
+/* Line Chart Colors */
+.default-color0.chart-series-line {
+    -fx-stroke: #3498db;
+    -fx-stroke-width: 3px;
+}
+.default-color0.chart-line-symbol {
+    -fx-background-color: #3498db, white;
+}
+
+/* Quick Action Buttons */
+.dashboard-action-button {
+    -fx-background-color: #ecf0f1;
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 12 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.dashboard-action-button:hover {
+    -fx-background-color: #d5dbdb;
+}
+
+.dashboard-action-button .ikonli-font-icon {
+    -fx-icon-color: #7f8c8d;
+}
+
+/* Activity Feed */
+.activity-item {
+    -fx-padding: 8 0;
+    -fx-border-color: transparent transparent #ecf0f1 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.activity-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #2c3e50;
+}
+
+.activity-time {
+    -fx-font-size: 11px;
+    -fx-text-fill: #95a5a6;
+}
+
+/* Dashboard Badges */
+.dashboard-badge {
+    -fx-background-color: #e74c3c;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 2 8 2 8;
+}
+
+.dashboard-badge-success {
+    -fx-background-color: #2ecc71;
+}
+
+.dashboard-badge-warning {
+    -fx-background-color: #f39c12;
+}
+
+.dashboard-badge-info {
+    -fx-background-color: #3498db;
+}
+
+/* Trend Indicators */
+.trend-positive {
+    -fx-text-fill: #2ecc71;
+}
+
+.trend-negative {
+    -fx-text-fill: #e74c3c;
+}
+
+.trend-neutral {
+    -fx-text-fill: #95a5a6;
+}
+
+/* Scrollbar Styling */
+.dashboard-scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.dashboard-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.dashboard-scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #bdc3c7;
+    -fx-background-radius: 4px;
+}
+
+.dashboard-scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: #95a5a6;
+}
+
+.dashboard-scroll-pane .scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.dashboard-scroll-pane .scroll-bar .increment-button,
+.dashboard-scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+}

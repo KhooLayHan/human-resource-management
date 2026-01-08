@@ -17,9 +17,10 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     private static final Logger logger = LoggerFactory.getLogger(HRMServer.class);
 
     private final transient DatabaseManager dbManager;
+
     private final transient EmployeeService employeeService;
     private final transient UserService userService;
-
+    private final transient DashboardService dashboardService;
     private final transient TrainingService trainingService;
 
     private final transient GlobalExceptionHandler exceptionHandler;
@@ -29,12 +30,14 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         EmployeeService employeeService,
         UserService userService,
         TrainingService trainingService,
+        DashboardService dashboardService,
         GlobalExceptionHandler exceptionHandler
     ) throws RemoteException {
         this.dbManager = databaseManager;
         this.employeeService = employeeService;
         this.userService = userService;
         this.trainingService = trainingService;
+        this.dashboardService = dashboardService;
         this.exceptionHandler = exceptionHandler;
     }
 
@@ -52,6 +55,28 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
+        }
+    }
+
+    @Override
+    public void updateUserPassword(
+        int userId,
+        String oldPassword,
+        String newPassword
+    ) throws RemoteException, HRMException {
+        logger.info("Attempting to update password for user ID: {}.", userId);
+        ErrorContext context = ErrorContext.forUser(
+            "updateUserPassword", String.valueOf(userId));
+
+        try {
+            userService.changePassword(userId, oldPassword, newPassword);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            // Ensure transaction is closed even if an unexpected exception occurs.
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
         }
     }
 
@@ -77,22 +102,24 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     @Override
     public List<EmployeeDTO> getAllEmployees() throws RemoteException, HRMException {
         logger.debug("RMI Call: getAllEmployees() received.");
+        ErrorContext context = ErrorContext.forOperation(
+                "getAllEmployees");
 
         try {
             return employeeService.getAllEmployees();
         } catch (Exception e) {
-            exceptionHandler.handle(e, "getAllEmployees");
+            exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
         }
     }
 
     @Override
     public EmployeeDTO getEmployeeById(
-            int employeeId
+        int employeeId
     ) throws RemoteException, HRMException {
         logger.debug("RMI Call: getEmployeeById() for ID: {}", employeeId);
         ErrorContext context = ErrorContext.forUser(
-                "getEmployeeById", String.valueOf(employeeId));
+            "getEmployeeById", String.valueOf(employeeId));
 
         try {
             return employeeService.getEmployeeById(employeeId);
@@ -104,11 +131,11 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
 
     @Override
     public EmployeeDTO getEmployeeByUserId(
-            int userId
+        int userId
     ) throws RemoteException, HRMException {
         logger.debug("RMI Call: getEmployeeByUserId() for User ID: {}", userId);
         ErrorContext context = ErrorContext.forUser(
-                "getEmployeeByUserId", String.valueOf(userId));
+            "getEmployeeByUserId", String.valueOf(userId));
 
         try {
             return employeeService.getEmployeeByUserId(userId);
@@ -121,10 +148,13 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     @Override
     public List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException {
         logger.debug("RMI Call: getEmployeeTrainingEnrollments() for Employee ID: {}", employeeId);
+        ErrorContext context = ErrorContext.forUser(
+                "getEmployeeTrainingEnrollments", String.valueOf(employeeId));
+
         try {
             return trainingService.getEnrollmentsByEmployee(employeeId);
         } catch (Exception e) {
-            exceptionHandler.handle(e, "getEmployeeTrainingEnrollments");
+            exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
         }
     }
@@ -148,6 +178,63 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public void deleteEmployeeById(
+        int employeeId
+    ) throws RemoteException, HRMException {
+        logger.info("RMI Call: deleteEmployeeById() for ID: {}", employeeId);
+        ErrorContext context = ErrorContext.forUser(
+            "deleteEmployeeById", String.valueOf(employeeId));
+
+        try {
+            employeeService.deleteEmployeeById(employeeId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
+    public EmployeeReportDTO generateEmployeeReport(
+        int employeeId
+    ) throws RemoteException, HRMException {
+        logger.info("RMI Call: generateEmployeeReport() for ID: {}", employeeId);
+        ErrorContext context = ErrorContext.forUser(
+            "generateEmployeeReport", String.valueOf(employeeId));
+
+        try {
+            return employeeService.generateYearlyReport(employeeId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
+    public DashboardDTO generateDashboard(
+        int userId
+    ) throws RemoteException, HRMException {
+        logger.info("RMI Call: generateDashboard() for ID: {}", userId);
+        ErrorContext context = ErrorContext.forUser(
+            "generateDashboard", String.valueOf(userId));
+
+        try {
+            return dashboardService.getDashboardData(userId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
     public void applyForLeave(LeaveApplicationDTO leaveApplicationDTO) throws RemoteException {
         throw new RemoteException("not yet implemented");
     }
@@ -160,10 +247,13 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     @Override
     public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException, HRMException {
         logger.debug("RMI Call: getAllTrainingCourses()");
+        ErrorContext context = ErrorContext.forOperation(
+            "getAllTrainingCourses");
+
         try {
             return trainingService.getAllCourses();
         } catch (Exception e) {
-            exceptionHandler.handle(e, "getAllTrainingCourses");
+            exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
         }
     }
@@ -171,10 +261,12 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     @Override
     public void saveTrainingCourse(TrainingCourseDTO courseDTO) throws RemoteException, HRMException {
         logger.info("RMI Call: saveTrainingCourse for '{}'", courseDTO.title());
+        ErrorContext context = ErrorContext.forOperation(
+                "TrainingCourseDTO");
         try {
             trainingService.createOrUpdateCourse(courseDTO);
         } catch (Exception e) {
-            exceptionHandler.handle(e, "saveTrainingCourse: " + courseDTO.title());
+            exceptionHandler.handle(e, context);
         } finally {
             if (dbManager.isTransactionActive())
                 dbManager.rollbackTransaction();
@@ -184,10 +276,12 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     @Override
     public void deleteTrainingCourse(int courseId) throws RemoteException, HRMException {
         logger.info("RMI Call: deleteTrainingCourse ID {}", courseId);
+        ErrorContext context = ErrorContext.forOperation(
+                "deleteTrainingCourse");
         try {
             trainingService.deleteCourse(courseId);
         } catch (Exception e) {
-            exceptionHandler.handle(e, "deleteTrainingCourse");
+            exceptionHandler.handle(e, context);
             } finally {
                 if (dbManager.isTransactionActive())
                       dbManager.rollbackTransaction();
@@ -197,10 +291,12 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     @Override
     public void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException {
         logger.info("RMI Call: enrollInTraining (Emp: {}, Course: {})", employeeId, courseId);
+        ErrorContext context = ErrorContext.forOperation(
+                "enrollInTraining");
         try {
             trainingService.enrollEmployee(employeeId, courseId);
         } catch (Exception e) {
-            exceptionHandler.handle(e, "enrollInTraining");
+            exceptionHandler.handle(e, context);
         } finally {
             if (dbManager.isTransactionActive())
                 dbManager.rollbackTransaction();
@@ -226,6 +322,4 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     public void enrollInBenefitPlan(int employeeId, int planId) throws RemoteException {
         throw new RemoteException("not yet implemented");
     }
-
-
 }

@@ -1,1 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<VBox spacing="20" styleClass="employee-container"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.bhel.hrm.client.controllers.ProfileController">
+
+    <!-- Page Header -->
+    <fx:include source="components/PageHeader.fxml" fx:id="pageHeader"/>
+
+    <!-- Account Section Card -->
+    <VBox spacing="15"
+          styleClass="profile-card">
+
+        <!-- Account Details -->
+        <HBox spacing="10"
+              alignment="CENTER_LEFT">
+            <FontIcon iconLiteral="mdi2s-shield-account"
+                      iconSize="24"
+                      iconColor="#2c3e50"/>
+            <Label text="Account Information"
+                   styleClass="section-title"/>
+        </HBox>
+        <Separator/>
+
+        <GridPane hgap="20" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" halignment="LEFT"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="250"/>
+            </columnConstraints>
+
+            <Label text="Username:"
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <HBox spacing="10"
+                  alignment="CENTER_LEFT"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <TextField fx:id="usernameField"
+                           editable="false"
+                           styleClass="readonly-field"
+                           HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <Label text="Role:"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <HBox spacing="10"
+                  alignment="CENTER_LEFT"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <TextField fx:id="roleField"
+                           editable="false"
+                           styleClass="readonly-field"
+                           HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <HBox spacing="10"
+                  alignment="CENTER_LEFT"
+                  GridPane.rowIndex="2" GridPane.columnIndex="1">
+                <Button text="Change Password"
+                        onAction="#handleChangePassword"
+                        styleClass="button-secondary-small"/>
+            </HBox>
+        </GridPane>
+    </VBox>
+
+    <!-- Personal Details Card -->
+    <VBox spacing="15"
+          styleClass="profile-card">
+
+        <HBox alignment="CENTER_LEFT"
+              spacing="10">
+            <!-- Personal Details -->
+            <FontIcon iconLiteral="mdi2a-account-details"
+                      iconSize="24"
+                      iconColor="#2c3e50"/>
+            <Label text="Personal Details"
+                   styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <Separator/>
+
+        <GridPane hgap="20" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" halignment="LEFT"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="250"/>
+            </columnConstraints>
+
+            <Label text="First Name:"
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="firstNameField"
+                       editable="false"
+                       promptText="Enter first name"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Last Name:"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="lastNameField"
+                       editable="false"
+                       promptText="Enter last name"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="IC/Passport:"
+                   GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="icPassportField"
+                       editable="false"
+                       promptText="Enter IC or passport number"
+                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        </GridPane>
+    </VBox>
+
+    <!-- Action Buttons Bar -->
+    <HBox spacing="5"
+          alignment="CENTER_RIGHT"
+          styleClass="button-bar">
+        <Button fx:id="editButton"
+                text="Edit Profile"
+                onAction="#handleEditToggle"
+                styleClass="button-primary"/>
+        <Button fx:id="saveButton"
+                text="Save Changes"
+                onAction="#handleSave"
+                visible="false"
+                styleClass="button-success"/>
+        <Button fx:id="cancelButton"
+                text="Cancel"
+                onAction="#handleCancel"
+                visible="false"
+                styleClass="button-secondary"/>
+    </HBox>
+</VBox>

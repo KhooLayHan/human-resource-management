@@ -2,6 +2,7 @@
 global.random.strong=true
 global.banner=false
 global.pepper=
+global.salt.length=64
 
 # Message Digest
 hash.md.algorithm=SHA-512

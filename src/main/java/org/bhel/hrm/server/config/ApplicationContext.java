@@ -1,5 +1,6 @@
 package org.bhel.hrm.server.config;
 
+import org.bhel.hrm.common.config.Configuration;
 import org.bhel.hrm.common.error.ErrorMessageProvider;
 import org.bhel.hrm.common.error.ExceptionMappingConfig;
 import org.bhel.hrm.common.utils.GlobalExceptionHandler;
@@ -11,16 +12,21 @@ import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
 import org.bhel.hrm.server.daos.impls.TrainingCourseDAOImpl;
 import org.bhel.hrm.server.daos.impls.TrainingEnrollmentDAOImpl;
 import org.bhel.hrm.server.daos.impls.UserDAOImpl;
+import org.bhel.hrm.server.services.DashboardService;
 import org.bhel.hrm.server.services.EmployeeService;
 import org.bhel.hrm.server.services.TrainingService;
+import org.bhel.hrm.server.services.PayrollSocketClient;
 import org.bhel.hrm.server.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Responsible for creating and wiring together all the core
  * components, i.e. services, DAOs, managers, of the application.
  * It follows the Singleton pattern to ensure only one context exists.
  */
-public class    ApplicationContext {
+public class ApplicationContext {
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
     private static final ApplicationContext INSTANCE = new ApplicationContext();
 
     private final Configuration configuration;
@@ -40,12 +46,15 @@ public class    ApplicationContext {
     private final EmployeeService employeeService;
     private final TrainingService trainingService;
 
+    private final DashboardService dashboardService;
 
     /**
      * Private constructor to enforce the Singleton pattern.
      * Initializes and wires all application components in the correct order.
      */
     private ApplicationContext() {
+        logger.info("Initializing Application Context...");
+
         this.configuration = new Configuration();
         this.errorMessageProvider = new ErrorMessageProvider();
         this.exceptionMappingConfig = new ExceptionMappingConfig();
@@ -58,13 +67,19 @@ public class    ApplicationContext {
         this.trainingCourseDAO = new TrainingCourseDAOImpl(databaseManager);
         this.trainingEnrollmentDAO = new TrainingEnrollmentDAOImpl(databaseManager);
 
-        this.userService = new UserService(databaseManager, userDAO, employeeDAO);
-        this.employeeService = new EmployeeService(databaseManager, employeeDAO);
+        this.userService = new UserService(databaseManager, userDAO, employeeDAO, new PayrollSocketClient(configuration));
+        this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
         this.trainingService = new TrainingService(databaseManager, trainingCourseDAO, trainingEnrollmentDAO);
+        this.dashboardService = new DashboardService(userDAO, employeeDAO);
 
         seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
+
+        logger.info("Application Context initialized successfully");
     }
 
+    /**
+     * Seeds the database with initial data if in development environment.
+     */
     private void seedDatabase(
         Configuration config,
         DatabaseManager dbManager,
@@ -136,5 +151,9 @@ public class    ApplicationContext {
 
     public TrainingService getTrainingService() {
         return trainingService;
+    }
+
+    public DashboardService getDashboardService() {
+        return dashboardService;
     }
 }

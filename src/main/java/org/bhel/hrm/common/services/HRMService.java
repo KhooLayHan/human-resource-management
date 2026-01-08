@@ -13,9 +13,6 @@ import java.util.List;
  * all available remote operations. All data transfers are handled via DTOs.
  */
 public interface HRMService extends Remote {
-    // A unique name to reference the service from the RMI registry.
-    String SERVICE_NAME = "HRMService";
-
     // --- 1. Authentication & User Management ---
 
     /**
@@ -28,6 +25,17 @@ public interface HRMService extends Remote {
      * @throws HRMException If an authentication-related business rule is violated
      */
     UserDTO authenticateUser(String username, String password) throws RemoteException, HRMException;
+
+    /**
+     * Changes the password for an existing user.
+     *
+     * @param userId      The ID of the user whose password to change; must be positive.
+     * @param oldPassword The current password for verification; must not be null.
+     * @param newPassword The new password to set; must not be null or empty.
+     * @throws RemoteException If a communication-related error occurs.
+     * @throws HRMException If an authentication-related business rule is violated
+     */
+    void updateUserPassword(int userId, String oldPassword, String newPassword) throws RemoteException, HRMException;
 
     // --- 2. Employee Management (Primarily for HR Staff) ---
 
@@ -67,7 +75,6 @@ public interface HRMService extends Remote {
      * @throws RemoteException If a communication error occurs
      * @throws HRMException If the employee is not found or another business rule is violated
      */
-
     EmployeeDTO getEmployeeByUserId(int userId) throws RemoteException, HRMException;
 
     /**
@@ -79,6 +86,32 @@ public interface HRMService extends Remote {
      */
 
     void updateEmployeeProfile(EmployeeDTO employeeDTO) throws RemoteException, HRMException;
+
+    /**
+     * Deletes an employee and their associated user account from the system.
+     * <p>
+     *
+     * <strong>Warning:</strong> This operation is irreversible. All employee data
+     * will be permanently removed from the system.
+     *
+     * @param employeeId The unique identifier of the employee to delete
+     * @throws RemoteException           If a communication error occurs during the remote method call
+     * @throws HRMException              If a business rule violation occurs or the employee is not found
+     */
+    void deleteEmployeeById(int employeeId) throws RemoteException, HRMException;
+
+    /**
+     * Generates a comprehensive yearly report for the specified employee.
+     *
+     * @param employeeId The unique identifier of the employee for whom to generate the report
+     * @return An {@link EmployeeReportDTO} containing the complete yearly report with generation timestamp
+     * @throws RemoteException If a communication error occurs during the remote method call
+     * @throws HRMException    If a business rule violation occurs or the employee is not found
+     */
+    EmployeeReportDTO generateEmployeeReport(int employeeId) throws RemoteException, HRMException;
+
+    // -- 3. Dashboard Management (For Employees and HR) --
+    DashboardDTO generateDashboard(int userId) throws RemoteException, HRMException;
 
     // --- 3. Leave Management (For Employees and HR) ---
 
@@ -118,10 +151,9 @@ public interface HRMService extends Remote {
      * @param courseId The ID of the course to enroll in.
      * @throws RemoteException if enrollment fails (e.g., course is full) or a communication error occurs.
      */
+    void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException;
 
     void deleteTrainingCourse(int courseId) throws RemoteException, HRMException;
-
-    void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException;
 
     List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException;
 
