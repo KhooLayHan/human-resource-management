@@ -47,6 +47,8 @@ public class TrainingCourseFormController {
 
         // Allow manual numeric input for spinner
         durationSpinner.setEditable(true);
+
+        logger.info("jfefjsfjs;");
     }
 
     public void setDependencies(HRMService service, ExecutorService executor) {

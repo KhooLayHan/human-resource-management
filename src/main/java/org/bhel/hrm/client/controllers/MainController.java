@@ -19,6 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.bhel.hrm.client.MainClient;
+import org.bhel.hrm.client.constants.FXMLPaths;
 import org.bhel.hrm.client.constants.ViewType;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
@@ -146,10 +147,10 @@ public class MainController {
         ViewType[] menuOrder = {
             ViewType.EMPLOYEE_MANAGEMENT,
             ViewType.RECRUITMENT,
-            ViewType.TRAINING_ADMIN,
+//            ViewType.TRAINING_ADMIN,
             ViewType.LEAVE,
             ViewType.BENEFITS,
-            ViewType.TRAINING_CATALOG,
+//            ViewType.TRAINING_CATALOG,
             ViewType.PROFILE
         };
 
@@ -157,6 +158,54 @@ public class MainController {
             if (view.isAllowedForRole(currentUser.role())) {
                 addNavigationBtn(view);
             }
+        }
+
+        // Role-based navigation
+        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
+            addNavigationBtn("Training Admin", this::loadTrainingAdminView);
+        }
+
+        if (
+            currentUser.role() == UserDTO.Role.EMPLOYEE ||
+            currentUser.role() == UserDTO.Role.HR_STAFF
+        ) {
+            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
+        }
+    }
+
+    /** Helper method to create and add a styled navigation button. */
+    private void addNavigationBtn(String text, Runnable action) {
+        final String NAV_BUTTON_STYLE = "nav-button-active";
+
+        Button button = new Button(text);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.getStyleClass().add("nav-button");
+
+        button.setOnAction(e -> {
+            // Removes active state from previous button
+            if (activeButton != null)
+                activeButton.getStyleClass().remove(NAV_BUTTON_STYLE);
+
+            // Sets active state on current button
+            button.getStyleClass().add(NAV_BUTTON_STYLE);
+            activeButton = button;
+
+            // Update current view label
+            currentViewLabel.setText(text);
+
+            // Reset session timer on user activity
+            // resetSessionTimer();
+
+            // Execute the navigation action
+            action.run();
+        });
+
+        navigationVBox.getChildren().add(button);
+
+        // Sets first button as active by default
+        if (activeButton == null) {
+            button.getStyleClass().add(NAV_BUTTON_STYLE);
+            activeButton = button;
         }
     }
 
@@ -242,6 +291,44 @@ public class MainController {
             this
         );
     }
+
+    /**
+     * Loads the leave view.
+     */
+    private void loadLeaveView() {
+        logger.info("Loading Leave View...");
+
+        ViewManager.loadView(contentArea,
+                FXMLPaths.LEAVE);
+    }
+
+    /**
+     * Loads the benefits view.
+     */
+    private void loadBenefitsView() {
+        logger.info("Loading Benefits View...");
+
+        ViewManager.loadView(contentArea,
+                FXMLPaths.BENEFITS);
+    }
+
+    /**
+     * Loads the recruitment view.
+     */
+    private void loadRecruitmentView() {
+        logger.info("Loading Recruitment View...");
+
+        ViewManager.loadView(contentArea,
+                FXMLPaths.RECRUITMENT);
+    }
+
+    /**
+     * Loads the profile view.
+     */
+    private void loadProfileView() {
+        logger.info("Loading Profile View...");
+    }
+
 
     /**
      * Starts the clock that updates the current time display.
