@@ -54,8 +54,6 @@ public class TrainingAdminController implements Initializable {
         setupTableColumns();
         setupSelectionListener();
 
-        logger.info("kodokaodk");
-
         // Setup search listener for real-time filtering
         searchField.textProperty().addListener((observable, oldValue, newValue) -> handleSearch());
     }
@@ -64,8 +62,6 @@ public class TrainingAdminController implements Initializable {
         this.hrmService = service;
         this.executorService = executor;
         loadCourses();
-
-        logger.info("Daw");
 
     }
 

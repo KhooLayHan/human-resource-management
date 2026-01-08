@@ -48,16 +48,6 @@ public class EmployeeSelectionController {
 
     @FXML
     public void initialize() {
-        // Configure ListView to show checkboxes
-        employeeListView.setCellFactory(CheckBoxListCell.forListView(emp -> {
-            // This requires a BooleanProperty wrapper, OR we use simple selection mode MULTIPLE
-            // For simplicity, let's use standard MULTIPLE selection mode without checkboxes first,
-            // or stick to the checkbox pattern if you prefer.
-            // Let's stick to standard multiple selection for ease of implementation:
-            return null;
-        }));
-
-        // Simpler Approach: Standard Multi-Select List
         employeeListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         // Custom rendering for names
@@ -97,6 +87,11 @@ public class EmployeeSelectionController {
             filteredEmployees = new FilteredList<>(allEmployees, p -> true);
             employeeListView.setItems(filteredEmployees);
         });
+
+        task.setOnFailed(e -> {
+            DialogManager.showErrorDialog("Load Error", "Failed to load employees: " + task.getException().getMessage());
+            employeeListView.setPlaceholder(new Label("Failed to load employees"));
+       });
 
         executorService.submit(task);
     }
