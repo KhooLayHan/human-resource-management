@@ -304,6 +304,20 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public void enrollMultipleEmployees(int courseId, List<Integer> employeeIds) throws RemoteException, HRMException {
+        logger.info("RMI Call: enrollMultipleEmployees (Course: {}, Count: {})", courseId, employeeIds.size());
+        ErrorContext context = ErrorContext.forOperation("enrollMultipleEmployees");
+        try {
+            trainingService.enrollMultipleEmployees(courseId, employeeIds);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
     public List<JobOpeningDTO> getAllJobOpenings() throws RemoteException {
         return List.of();
     }

@@ -17,6 +17,7 @@
         <Button text="Clear" onAction="#handleClearSearch"/>
         <Region HBox.hgrow="ALWAYS" maxWidth="20"/> <!-- Spacer -->
         <Button text="Add New Course" onAction="#handleAddCourse" styleClass="button-primary"/>
+        <Button fx:id="assignButton" text="Assign Employees" onAction="#handleAssignEmployees" disable="true"/>
     </HBox>
 
     <!-- Courses Table -->

@@ -133,6 +133,38 @@ public class TrainingService {
         }
     }
 
+    /**
+     * Enrolls multiple employees in a course transactionally.
+     * Skips employees who are already enrolled (idempotent).
+     */
+    public void enrollMultipleEmployees(int courseId, List<Integer> employeeIds) throws SQLException, HRMException {
+        dbManager.executeInTransaction(() -> {
+            // 1. Validate Course Exists
+            if (trainingCourseDAO.findById(courseId).isEmpty()) {
+                throw new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, "TrainingCourse", courseId);
+            }
+
+            int successCount = 0;
+            for (Integer empId : employeeIds) {
+                // 2. Check for Duplicate Enrollment (Skipping if exists)
+                boolean alreadyEnrolled = trainingEnrollmentDAO.findByEmployeeId(empId).stream()
+                        .anyMatch(e -> e.getCourseId() == courseId);
+
+                if (!alreadyEnrolled) {
+                    TrainingEnrollment enrollment = new TrainingEnrollment(
+                            empId,
+                            courseId,
+                            LocalDateTime.now(),
+                            TrainingEnrollmentDTO.Status.ENROLLED
+                    );
+                    trainingEnrollmentDAO.save(enrollment);
+                    successCount++;
+                }
+            }
+            logger.info("Bulk enrollment completed for Course {}. Enrolled {} new employees.", courseId, successCount);
+        });
+    }
+
 public void saveCourse(TrainingCourseDTO courseDTO) throws SQLException, HRMException {
     validateCourse(courseDTO);
 

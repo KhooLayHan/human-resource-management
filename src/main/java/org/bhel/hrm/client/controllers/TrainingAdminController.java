@@ -40,6 +40,7 @@ public class TrainingAdminController implements Initializable {
     @FXML private Button refreshButton;
     @FXML private Button editButton;
     @FXML private Button deleteButton;
+    @FXML private Button assignButton;
 
     private HRMService hrmService;
     private ExecutorService executorService;
@@ -82,8 +83,14 @@ public class TrainingAdminController implements Initializable {
             boolean hasSelection = newVal != null;
             editButton.setDisable(!hasSelection);
             deleteButton.setDisable(!hasSelection);
+
+            // FIX: This logic MUST be inside this method
+            if (assignButton != null) {
+                assignButton.setDisable(!hasSelection);
+            }
         });
     }
+
 
     private void loadCourses() {
         if (hrmService == null) return;
@@ -241,4 +248,28 @@ public class TrainingAdminController implements Initializable {
         handleClearSearch();
         loadCourses();
     }
+
+    @FXML
+    private void handleAssignEmployees() {
+        TrainingCourseDTO selected = courseTable.getSelectionModel().getSelectedItem();
+        if (selected == null) return;
+
+        try {
+            var dialog = ViewManager.loadDialog(
+                    "/org/bhel/hrm/client/view/dialogs/EmployeeSelectionView.fxml",
+                    "Assign Employees",
+                    (Stage) courseTable.getScene().getWindow()
+            );
+
+            EmployeeSelectionController controller = (EmployeeSelectionController) dialog.controller();
+            controller.setDependencies(hrmService, executorService);
+            controller.setConfig(dialog.stage(), selected.id(), selected.title());
+
+            dialog.stage().showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

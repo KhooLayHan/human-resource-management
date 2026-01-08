@@ -155,6 +155,8 @@ public interface HRMService extends Remote {
 
     void deleteTrainingCourse(int courseId) throws RemoteException, HRMException;
 
+    void enrollMultipleEmployees(int courseId, List<Integer> employeeIds) throws RemoteException, HRMException;
+
     List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException;
 
     // --- 5. Recruitment Management (Primarily for HR Staff) ---
