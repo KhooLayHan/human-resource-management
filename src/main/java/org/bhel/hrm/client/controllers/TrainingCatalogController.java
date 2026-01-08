@@ -83,8 +83,11 @@ public class TrainingCatalogController implements Initializable {
 
                 // 4. Map enrollments by CourseID for O(1) lookup
                 Map<Integer, TrainingEnrollmentDTO> map = enrollments.stream()
-                        .collect(Collectors.toMap(TrainingEnrollmentDTO::courseId, e -> e));
-
+                        .collect(Collectors.toMap(
+                TrainingEnrollmentDTO::courseId,
+                e -> e,
+                (existing, replacement) -> existing // keep first enrollment
+              ));
                 return new CatalogData(empId, courses, map);
             }
         };
@@ -184,7 +187,9 @@ public class TrainingCatalogController implements Initializable {
             Label statusIcon = new Label("✔ Enrolled");
             statusIcon.setStyle("-fx-text-fill: #2E7D32; -fx-font-weight: bold; -fx-font-size: 14px;");
 
-            String dateStr = enrollment.enrollmentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String dateStr = enrollment.enrollmentDate() != null
+                            ? enrollment.enrollmentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            : "N/A";
             Label dateLabel = new Label("On: " + dateStr);
             dateLabel.setStyle("-fx-text-fill: #555555; -fx-font-size: 11px;");
 

@@ -477,10 +477,5 @@ public final class DatabaseManager {
                 UNIQUE KEY uk_employee_course (employee_id, course_id)
             )
         """);
-// 8.1 Training Enrollment Statuses Lookup Table (NEW)
-
-
-
-
     }
 }

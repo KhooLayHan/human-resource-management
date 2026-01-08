@@ -66,7 +66,8 @@ public class TrainingAdminController implements Initializable {
     private void setupTableColumns() {
         idColumn.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().id()).asObject());
         titleColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().title()));
-        departmentColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().department().toString()));
+        departmentColumn.setCellValueFactory(d -> new SimpleStringProperty(
+                d.getValue().department() != null ? d.getValue().department().toString() : ""));
         durationColumn.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().durationInHours()).asObject());
         descriptionColumn.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().description()));
     }

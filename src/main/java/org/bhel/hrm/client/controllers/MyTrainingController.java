@@ -77,28 +77,26 @@ public class MyTrainingController implements Initializable {
                 int employeeId = hrmService.getEmployeeByUserId(currentUser.id()).id();
 
                 // 2. Fetch Enrollments
-//                List<TrainingEnrollmentDTO> enrollments = hrmService.getEmployeeTrainingEnrollments(employeeId);
-
+           List<TrainingEnrollmentDTO> enrollments = hrmService.getEmployeeTrainingEnrollments(employeeId);
                 // 3. Fetch All Courses (To resolve Course ID -> Title)
                 // In a real app, you might optimize this, but for this scale, it's fine.
-//                List<TrainingCourseDTO> courses = hrmService.getAllTrainingCourses();
-//                Map<Integer, TrainingCourseDTO> courseMap = courses.stream()
-//                        .collect(Collectors.toMap(TrainingCourseDTO::id, c -> c));
+                List<TrainingCourseDTO> courses = hrmService.getAllTrainingCourses();
+                Map<Integer, TrainingCourseDTO> courseMap = courses.stream()
+                       .collect(Collectors.toMap(TrainingCourseDTO::id, c -> c));
 
                 // 4. Combine into ViewModel
-//                return enrollments.stream().map(e -> {
-//                    TrainingCourseDTO course = courseMap.get(e.courseId());
-//                    String title = (course != null) ? course.title() : "Unknown Course (" + e.courseId() + ")";
-//                    String dept = (course != null) ? course.department() : "-";
-//
-//                    return new EnrollmentViewModel(
-//                            title,
-//                            dept,
-//                            e.enrollmentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-//                            e.status().name()
-//                    );
-//                }).collect(Collectors.toList());
-                return null;
+                return enrollments.stream().map(e -> {
+                    TrainingCourseDTO course = courseMap.get(e.courseId());
+                    String title = (course != null) ? course.title() : "Unknown Course (" + e.courseId() + ")";
+                    String dept = (course != null) ? course.department().name() : "-";
+
+                    return new EnrollmentViewModel(
+                            title,
+                            dept,
+                            e.enrollmentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                            e.status().name()
+                    );
+                }).collect(Collectors.toList());
 
             };
         };

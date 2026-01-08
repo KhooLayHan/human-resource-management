@@ -123,13 +123,10 @@ public interface HRMService extends Remote {
 
     void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException;
 
-    // --- 5. Recruitment Management (Primarily for HR Staff) ---
-    /**
-     * Retrieves all training enrollments for a specific employee.
-     * @param employeeId The ID of the employee.
-     * @return A list of enrollments.
-     */
     List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException;
+
+    // --- 5. Recruitment Management (Primarily for HR Staff) ---
+
     /**
      * Retrieves a list of all open job positions.
      *

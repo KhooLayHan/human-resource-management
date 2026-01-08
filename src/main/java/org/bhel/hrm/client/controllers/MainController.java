@@ -157,14 +157,8 @@ public class MainController {
             addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
             addNavigationBtn("My Profile", this::loadProfileView);
         }
-        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
-            // ... (Employees, Recruitment)
-            addNavigationBtn("Training Admin", this::loadTrainingAdminView); // Link for HR
-        }
 
         if (currentUser.role() == UserDTO.Role.EMPLOYEE || currentUser.role() == UserDTO.Role.HR_STAFF) {
-            // ... (My Profile, Leave)
-//            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView); // Link for Employee
             addNavigationBtn("My Training", this::loadMyTrainingView); // Link for Employee History
         }
     }
@@ -297,6 +291,7 @@ public class MainController {
             currentViewLabel.setText("Training Catalog");
         } catch (IOException e) {
             logger.error("Failed to load catalog view", e);
+            DialogManager.showErrorDialog("View Load Error", "Could not load the Training Catalog view.");
         }
     }
 

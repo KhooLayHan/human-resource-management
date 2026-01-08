@@ -120,11 +120,12 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
 
     @Override
     public List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException {
+        logger.debug("RMI Call: getEmployeeTrainingEnrollments() for Employee ID: {}", employeeId);
         try {
             return trainingService.getEnrollmentsByEmployee(employeeId);
         } catch (Exception e) {
-            // Use GlobalExceptionHandler if available, or throw RemoteException
-            throw new RemoteException("Error fetching enrollments", e);
+            exceptionHandler.handle(e, "getEmployeeTrainingEnrollments");
+            throw new AssertionError("unreachable code");
         }
     }
 
@@ -186,8 +187,10 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         try {
             trainingService.deleteCourse(courseId);
         } catch (Exception e) {
-            // If this is missing, the client won't know it failed!
-            GlobalExceptionHandler.handle(e, "deleteTrainingCourse");
+            exceptionHandler.handle(e, "deleteTrainingCourse");
+            } finally {
+                if (dbManager.isTransactionActive())
+                      dbManager.rollbackTransaction();
         }
     }
 
