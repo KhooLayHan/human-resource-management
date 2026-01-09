@@ -6,10 +6,15 @@ import org.bhel.hrm.server.daos.EmployeeBenefitDAO;
 import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.domain.BenefitPlan;
 import org.bhel.hrm.server.services.BenefitsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BenefitsServiceImpl implements BenefitsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BenefitsServiceImpl.class);
 
     private final BenefitPlanDAO benefitPlanDAO;
     private final EmployeeBenefitDAO employeeBenefitDAO;
@@ -32,31 +37,30 @@ public class BenefitsServiceImpl implements BenefitsService {
 
     @Override
     public List<BenefitPlanDTO> getMyBenefitPlans(int employeeId) {
-        // Validate employee exists
         employeeDAO.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        // employeeBenefitDAO should return plan IDs (or plan records). Based on your earlier usage:
-        // employeeBenefitDAO.findPlansForEmployee(employeeId) -> List<Integer> planIds
         return employeeBenefitDAO.findPlansForEmployee(employeeId).stream()
-                .map(benefitPlanDAO::findById)          // Optional<BenefitPlan>
-                .flatMap(java.util.Optional::stream)   // remove missing plans safely
+                .map(planId -> {
+                    Optional<BenefitPlan> opt = benefitPlanDAO.findById(planId);
+                    if (opt.isEmpty()) {
+                        logger.warn("Orphaned benefit enrollment detected: employeeId={}, planId={} not found in benefit_plans",
+                                employeeId, planId);
+                    }
+                    return opt;
+                })
+                .flatMap(Optional::stream)
                 .map(this::toDTO)
                 .toList();
     }
 
     @Override
     public void enrollInBenefitPlan(int employeeId, int planId) {
-        // Validate employee exists
         employeeDAO.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        // Validate plan exists
         BenefitPlan plan = benefitPlanDAO.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("Benefit plan not found: " + planId));
-
-        // Optional: prevent duplicate enrollment (if you have such DAO method)
-        // if (employeeBenefitDAO.isEnrolled(employeeId, planId)) return;
 
         employeeBenefitDAO.enroll(employeeId, plan.getId());
     }
