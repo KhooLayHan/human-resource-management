@@ -31,7 +31,7 @@ public class BenefitsController {
     // Keep these as constants so checks are consistent and not duplicated
     private static final String STATUS_ENROLLED = "ENROLLED";
     private static final String STATUS_NOT_ENROLLED = "NOT ENROLLED";
-    private static final String Enrolled_failed = "Enroll failed";
+    private static final String ENROLL_FAILED = "Enroll failed";
     // -------- FXML fields --------
     @FXML private Label statusLabel;
     @FXML private Label selectedPlanLabel;
@@ -192,11 +192,11 @@ public class BenefitsController {
                 refreshPlansAsync();
 
             } catch (RemoteException | HRMException ex) {
-                logger.error(Enrolled_failed, ex);
-                showErrorAndStatus("Enroll Failed", ex.getMessage(), Enrolled_failed);
+                logger.error(ENROLL_FAILED, ex);
+                showErrorAndStatus("Enroll Failed", ex.getMessage(), ENROLL_FAILED);
             } catch (Exception ex) {
                 logger.error("Unexpected enroll error", ex);
-                showErrorAndStatus("Enroll Failed", "Unexpected error: " + ex.getMessage(), Enrolled_failed);
+                showErrorAndStatus("Enroll Failed", "Unexpected error: " + ex.getMessage(), ENROLL_FAILED);
             }
         });
     }
