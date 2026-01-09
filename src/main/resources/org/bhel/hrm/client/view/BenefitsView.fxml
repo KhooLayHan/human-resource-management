@@ -1,1 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<ScrollPane styleClass="dashboard-scroll-pane"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.bhel.hrm.client.controllers.BenefitsController">
+
+    <VBox spacing="25">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header -->
+        <VBox spacing="5">
+            <Label text="Benefits" styleClass="page-title"/>
+            <Label fx:id="statusLabel" text="" styleClass="mini-stat"/>
+        </VBox>
+
+        <GridPane hgap="20" vgap="20">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="70" hgrow="ALWAYS"/>
+                <ColumnConstraints percentWidth="30" hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <!-- Plans Table -->
+            <VBox styleClass="chart-card"
+                  GridPane.rowIndex="0" GridPane.columnIndex="0">
+
+                <Label text="Available Benefit Plans" styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-format-list-bulleted"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+
+                <VBox spacing="12" styleClass="vbox-padding"> <TableView fx:id="plansTable"> <columns> <TableColumn fx:id="colId" text="ID"/> <TableColumn fx:id="colName" text="Plan Name"/> <TableColumn fx:id="colProvider" text="Provider"/> <TableColumn fx:id="colCost" text="Cost/Month"/> <TableColumn fx:id="colStatus" text="Enroll Status"/> <TableColumn fx:id="colDesc" text="Description"/> </columns> </TableView>
+                </VBox>
+            </VBox>
+
+            <!-- Actions -->
+            <VBox styleClass="chart-card"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1">
+
+                <Label text="Actions" styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-flash"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+
+                <VBox spacing="12" styleClass="vbox-padding">
+
+                    <Label text="Select a plan and enroll."
+                           styleClass="mini-stat"
+                           wrapText="true"/>
+
+                    <Button fx:id="refreshButton"
+                            text="Refresh Plans"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary"
+                            onAction="#handleRefreshPlans">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2r-refresh" iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="enrollButton"
+                            text="Enroll in Selected Plan"
+                            maxWidth="Infinity"
+                            disable="true"
+                            styleClass="button-secondary"
+                            onAction="#handleEnrollSelected">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-check-circle-outline" iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Separator/>
+
+                    <Label text="Selected Plan"
+                           styleClass="section-title"/>
+
+                    <Label fx:id="selectedPlanLabel"
+                           text="(none)"
+                           wrapText="true"/>
+
+                </VBox>
+            </VBox>
+
+        </GridPane>
+    </VBox>
+</ScrollPane>
