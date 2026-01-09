@@ -118,18 +118,18 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
         stmt.setInt(3, course.getDurationInHours());
 
 
-        int department;
-        if (course.getDepartment() == null) {
-            department = 5; // Default fallback if null
-        } else {
-            switch (course.getDepartment()) {
-                case TrainingCourseDTO.Department.IT -> department = 1;
-                case TrainingCourseDTO.Department.HR -> department = 2;
-                case TrainingCourseDTO.Department.FINANCE -> department = 3;
-                case TrainingCourseDTO.Department.OPERATIONS -> department = 4;
-                default -> department = 5;
-            }
-        }
+        int department = 1;
+//        if (course.getDepartment() == null) {
+//            department = 5; // Default fallback if null
+//        } else {
+//            switch (course.getDepartment()) {
+//                case TrainingCourseDTO.Department.IT -> department = 1;
+//                case TrainingCourseDTO.Department.HR -> department = 2;
+//                case TrainingCourseDTO.Department.FINANCE -> department = 3;
+//                case TrainingCourseDTO.Department.OPERATIONS -> department = 4;
+//                default -> department = 5;
+//            }
+//        }
 
         stmt.setInt(4, department);
     }
