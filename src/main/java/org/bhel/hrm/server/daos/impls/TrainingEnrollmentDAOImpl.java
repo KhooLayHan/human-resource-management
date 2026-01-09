@@ -44,6 +44,9 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
 
     @Override
     public Optional<TrainingEnrollment> findById(Integer id) {
+        if (id == null)
+            throw new IllegalArgumentException("id must not be null");
+
         String sql = "SELECT * FROM training_enrollments WHERE id = ?";
         return findOne(sql, stmt -> stmt.setInt(1, id), rowMapper);
     }
@@ -51,8 +54,7 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
     @Override
     public List<TrainingEnrollment> findAll() {
         String sql = "SELECT * FROM training_enrollments";
-        return findMany(sql, stmt -> {
-        }, rowMapper);
+        return findMany(sql, stmt -> {}, rowMapper);
     }
 
     @Override
@@ -89,10 +91,10 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
             statusId = 1; // Default
         } else {
         switch (enrollment.getStatus()) {
-            case TrainingEnrollmentDTO.Status.ENROLLED -> statusId = 1;
-            case TrainingEnrollmentDTO.Status.COMPLETED -> statusId = 2;
-            case TrainingEnrollmentDTO.Status.CANCELLED -> statusId = 3;
-            default -> statusId = 4;
+            case ENROLLED -> statusId = 1;
+            case COMPLETED -> statusId = 2;
+            case CANCELLED -> statusId = 3;
+            case FAILED -> statusId = 4;
         }
     }
         stmt.setInt(3, statusId);

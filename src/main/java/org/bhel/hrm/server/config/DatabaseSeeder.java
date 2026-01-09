@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class DatabaseSeeder {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseSeeder.class);
@@ -67,6 +66,7 @@ public class DatabaseSeeder {
             logger.info("Successfully seeded the database with {} users.", userDAO.count());
         } catch (Exception e) {
             logger.error("Database seeding failed. Rolling back transaction.", e);
+            dbManager.rollbackTransaction();
         }
     }
 

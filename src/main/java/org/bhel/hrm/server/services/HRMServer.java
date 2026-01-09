@@ -260,6 +260,9 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
 
     @Override
     public void saveTrainingCourse(TrainingCourseDTO courseDTO) throws RemoteException, HRMException {
+        if (courseDTO == null)
+            throw new IllegalArgumentException("courseDTO must not be null");
+
         logger.info("RMI Call: saveTrainingCourse for '{}'", courseDTO.title());
         ErrorContext context = ErrorContext.forOperation(
                 "saveTrainingCourse");
@@ -306,7 +309,10 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
 
     @Override
     public void enrollMultipleEmployees(int courseId, List<Integer> employeeIds) throws RemoteException, HRMException {
+        if (employeeIds == null)
+            throw new IllegalArgumentException("employeeIds must not be null");
         logger.info("RMI Call: enrollMultipleEmployees (Course: {}, Count: {})", courseId, employeeIds.size());
+
         ErrorContext context = ErrorContext.forOperation("enrollMultipleEmployees");
         try {
             trainingService.enrollMultipleEmployees(courseId, employeeIds);
