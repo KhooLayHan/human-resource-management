@@ -15,7 +15,5 @@ public interface EmployeeDAO extends DAO<Employee, Integer> {
      * @param userId The ID of the User account.
      * @return An Optional containing the Employee if found.
      */
-
-
     Optional<Employee> findByUserId(int userId);
 }

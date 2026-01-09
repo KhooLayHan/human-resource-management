@@ -93,16 +93,15 @@ public class DashboardController {
             return;
         }
 
-
-
-
         logger.info("Initialized DashboardController.");
     }
 
-    public void initDependencies(ServiceManager serviceManager,
-                                 ExecutorService executorService,
-                                 UserDTO currentUser,
-                                 MainController mainController) {
+    public void initDependencies(
+        ServiceManager serviceManager,
+        ExecutorService executorService,
+        UserDTO currentUser,
+        MainController mainController
+    ) {
         if (serviceManager == null || currentUser == null) {
             logger.error("Required dependencies are null - serviceManager: {}, currentUser: {}",
                 serviceManager != null, currentUser != null);
@@ -113,7 +112,6 @@ public class DashboardController {
         this.executorService = executorService;
         this.currentUser = currentUser;
         this.mainController = mainController;
-
 
         setupRoleBasedView();
         loadDashboardData();
@@ -359,13 +357,4 @@ public class DashboardController {
             mainController.navigateToView(ViewType.EMPLOYEE_MANAGEMENT);
         }
     }
-
-    @FXML
-    private void handleNavigateToLeaveApprovals() {
-        if (mainController != null) {
-            mainController.navigateToView(ViewType.LEAVE_APPROVALS);
-        }
-    }
-
-
 }

@@ -142,16 +142,14 @@ public class MainController {
         // 2. Add other views based on role permissions
         // Define the order you want them to appear
         ViewType[] menuOrder = {
-                ViewType.EMPLOYEE_MANAGEMENT,
-                ViewType.RECRUITMENT,
-                ViewType.TRAINING_ADMIN,
-                ViewType.LEAVE_APPROVALS,   // ✅ add this
-                ViewType.LEAVE,
-                ViewType.BENEFITS,
-                ViewType.TRAINING_CATALOG,
-                ViewType.PROFILE
+            ViewType.EMPLOYEE_MANAGEMENT,
+            ViewType.RECRUITMENT,
+            ViewType.TRAINING_ADMIN,
+            ViewType.LEAVE,
+            ViewType.BENEFITS,
+            ViewType.TRAINING_CATALOG,
+            ViewType.PROFILE
         };
-
 
         for (ViewType view : menuOrder) {
             if (view.isAllowedForRole(currentUser.role())) {
@@ -426,6 +424,4 @@ public class MainController {
     public UserDTO getCurrentUser() {
         return currentUser;
     }
-
-
 }

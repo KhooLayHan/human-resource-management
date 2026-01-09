@@ -48,6 +48,4 @@ public interface DAO<T, ID> {
      * @return The count of entities.
      */
     long count();
-
-
 }
