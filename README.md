@@ -44,7 +44,7 @@ cd src/main/resources
 keytool -genkeypair -alias bhel_payroll -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore payroll_keystore.p12 -validity 3650 -storepass password123
 cd ../../..
 ```
-You can press Enter through the questions (First Name, Unit, etc.) or fill them in. Type 'yes' for the last confirmation question
+You can press Enter through the questions (First Name, Unit, etc.) or fill them in. Type 'yes' for the last confirmation question.
 
 ### 3. Start the Database (Docker)
 We use Docker Compose to spin up a MySQL database instantly without manual installation.
@@ -93,10 +93,10 @@ mvn clean javafx:run
 
 The server automatically starts in a **development** environment. Thus, it seeds the database with test data.
 
-| Role | Username | Password    |
-| :--- | :--- |:------------|
-| **HR Staff (Admin)** | `hr_admin` | `admin1234` |
-| **Employee** | `employee` | `user123`   |
+| Role | Username | Password   |
+| :--- | :--- |:-----------|
+| **HR Staff (Admin)** | `hr_admin` | `admin123` |
+| **Employee** | `employee` | `user123`  |
 
 ---
 
@@ -107,7 +107,7 @@ The server automatically starts in a **development** environment. Thus, it seeds
 - **Database:** MySQL 9.4.0 and up
 - **Build Tool:** Apache Maven
 - **Testing:** JUnit 5, AssertJ, Testcontainers
-- **Security:** Password4j (Argon2id hashing), not TLS-ready socket structure
+- **Security:** Password4j (Argon2id hashing), TLS-ready socket structure
 - **Reporting:** OpenPDF
 
 ## Project Structure
