@@ -59,10 +59,16 @@ public class ServerLauncher {
                 context.getDashboardService(),
                 context.getLeaveService(),
                 context.getBenefitsService(),
+                context.getBenefitPlanDAO(),
+                context.getEmployeeBenefitDAO(),
                 context.getGlobalExceptionHandler()
         );
-
     }
+
+
+
+
+
 
     /**
      * Adds a shutdown hook to gracefully unbind the service on JVM shutdown.

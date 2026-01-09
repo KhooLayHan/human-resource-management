@@ -203,6 +203,9 @@ public interface HRMService extends Remote {
     void decideLeave(int leaveId, boolean approve, int hrUserId, String decisionReason)
             throws RemoteException, HRMException;
 
+
+
+
 }
 
 
