@@ -7,5 +7,7 @@ public record TrainingCourseDTO(
     String title,
     String description,
     int durationInHours,
-    String department
-) implements Serializable {}
+    Department department
+) implements Serializable {
+    public enum Department { IT, HR, FINANCE, OPERATIONS, SALES }
+}

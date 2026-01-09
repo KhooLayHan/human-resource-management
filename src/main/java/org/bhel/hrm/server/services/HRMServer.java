@@ -23,6 +23,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             DatabaseManager dbManager,
             EmployeeService employeeService,
             UserService userService,
+            TrainingService trainingService,
             DashboardService dashboardService,
             LeaveService leaveService,
             BenefitsService benefitsService,
@@ -35,24 +36,48 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     private final transient EmployeeService employeeService;
     private final transient UserService userService;
     private final transient DashboardService dashboardService;
+    private final transient TrainingService trainingService;
     private final transient LeaveService leaveService;
     private final transient BenefitsService benefitsService;
-
     private final transient BenefitPlanDAO benefitPlanDAO;
     private final transient EmployeeBenefitDAO employeeBenefitDAO;
-
     private final transient GlobalExceptionHandler exceptionHandler;
 
+    public HRMServer(
+        DatabaseManager databaseManager,
+        EmployeeService employeeService,
+        UserService userService,
+        TrainingService trainingService,
+        DashboardService dashboardService,
+        LeaveService leaveService,
+        BenefitsService benefitsService,
+        BenefitPlanDAO benefitPlanDAO,
+        EmployeeBenefitDAO employeeBenefitDAO,
+        GlobalExceptionHandler exceptionHandler
+    ) throws RemoteException {
+        this.dbManager = databaseManager;
+        this.employeeService = employeeService;
+        this.userService = userService;
+        this.trainingService = trainingService;
+        this.dashboardService = dashboardService;
+        this.leaveService = leaveService;
+        this.benefitsService = benefitsService;
+        this.benefitPlanDAO = benefitPlanDAO;
+        this.employeeBenefitDAO = employeeBenefitDAO;
+        this.exceptionHandler = exceptionHandler;
+    }
+      
     public HRMServer(Deps deps) throws RemoteException {
-        this.dbManager = deps.dbManager();
-        this.employeeService = deps.employeeService();
-        this.userService = deps.userService();
-        this.dashboardService = deps.dashboardService();
-        this.leaveService = deps.leaveService();
-        this.benefitsService = deps.benefitsService();
-        this.benefitPlanDAO = deps.benefitPlanDAO();
-        this.employeeBenefitDAO = deps.employeeBenefitDAO();
-        this.exceptionHandler = deps.exceptionHandler();
+      this.dbManager = deps.dbManager();
+      this.employeeService = deps.employeeService();
+      this.userService = deps.userService();
+    this.trainingService = deps.trainingService();
+      this.dashboardService = deps.dashboardService();
+      this.leaveService = deps.leaveService();
+      this.benefitsService = deps.benefitsService();
+      this.benefitPlanDAO = deps.benefitPlanDAO();
+      this.employeeBenefitDAO = deps.employeeBenefitDAO();
+      this.exceptionHandler = deps.exceptionHandler();
     }
 
     @Override
@@ -97,14 +122,16 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
-    public List<EmployeeDTO> getAllEmployees()
-            throws RemoteException, HRMException {
+    public List<EmployeeDTO> getAllEmployees() throws RemoteException, HRMException {
+        logger.debug("RMI Call: getAllEmployees() received.");
+        ErrorContext context = ErrorContext.forOperation(
+                "getAllEmployees");
 
         try {
             return employeeService.getAllEmployees();
         } catch (Exception e) {
-            exceptionHandler.handle(e, "getAllEmployees");
-            throw new AssertionError("unreachable");
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
         }
     }
 
@@ -135,11 +162,26 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
-    public void updateEmployeeProfile(EmployeeDTO employeeDTO)
-            throws RemoteException, HRMException {
+    public List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException {
+        logger.debug("RMI Call: getEmployeeTrainingEnrollments() for Employee ID: {}", employeeId);
+        ErrorContext context = ErrorContext.forUser(
+                "getEmployeeTrainingEnrollments", String.valueOf(employeeId));
 
-        ErrorContext context = ErrorContext.forUser("updateEmployeeProfile",
-                employeeDTO == null ? "null" : String.valueOf(employeeDTO.id()));
+        try {
+            return trainingService.getEnrollmentsByEmployee(employeeId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        }
+    }
+
+    @Override
+    public void updateEmployeeProfile(
+        EmployeeDTO employeeDTO
+    ) throws RemoteException, HRMException {
+        logger.info("RMI Call: updateEmployeeProfile() for employee ID: {}", employeeDTO.id());
+        ErrorContext context = ErrorContext.forUser(
+            "updateEmployeeProfile", String.valueOf(employeeDTO.id()));
 
         try {
             employeeService.updateEmployeeProfile(employeeDTO);
@@ -265,6 +307,19 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException, HRMException {
+        logger.debug("RMI Call: getAllTrainingCourses()");
+        ErrorContext context = ErrorContext.forOperation(
+                "getAllTrainingCourses");
+
+        try {
+            return trainingService.getAllCourses();
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        }
+    }
+
     public List<LeaveApplicationDTO> getPendingLeaveRequests()
             throws RemoteException, HRMException {
 
@@ -277,6 +332,65 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
+    public void saveTrainingCourse(TrainingCourseDTO courseDTO) throws RemoteException, HRMException {
+        logger.info("RMI Call: saveTrainingCourse for '{}'", courseDTO.title());
+        ErrorContext context = ErrorContext.forOperation(
+                "saveTrainingCourse");
+        try {
+            trainingService.createOrUpdateCourse(courseDTO);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
+    public void deleteTrainingCourse(int courseId) throws RemoteException, HRMException {
+        logger.info("RMI Call: deleteTrainingCourse ID {}", courseId);
+        ErrorContext context = ErrorContext.forOperation(
+                "deleteTrainingCourse");
+        try {
+            trainingService.deleteCourse(courseId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            } finally {
+                if (dbManager.isTransactionActive())
+                      dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
+    public void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException {
+        logger.info("RMI Call: enrollInTraining (Emp: {}, Course: {})", employeeId, courseId);
+        ErrorContext context = ErrorContext.forOperation(
+                "enrollInTraining");
+        try {
+            trainingService.enrollEmployee(employeeId, courseId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
+    public void enrollMultipleEmployees(int courseId, List<Integer> employeeIds) throws RemoteException, HRMException {
+        logger.info("RMI Call: enrollMultipleEmployees (Course: {}, Count: {})", courseId, employeeIds.size());
+        ErrorContext context = ErrorContext.forOperation("enrollMultipleEmployees");
+        try {
+            trainingService.enrollMultipleEmployees(courseId, employeeIds);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
+        }
+    }
+
     public void decideLeave(int leaveId, boolean approve, int hrUserId, String decisionReason)
             throws RemoteException, HRMException {
 
@@ -291,15 +405,15 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         }
     }
 
-    @Override
-    public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException {
-        throw new UnsupportedOperationException("Training not implemented yet");
-    }
+//    @Override
+//    public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException {
+//        throw new UnsupportedOperationException("Training not implemented yet");
+//    }
 
-    @Override
-    public void enrollInTraining(int employeeId, int courseId) throws RemoteException {
-        throw new UnsupportedOperationException("Training not implemented yet");
-    }
+//    @Override
+//    public void enrollInTraining(int employeeId, int courseId) throws RemoteException {
+//        throw new UnsupportedOperationException("Training not implemented yet");
+//    }
 
     @Override
     public List<JobOpeningDTO> getAllJobOpenings() throws RemoteException {

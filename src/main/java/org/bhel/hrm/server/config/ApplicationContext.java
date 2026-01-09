@@ -5,6 +5,19 @@ import org.bhel.hrm.common.error.ErrorMessageProvider;
 import org.bhel.hrm.common.error.ExceptionMappingConfig;
 import org.bhel.hrm.common.utils.CryptoUtils;
 import org.bhel.hrm.common.utils.GlobalExceptionHandler;
+import org.bhel.hrm.server.daos.EmployeeDAO;
+import org.bhel.hrm.server.daos.TrainingCourseDAO;
+import org.bhel.hrm.server.daos.TrainingEnrollmentDAO;
+import org.bhel.hrm.server.daos.UserDAO;
+import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
+import org.bhel.hrm.server.daos.impls.TrainingCourseDAOImpl;
+import org.bhel.hrm.server.daos.impls.TrainingEnrollmentDAOImpl;
+import org.bhel.hrm.server.daos.impls.UserDAOImpl;
+import org.bhel.hrm.server.services.DashboardService;
+import org.bhel.hrm.server.services.EmployeeService;
+import org.bhel.hrm.server.services.TrainingService;
+import org.bhel.hrm.server.services.PayrollSocketClient;
+import org.bhel.hrm.server.services.UserService;
 import org.bhel.hrm.common.utils.SslContextFactory;
 import org.bhel.hrm.server.daos.*;
 import org.bhel.hrm.server.daos.impls.BenefitPlanDAOImpl;
@@ -33,28 +46,28 @@ public class ApplicationContext {
     // -------- DAOs --------
     private final UserDAO userDAO;
     private final EmployeeDAO employeeDAO;
+    private final TrainingCourseDAO trainingCourseDAO;
+    private final TrainingEnrollmentDAO trainingEnrollmentDAO;
     private final LeaveApplicationDAO leaveApplicationDAO;
     private final BenefitPlanDAO benefitPlanDAO;
     private final EmployeeBenefitDAO employeeBenefitDAO;
 
-    // -------- Services --------
     private final UserService userService;
     private final EmployeeService employeeService;
+    private final TrainingService trainingService;
+
     private final DashboardService dashboardService;
     private final LeaveService leaveService;
     private final BenefitsService benefitsService;
 
-    // -------- Other core components --------
     private final SslContextFactory sslContextFactory;
     private final CryptoUtils cryptoUtils;
 
-    // make payroll optional for now
     private final PayrollSocketClient payrollSocketClient;
 
     private ApplicationContext() {
         logger.info("Initializing Application Context...");
 
-        // ---- config + error handling ----
         this.configuration = new Configuration();
         this.errorMessageProvider = new ErrorMessageProvider();
         this.exceptionMappingConfig = new ExceptionMappingConfig();
@@ -62,29 +75,15 @@ public class ApplicationContext {
         this.databaseManager = new DatabaseManager(configuration);
         this.globalExceptionHandler = new GlobalExceptionHandler(exceptionMappingConfig, errorMessageProvider);
 
-        // ---- security ----
         this.sslContextFactory = new SslContextFactory(configuration);
         this.cryptoUtils = new CryptoUtils(configuration);
-
-
-        PayrollSocketClient payrollTmp = null;
-        try {
-
-            String ks = System.getProperty("keystore.path");
-            if (ks != null && !ks.isBlank()) {
-                payrollTmp = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
-                logger.info("PayrollSocketClient initialized (keystore.path provided).");
-            } else {
-                logger.warn("PayrollSocketClient disabled: keystore.path not set.");
-            }
-        } catch (Exception ex) {
-            logger.warn("PayrollSocketClient disabled due to init error: {}", ex.getMessage());
-        }
-        this.payrollSocketClient = payrollTmp;
+        this.payrollSocketClient = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
 
         // ---- DAOs ----
         this.userDAO = new UserDAOImpl(databaseManager);
         this.employeeDAO = new EmployeeDAOImpl(databaseManager);
+        this.trainingCourseDAO = new TrainingCourseDAOImpl(databaseManager);
+        this.trainingEnrollmentDAO = new TrainingEnrollmentDAOImpl(databaseManager);
         this.leaveApplicationDAO = new LeaveApplicationDAOImpl(databaseManager);
         this.benefitPlanDAO = new BenefitPlanDAOImpl(databaseManager);
         this.employeeBenefitDAO = new EmployeeBenefitDAOImpl(databaseManager);
@@ -93,6 +92,7 @@ public class ApplicationContext {
         // UserService must tolerate payrollSocketClient being null (see note below)
         this.userService = new UserService(databaseManager, userDAO, employeeDAO, payrollSocketClient);
         this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
+        this.trainingService = new TrainingService(databaseManager, trainingCourseDAO, trainingEnrollmentDAO);
         this.dashboardService = new DashboardService(userDAO, employeeDAO);
 
         this.leaveService = new LeaveServiceImpl(leaveApplicationDAO, employeeDAO);
@@ -111,7 +111,7 @@ public class ApplicationContext {
             EmployeeDAO employeeDAO
     ) {
         if ("development".equalsIgnoreCase(config.getAppEnvironment())) {
-            databaseSeeder = new DatabaseSeeder(dbManager, userDAO, employeeDAO);
+            databaseSeeder = new DatabaseSeeder(dbManager, userDAO, employeeDAO, trainingCourseDAO, trainingEnrollmentDAO);
             databaseSeeder.seedIfEmpty();
         }
     }
@@ -148,5 +148,16 @@ public class ApplicationContext {
         return payrollSocketClient; // may be null in dev
     }
 
+    public TrainingCourseDAO getTrainingCourseDAO() {
+        return trainingCourseDAO;
+    }
+
+    public TrainingEnrollmentDAO getTrainingEnrollmentDAO() {
+        return trainingEnrollmentDAO;
+    }
+
+    public TrainingService getTrainingService() {
+        return trainingService;
+    }
 
 }

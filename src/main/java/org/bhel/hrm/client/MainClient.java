@@ -100,8 +100,8 @@ public class MainClient extends Application {
         } catch (IOException e) {
             logger.error("Failed to load Login view", e);
             DialogManager.showErrorDialog(
-                "Application Error",
-                "Could not load the Login screen. Please restart the application."
+                    "Application Error",
+                    "Could not load the Login screen. Please restart the application."
             );
         }
     }
@@ -135,8 +135,8 @@ public class MainClient extends Application {
         } catch (IOException e) {
             logger.error("Failed to load Main view", e);
             DialogManager.showErrorDialog(
-                "Application Error",
-                "Could not load the Main screen. Returning to Login."
+                    "Application Error",
+                    "Could not load the Main screen. Returning to Login."
             );
 
             showLoginView();

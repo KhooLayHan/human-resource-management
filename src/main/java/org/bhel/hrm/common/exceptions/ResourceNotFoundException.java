@@ -95,12 +95,48 @@ public final class ResourceNotFoundException extends HRMException {
         this.resourceType = resourceType;
     }
 
+//    public ResourceNotFoundException(String trainingCourse, int courseId, Object resourceId, String resourceType) {
+//        super();
+//        this.resourceId = resourceId;
+//        this.resourceType = resourceType;
+//    }
+
     private static String formatMessage(
         String resourceType,
         Object resourceId
     ) {
         return String.format("%s with ID '%s' was not found",
             resourceType, resourceId);
+    }
+
+    public ResourceNotFoundException(String message, Object resourceId, String resourceType) {
+        super(message);
+        this.resourceId = resourceId;
+        this.resourceType = resourceType;
+    }
+
+    public ResourceNotFoundException(String message, Throwable cause, Object resourceId, String resourceType) {
+        super(message, cause);
+        this.resourceId = resourceId;
+        this.resourceType = resourceType;
+    }
+
+    public ResourceNotFoundException(ErrorCode errorCode, String message, Object resourceId, String resourceType) {
+        super(errorCode, message);
+        this.resourceId = resourceId;
+        this.resourceType = resourceType;
+    }
+
+    public ResourceNotFoundException(ErrorCode errorCode, String message, ErrorContext context, Object resourceId, String resourceType) {
+        super(errorCode, message, context);
+        this.resourceId = resourceId;
+        this.resourceType = resourceType;
+    }
+
+    public ResourceNotFoundException(ErrorCode errorCode, String message, Throwable cause, ErrorContext context, Object resourceId, String resourceType) {
+        super(errorCode, message, cause, context);
+        this.resourceId = resourceId;
+        this.resourceType = resourceType;
     }
 
     public String getResourceType() {

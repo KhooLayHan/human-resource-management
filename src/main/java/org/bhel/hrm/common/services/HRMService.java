@@ -84,6 +84,7 @@ public interface HRMService extends Remote {
      * @throws RemoteException If the update fails or a communication error occurs
      * @throws HRMException If the employee ID is invalid or data validation fails
      */
+
     void updateEmployeeProfile(EmployeeDTO employeeDTO) throws RemoteException, HRMException;
 
     /**
@@ -144,7 +145,9 @@ public interface HRMService extends Remote {
      * @return A List of TrainingCourseDTOs.
      * @throws RemoteException if a communication-related error occurs.
      */
-    List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException;
+    List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException, HRMException;
+
+    void saveTrainingCourse(TrainingCourseDTO courseDTO) throws RemoteException, HRMException;
 
     /**
      * Enrolls an employee in a specific training course.
@@ -153,7 +156,13 @@ public interface HRMService extends Remote {
      * @param courseId The ID of the course to enroll in.
      * @throws RemoteException if enrollment fails (e.g., course is full) or a communication error occurs.
      */
-    void enrollInTraining(int employeeId, int courseId) throws RemoteException;
+    void enrollInTraining(int employeeId, int courseId) throws RemoteException, HRMException;
+
+    void deleteTrainingCourse(int courseId) throws RemoteException, HRMException;
+
+    void enrollMultipleEmployees(int courseId, List<Integer> employeeIds) throws RemoteException, HRMException;
+
+    List<TrainingEnrollmentDTO> getEmployeeTrainingEnrollments(int employeeId) throws RemoteException, HRMException;
 
     // --- 5. Recruitment Management (Primarily for HR Staff) ---
 

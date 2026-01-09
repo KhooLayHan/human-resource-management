@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -18,6 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.bhel.hrm.client.MainClient;
+import org.bhel.hrm.client.constants.FXMLPaths;
 import org.bhel.hrm.client.constants.ViewType;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.client.utils.DialogManager;
@@ -26,6 +28,7 @@ import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutorService;
@@ -142,14 +145,13 @@ public class MainController {
         // 2. Add other views based on role permissions
         // Define the order you want them to appear
         ViewType[] menuOrder = {
-                ViewType.EMPLOYEE_MANAGEMENT,
-                ViewType.RECRUITMENT,
-                ViewType.TRAINING_ADMIN,
-                ViewType.LEAVE_APPROVALS,   // add this
-                ViewType.LEAVE,
-                ViewType.BENEFITS,
-                ViewType.TRAINING_CATALOG,
-                ViewType.PROFILE
+            ViewType.EMPLOYEE_MANAGEMENT,
+//            ViewType.RECRUITMENT,
+//            ViewType.TRAINING_ADMIN,
+            ViewType.LEAVE,
+            ViewType.BENEFITS,
+//            ViewType.TRAINING_CATALOG,
+            ViewType.PROFILE
         };
 
 
@@ -157,6 +159,54 @@ public class MainController {
             if (view.isAllowedForRole(currentUser.role())) {
                 addNavigationBtn(view);
             }
+        }
+
+        // Role-based navigation
+        if (currentUser.role() == UserDTO.Role.HR_STAFF) {
+            addNavigationBtn("Training Admin", this::loadTrainingAdminView);
+        }
+
+        if (
+            currentUser.role() == UserDTO.Role.EMPLOYEE ||
+            currentUser.role() == UserDTO.Role.HR_STAFF
+        ) {
+            addNavigationBtn("Training Catalog", this::loadTrainingCatalogView);
+        }
+    }
+
+    /** Helper method to create and add a styled navigation button. */
+    private void addNavigationBtn(String text, Runnable action) {
+        final String NAV_BUTTON_STYLE = "nav-button-active";
+
+        Button button = new Button(text);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.getStyleClass().add("nav-button");
+
+        button.setOnAction(e -> {
+            // Removes active state from previous button
+            if (activeButton != null)
+                activeButton.getStyleClass().remove(NAV_BUTTON_STYLE);
+
+            // Sets active state on current button
+            button.getStyleClass().add(NAV_BUTTON_STYLE);
+            activeButton = button;
+
+            // Update current view label
+            currentViewLabel.setText(text);
+
+            // Reset session timer on user activity
+            // resetSessionTimer();
+
+            // Execute the navigation action
+            action.run();
+        });
+
+        navigationVBox.getChildren().add(button);
+
+        // Sets first button as active by default
+        if (activeButton == null) {
+            button.getStyleClass().add(NAV_BUTTON_STYLE);
+            activeButton = button;
         }
     }
 
@@ -244,6 +294,44 @@ public class MainController {
     }
 
     /**
+     * Loads the leave view.
+     */
+    private void loadLeaveView() {
+        logger.info("Loading Leave View...");
+
+        ViewManager.loadView(contentArea,
+                FXMLPaths.LEAVE);
+    }
+
+    /**
+     * Loads the benefits view.
+     */
+    private void loadBenefitsView() {
+        logger.info("Loading Benefits View...");
+
+        ViewManager.loadView(contentArea,
+                FXMLPaths.BENEFITS);
+    }
+
+    /**
+     * Loads the recruitment view.
+     */
+    private void loadRecruitmentView() {
+        logger.info("Loading Recruitment View...");
+
+        ViewManager.loadView(contentArea,
+                FXMLPaths.RECRUITMENT);
+    }
+
+    /**
+     * Loads the profile view.
+     */
+    private void loadProfileView() {
+        logger.info("Loading Profile View...");
+    }
+
+
+    /**
      * Starts the clock that updates the current time display.
      */
     private void startClock() {
@@ -256,6 +344,43 @@ public class MainController {
         clockTimeline.play();
     }
 
+    /**
+     * Loads the training catalog view.
+     */
+    private void loadTrainingCatalogView() {
+        logger.info("Loading Training Catalog View...");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/bhel/hrm/client/view/TrainingCatalogView.fxml"));
+            javafx.scene.Parent view = loader.load();
+
+            TrainingCatalogController controller = loader.getController();
+            // Inject dependencies
+            controller.setDependencies(serviceManager.getHrmService(), executorService, currentUser);
+
+            contentArea.getChildren().setAll(view);
+            currentViewLabel.setText("Training Catalog");
+        } catch (IOException e) {
+            logger.error("Failed to load catalog view", e);
+            DialogManager.showErrorDialog("View Load Error", "Could not load the Training Catalog view.");
+        }
+    }
+
+    private void loadTrainingAdminView() {
+        logger.info("Loading Training Admin View...");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/bhel/hrm/client/view/TrainingAdminView.fxml"));
+            javafx.scene.Parent view = loader.load();
+
+            TrainingAdminController controller = loader.getController();
+            // Assuming TrainingAdminController has setDependencies method as previously discussed
+            controller.setDependencies(serviceManager.getHrmService(), executorService);
+
+            contentArea.getChildren().setAll(view);
+            currentViewLabel.setText("Training Admin");
+        } catch (IOException e) {
+            logger.error("Failed to load training admin view", e);
+        }
+    }
     /**
      * Monitors the connection status to the server.
      */

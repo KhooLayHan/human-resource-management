@@ -52,23 +52,19 @@ public class ServerLauncher {
         String env = context.getConfiguration().getAppEnvironment();
         logger.info("Application is starting in [{}] environment.", env);
 
-        return new HRMServer(new HRMServer.Deps(
-                context.getDatabaseManager(),
-                context.getEmployeeService(),
-                context.getUserService(),
-                context.getDashboardService(),
-                context.getLeaveService(),
-                context.getBenefitsService(),
-                context.getBenefitPlanDAO(),
-                context.getEmployeeBenefitDAO(),
-                context.getGlobalExceptionHandler()
-        ));
+        return new HRMServer(
+            context.getDatabaseManager(),
+            context.getEmployeeService(),
+            context.getUserService(),
+            context.getTrainingService(),
+            context.getDashboardService(),
+            context.getLeaveService(),
+            context.getBenefitsService(),
+            context.getBenefitPlanDAO(),
+            context.getEmployeeBenefitDAO(),
+            context.getGlobalExceptionHandler()
+        );
     }
-
-
-
-
-
 
     /**
      * Adds a shutdown hook to gracefully unbind the service on JVM shutdown.
