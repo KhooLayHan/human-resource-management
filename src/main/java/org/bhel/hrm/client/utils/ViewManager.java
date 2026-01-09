@@ -8,9 +8,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import org.bhel.hrm.client.constants.ViewType;
-import org.bhel.hrm.client.controllers.DashboardController;
-import org.bhel.hrm.client.controllers.MainController;
-import org.bhel.hrm.client.controllers.ProfileController;
+import org.bhel.hrm.client.controllers.*;
 import org.bhel.hrm.client.services.ServiceManager;
 import org.bhel.hrm.common.dtos.UserDTO;
 import org.slf4j.Logger;
@@ -120,6 +118,29 @@ public class ViewManager {
                     executorService,
                     currentUser
                 );
+            case LeaveController leaveController ->
+                    leaveController.initDependencies(
+                            serviceManager,
+                            executorService,
+                            currentUser,
+                            mainController
+                    );
+
+            case BenefitsController benefitsController ->
+                    benefitsController.initDependencies(
+                            serviceManager,
+                            executorService,
+                            currentUser,
+                            mainController
+                    );
+            case LeaveApprovalController leaveApprovalController ->
+                    leaveApprovalController.initDependencies(
+                            serviceManager,
+                            executorService,
+                            currentUser,
+                            mainController
+                    );
+
             default ->
                 logger.debug("No dependency injection configured for controller: {}",
                     controller.getClass().getSimpleName());
