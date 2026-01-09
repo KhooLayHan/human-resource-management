@@ -132,7 +132,7 @@ public class BenefitsController {
                 ensureEmployeeId();
 
                 List<BenefitPlanDTO> allPlans = hrm.getAllBenefitPlans();
-                List<BenefitPlanDTO> myPlans = hrm.getMyBenefitPlans(employeeId);
+                List<BenefitPlanDTO> myPlans  = hrm.getMyBenefitPlans(employeeId);
 
                 Set<Integer> enrolledIds = myPlans.stream()
                         .map(BenefitPlanDTO::id)
@@ -148,7 +148,6 @@ public class BenefitsController {
                 onFx(() -> {
                     plansTable.setItems(FXCollections.observableArrayList(rows));
                     setStatus("Loaded " + rows.size() + " plans");
-                    setBusy(false);
 
                     plansTable.getSelectionModel().clearSelection();
                     selectedPlanLabel.setText("(none)");
@@ -161,9 +160,12 @@ public class BenefitsController {
             } catch (Exception ex) {
                 logger.error("Unexpected error while refreshing plans", ex);
                 showErrorAndStatus("Benefits Error", "Unexpected error: " + ex.getMessage(), "Failed to load plans");
+            } finally {
+                setBusy(false);
             }
         });
     }
+
 
     private void enrollSelectedAsync() {
         BenefitPlanRow selected = plansTable.getSelectionModel().getSelectedItem();
@@ -230,13 +232,14 @@ public class BenefitsController {
         }
     }
 
-    private void showErrorAndStatus(String title, String message, String statusMsg) {
+    private void showErrorAndStatus(String title, String msg, String status) {
         onFx(() -> {
+            DialogManager.showErrorDialog(title, msg);
+            setStatus(status);
             setBusy(false);
-            DialogManager.showErrorDialog(title, message);
-            setStatus(statusMsg);
         });
     }
+
 
     private void setBusy(boolean busy) {
         refreshButton.setDisable(busy);
@@ -255,4 +258,7 @@ public class BenefitsController {
     private void setStatus(String msg) {
         statusLabel.setText(msg == null ? "" : msg);
     }
+
+
+
 }
