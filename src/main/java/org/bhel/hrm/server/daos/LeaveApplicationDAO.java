@@ -1,5 +1,6 @@
 package org.bhel.hrm.server.daos;
 
+import org.bhel.hrm.common.dtos.LeaveApplicationDTO;
 import org.bhel.hrm.server.domain.LeaveApplication;
 
 import java.util.List;
@@ -20,5 +21,19 @@ public interface LeaveApplicationDAO extends DAO<LeaveApplication, Integer> {
     List<LeaveApplication> findPending();
     void updateStatus(int leaveId, int statusId, Integer decidedByUserId, String decisionReason);
     Integer findOwnerUserIdByLeaveId(int leaveId);
+
+    int decideIfPending(int leaveId,
+                        LeaveApplicationDTO.LeaveStatus newStatus,
+                        int decidedByUserId,
+                        String decisionReason);
+
+    private int statusId(LeaveApplicationDTO.LeaveStatus s) {
+        return switch (s) {
+            case PENDING -> 1;
+            case APPROVED -> 2;
+            case REJECTED -> 3;
+        };
+    }
+
 
 }

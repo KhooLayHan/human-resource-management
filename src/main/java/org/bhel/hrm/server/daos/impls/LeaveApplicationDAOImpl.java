@@ -13,12 +13,16 @@ import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
-public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> implements LeaveApplicationDAO {
-    private static final Logger logger = LoggerFactory.getLogger(LeaveApplicationDAOImpl.class);
+public class LeaveApplicationDAOImpl
+        extends AbstractDAO<LeaveApplication>
+        implements LeaveApplicationDAO {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(LeaveApplicationDAOImpl.class);
 
     private static final String TABLE_NAME = "leave_applications";
 
-    // ---------------- SQL fragments ----------------
+    // ---------------- SQL ----------------
 
     private static final String SELECT_ALL = """
         SELECT
@@ -29,32 +33,43 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
             la.type_id,
             la.status_id,
             la.reason
-        FROM %s la
-        """.formatted(TABLE_NAME);
+        FROM leave_applications la
+        """;
 
-    private static final String ORDER_BY_START_DESC = " ORDER BY la.start_date_time DESC";
+    private static final String ORDER_BY_START_DESC =
+            " ORDER BY la.start_date_time DESC";
 
-    private static final String WHERE_ID = " WHERE la.id = ?";
-    private static final String WHERE_EMPLOYEE_ID = " WHERE la.employee_id = ?";
-    private static final String WHERE_STATUS_ID = " WHERE la.status_id = ?";
+    private static final String WHERE_ID =
+            " WHERE la.id = ?";
 
-    private static final String DELETE_BY_ID_SQL =
-            "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
+    private static final String WHERE_EMPLOYEE_ID =
+            " WHERE la.employee_id = ?";
 
-    private static final String COUNT_SQL =
-            "SELECT COUNT(*) AS total FROM " + TABLE_NAME;
+    private static final String WHERE_STATUS_ID =
+            " WHERE la.status_id = ?";
 
     private static final String INSERT_SQL = """
-        INSERT INTO %s
+        INSERT INTO leave_applications
             (employee_id, start_date_time, end_date_time, type_id, status_id, reason)
         VALUES (?, ?, ?, ?, ?, ?)
-        """.formatted(TABLE_NAME);
+        """;
 
     private static final String UPDATE_SQL = """
-        UPDATE %s
-        SET employee_id = ?, start_date_time = ?, end_date_time = ?, type_id = ?, status_id = ?, reason = ?
+        UPDATE leave_applications
+        SET employee_id = ?,
+            start_date_time = ?,
+            end_date_time = ?,
+            type_id = ?,
+            status_id = ?,
+            reason = ?
         WHERE id = ?
-        """.formatted(TABLE_NAME);
+        """;
+
+    private static final String DELETE_BY_ID_SQL =
+            "DELETE FROM leave_applications WHERE id = ?";
+
+    private static final String COUNT_SQL =
+            "SELECT COUNT(*) AS total FROM leave_applications";
 
     private static final String OWNER_USER_ID_BY_LEAVE_ID_SQL = """
         SELECT e.user_id
@@ -63,33 +78,40 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
         WHERE la.id = ?
         """;
 
-    private static final String UPDATE_STATUS_SQL = """
+    private static final String DECIDE_IF_PENDING_SQL = """
         UPDATE leave_applications
         SET status_id = ?,
             decided_by_user_id = ?,
             decision_reason = ?,
             decided_at = CURRENT_TIMESTAMP
         WHERE id = ?
+          AND status_id = ?
         """;
+
+    // ---------------- ctor ----------------
 
     public LeaveApplicationDAOImpl(DatabaseManager dbManager) {
         super(dbManager);
     }
 
-    // ---------------- DAO<LeaveApplication, Integer> ----------------
+    // ---------------- DAO basics ----------------
 
     @Override
     public Optional<LeaveApplication> findById(Integer id) {
-        return findOne(SELECT_ALL + WHERE_ID,
+        return findOne(
+                SELECT_ALL + WHERE_ID,
                 stmt -> stmt.setInt(1, id),
-                this::mapRow);
+                this::mapRow
+        );
     }
 
     @Override
     public List<LeaveApplication> findAll() {
-        return findMany(SELECT_ALL + ORDER_BY_START_DESC,
-                stmt -> { /* no params */ },
-                this::mapRow);
+        return findMany(
+                SELECT_ALL + ORDER_BY_START_DESC,
+                stmt -> {},
+                this::mapRow
+        );
     }
 
     @Override
@@ -111,58 +133,88 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
         return countWithSql(COUNT_SQL, "Error counting leave applications");
     }
 
-    // ---------------- LeaveApplicationDAO custom methods ----------------
+    // ---------------- Custom queries ----------------
 
     @Override
     public Integer findOwnerUserIdByLeaveId(int leaveId) {
-        try (var conn = dbManager.getConnection();
-             var ps = conn.prepareStatement(OWNER_USER_ID_BY_LEAVE_ID_SQL)) {
+        Connection conn = null;
+        try {
+            conn = dbManager.getConnection();
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(OWNER_USER_ID_BY_LEAVE_ID_SQL)) {
 
-            ps.setInt(1, leaveId);
-
-            try (var rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt("user_id") : null;
+                stmt.setInt(1, leaveId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    return rs.next() ? rs.getInt("user_id") : null;
+                }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Failed to find owner user_id for leaveId=" + leaveId, e);
+            throw new DataAccessException(
+                    "Failed to find owner for leaveId=" + leaveId, e);
+        } finally {
+            dbManager.releaseConnection(conn);
         }
     }
 
     @Override
     public List<LeaveApplication> findByEmployeeId(int employeeId) {
-        return findMany(SELECT_ALL + WHERE_EMPLOYEE_ID + ORDER_BY_START_DESC,
+        return findMany(
+                SELECT_ALL + WHERE_EMPLOYEE_ID + ORDER_BY_START_DESC,
                 stmt -> stmt.setInt(1, employeeId),
-                this::mapRow);
+                this::mapRow
+        );
     }
 
     @Override
     public List<LeaveApplication> findPending() {
-        // pending = 1 (per your seed)
-        // Note: previously you had ORDER BY created_at DESC (may not exist). Using start_date_time instead.
-        return findMany(SELECT_ALL + WHERE_STATUS_ID + ORDER_BY_START_DESC,
-                stmt -> stmt.setInt(1, 1),
-                this::mapRow);
+        return findMany(
+                SELECT_ALL + WHERE_STATUS_ID + ORDER_BY_START_DESC,
+                stmt -> stmt.setInt(
+                        1,
+                        mapStatusToId(LeaveApplicationDTO.LeaveStatus.PENDING)
+                ),
+                this::mapRow
+        );
     }
 
+    // ---------------- Concurrency-safe decision ----------------
+
     @Override
-    public void updateStatus(int leaveId, int statusId, Integer decidedByUserId, String decisionReason) {
-        executeUpdate(UPDATE_STATUS_SQL, stmt -> {
-            stmt.setInt(1, statusId);
+    public int decideIfPending(int leaveId,
+                               LeaveApplicationDTO.LeaveStatus newStatus,
+                               int decidedByUserId,
+                               String decisionReason) {
 
-            if (decidedByUserId != null) {
+        int newStatusId = mapStatusToId(newStatus);
+        int pendingStatusId =
+                mapStatusToId(LeaveApplicationDTO.LeaveStatus.PENDING);
+
+        Connection conn = null;
+        try {
+            conn = dbManager.getConnection();
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(DECIDE_IF_PENDING_SQL)) {
+
+                stmt.setInt(1, newStatusId);
                 stmt.setInt(2, decidedByUserId);
-            } else {
-                stmt.setNull(2, Types.INTEGER);
-            }
 
-            if (decisionReason != null && !decisionReason.isBlank()) {
-                stmt.setString(3, decisionReason);
-            } else {
-                stmt.setNull(3, Types.LONGVARCHAR);
-            }
+                if (decisionReason != null && !decisionReason.isBlank()) {
+                    stmt.setString(3, decisionReason);
+                } else {
+                    stmt.setNull(3, Types.LONGVARCHAR);
+                }
 
-            stmt.setInt(4, leaveId);
-        });
+                stmt.setInt(4, leaveId);
+                stmt.setInt(5, pendingStatusId);
+
+                return stmt.executeUpdate(); // 0 or 1
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(
+                    "Failed to decide leaveId=" + leaveId, e);
+        } finally {
+            dbManager.releaseConnection(conn);
+        }
     }
 
     // ---------------- AbstractDAO hooks ----------------
@@ -172,27 +224,30 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
         Connection conn = null;
         try {
             conn = dbManager.getConnection();
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(
+                                 INSERT_SQL,
+                                 Statement.RETURN_GENERATED_KEYS)) {
 
-            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
                 setSaveParameters(stmt, entity);
+                int affected = stmt.executeUpdate();
 
-                int affectedRows = stmt.executeUpdate();
-                logger.info("Executed insert: {}", stmt);
-
-                if (affectedRows == 0) {
-                    throw new DataAccessException("Inserting leave application failed, no rows affected.", null);
+                if (affected == 0) {
+                    throw new DataAccessException(
+                            "Insert leave failed, no rows affected", null);
                 }
 
                 try (ResultSet keys = stmt.getGeneratedKeys()) {
                     if (keys.next()) {
                         entity.setId(keys.getInt(1));
                     } else {
-                        throw new DataAccessException("Inserting leave application failed, no ID obtained.", null);
+                        throw new DataAccessException(
+                                "Insert leave failed, no ID returned", null);
                     }
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error inserting leave application", e);
+            throw new DataAccessException("Error inserting leave", e);
         } finally {
             dbManager.releaseConnection(conn);
         }
@@ -207,16 +262,21 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
     }
 
     @Override
-    protected void setSaveParameters(PreparedStatement stmt, LeaveApplication entity) throws SQLException {
+    protected void setSaveParameters(
+            PreparedStatement stmt,
+            LeaveApplication entity) throws SQLException {
+
         stmt.setInt(1, entity.getEmployeeId());
-        stmt.setTimestamp(2, Timestamp.valueOf(entity.getStartDateTime()));
-        stmt.setTimestamp(3, Timestamp.valueOf(entity.getEndDateTime()));
+        stmt.setTimestamp(2,
+                Timestamp.valueOf(entity.getStartDateTime()));
+        stmt.setTimestamp(3,
+                Timestamp.valueOf(entity.getEndDateTime()));
         stmt.setInt(4, mapTypeToId(entity.getType()));
         stmt.setInt(5, mapStatusToId(entity.getStatus()));
         stmt.setString(6, entity.getReason());
     }
 
-    // ---------------- Helpers (duplication reducers) ----------------
+    // ---------------- Helpers ----------------
 
     private long countWithSql(String sql, String errorMessage) {
         Connection conn = null;
@@ -234,8 +294,6 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
         }
     }
 
-    // ---------------- Row mapping ----------------
-
     private LeaveApplication mapRow(ResultSet rs) throws SQLException {
         LeaveApplication leave = new LeaveApplication();
         leave.setId(rs.getInt("id"));
@@ -251,21 +309,16 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
             leave.setEndDateTime(endTs.toLocalDateTime());
         }
 
-        int typeId = rs.getInt("type_id");
-        leave.setType(mapIdToType(typeId));
-
-        int statusId = rs.getInt("status_id");
-        leave.setStatus(mapIdToStatus(statusId));
-
+        leave.setType(mapIdToType(rs.getInt("type_id")));
+        leave.setStatus(mapIdToStatus(rs.getInt("status_id")));
         leave.setReason(rs.getString("reason"));
 
         return leave;
     }
 
-    // ---------------- Enum <-> DB id helpers ----------------
+    // ---------------- Enum ↔ DB ID ----------------
 
     private int mapTypeToId(LeaveApplicationDTO.LeaveType type) {
-        // (1, 'annual'), (2, 'sick'), (3, 'unpaid')
         return switch (type) {
             case ANNUAL -> 1;
             case SICK -> 2;
@@ -278,12 +331,12 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
             case 1 -> LeaveApplicationDTO.LeaveType.ANNUAL;
             case 2 -> LeaveApplicationDTO.LeaveType.SICK;
             case 3 -> LeaveApplicationDTO.LeaveType.UNPAID;
-            default -> throw new IllegalArgumentException("Unknown leave type id: " + id);
+            default -> throw new IllegalArgumentException(
+                    "Unknown leave type id: " + id);
         };
     }
 
     private int mapStatusToId(LeaveApplicationDTO.LeaveStatus status) {
-        // (1, 'pending'), (2, 'approved'), (3, 'rejected')
         return switch (status) {
             case PENDING -> 1;
             case APPROVED -> 2;
@@ -296,7 +349,55 @@ public class LeaveApplicationDAOImpl extends AbstractDAO<LeaveApplication> imple
             case 1 -> LeaveApplicationDTO.LeaveStatus.PENDING;
             case 2 -> LeaveApplicationDTO.LeaveStatus.APPROVED;
             case 3 -> LeaveApplicationDTO.LeaveStatus.REJECTED;
-            default -> throw new IllegalArgumentException("Unknown leave status id: " + id);
+            default -> throw new IllegalArgumentException(
+                    "Unknown leave status id: " + id);
         };
     }
+
+
+    @Override
+    public void updateStatus(int leaveId,
+                             int statusId,
+                             Integer decidedByUserId,
+                             String decisionReason) {
+
+        Connection conn = null;
+        try {
+            conn = dbManager.getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement("""
+            UPDATE leave_applications
+            SET status_id = ?,
+                decided_by_user_id = ?,
+                decision_reason = ?,
+                decided_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """)) {
+
+                stmt.setInt(1, statusId);
+
+                if (decidedByUserId != null) {
+                    stmt.setInt(2, decidedByUserId);
+                } else {
+                    stmt.setNull(2, Types.INTEGER);
+                }
+
+                if (decisionReason != null && !decisionReason.isBlank()) {
+                    stmt.setString(3, decisionReason);
+                } else {
+                    stmt.setNull(3, Types.LONGVARCHAR);
+                }
+
+                stmt.setInt(4, leaveId);
+
+                stmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(
+                    "Failed to update status for leaveId=" + leaveId, e);
+        } finally {
+            dbManager.releaseConnection(conn);
+        }
+    }
+
+
 }

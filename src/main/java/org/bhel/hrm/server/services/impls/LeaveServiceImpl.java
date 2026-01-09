@@ -51,6 +51,9 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public void decideLeave(int leaveId, boolean approve, int hrUserId, String decisionReason) {
 
+        if (leaveId <= 0) {
+            throw new IllegalArgumentException("Invalid leave ID");
+        }
         if (hrUserId <= 0) {
             throw new IllegalArgumentException("Invalid HR user ID");
         }
@@ -60,19 +63,22 @@ public class LeaveServiceImpl implements LeaveService {
             throw new IllegalArgumentException("Leave not found: " + leaveId);
         }
 
-        //  Block HR approving/rejecting their own leave
+        // Block HR approving/rejecting their own leave
         if (ownerUserId == hrUserId) {
             throw new IllegalArgumentException("You cannot approve/reject your own leave request.");
         }
 
-        final int STATUS_APPROVED = 2;
-        final int STATUS_REJECTED = 3;
+        LeaveApplicationDTO.LeaveStatus newStatus =
+                approve ? LeaveApplicationDTO.LeaveStatus.APPROVED : LeaveApplicationDTO.LeaveStatus.REJECTED;
 
-        int newStatusId = approve ? STATUS_APPROVED : STATUS_REJECTED;
+        int affected = leaveDAO.decideIfPending(leaveId, newStatus, hrUserId, decisionReason);
 
-
-        leaveDAO.updateStatus(leaveId, newStatusId, hrUserId, decisionReason);
+        if (affected == 0) {
+            // Either: leave already decided (not pending) OR was deleted between checks
+            throw new IllegalStateException("Leave decision failed: request is no longer pending (or does not exist).");
+        }
     }
+
 
     private LeaveApplicationDTO toDTO(LeaveApplication leave) {
 
