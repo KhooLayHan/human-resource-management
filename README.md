@@ -15,7 +15,7 @@ to manage their profiles and leave applications.
 Before running the application, ensure you have the following installed:
 
 1. **Java Development Kit (JDK) 21** (Required for JavaFX and modern switch features).
-2. **Apache Maven 3.8+**.
+2. **Apache Maven 3.8+** (https://maven.apache.org/install.html). 
 3. **Docker Desktop** (Required for the database and integration tests).
 4. **DBeaver** (Required to provide a visual overview of the database).
 
