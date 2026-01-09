@@ -67,7 +67,6 @@ public class DatabaseSeeder {
             logger.info("Successfully seeded the database with {} users.", userDAO.count());
         } catch (Exception e) {
             logger.error("Database seeding failed. Rolling back transaction.", e);
-            dbManager.rollbackTransaction();
         }
     }
 
@@ -148,7 +147,10 @@ public class DatabaseSeeder {
         List<Employee> employees = employeeDAO.findAll();
         List<TrainingCourse> courses = trainingCourseDAO.findAll();
 
-        if (employees.isEmpty() || courses.isEmpty()) return;
+        if (employees.isEmpty() || courses.isEmpty()) {
+            logger.warn("Cannot seed enrollments: no employees or courses found.");
+            return;
+        }
 
         // Randomly enroll employees in courses
         for (Employee emp : employees) {
@@ -156,7 +158,7 @@ public class DatabaseSeeder {
 
             // Enroll each employee in 0 to 3 random courses
             int numCourses = random.nextInt(4);
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < numCourses; i++) {
                 TrainingCourse randomCourse = courses.get(random.nextInt(courses.size()));
 
                 boolean alreadyEnrolled = trainingEnrollmentDAO.findByEmployeeId(emp.getId())
@@ -168,17 +170,10 @@ public class DatabaseSeeder {
                         randomCourse.getId(),
                         status[random.nextInt(status.length)]
                     );
-                    // enrollment.setEmployeeId(emp.getId());
-                    // enrollment.setCourseId(randomCourse.getId());
-                    // enrollment.setStatus(r);
 
                     trainingEnrollmentDAO.save(enrollment);
                 }
-
             }
         }
     }
 }
-
-
-

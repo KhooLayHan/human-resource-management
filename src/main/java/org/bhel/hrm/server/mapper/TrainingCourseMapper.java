@@ -43,9 +43,8 @@ public final class TrainingCourseMapper {
             return List.of();
         }
         return all.stream()
-                .map(TrainingCourseMapper::mapToDto)
-                .toList();
-
+            .map(TrainingCourseMapper::mapToDto)
+            .toList();
     }
 }
 
