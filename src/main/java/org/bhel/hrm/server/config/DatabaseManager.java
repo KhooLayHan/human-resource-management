@@ -366,24 +366,24 @@ public final class DatabaseManager {
             )
         """);
 
-//        stmt.execute("""
-//            CREATE TABLE employee_benefits (
-//                id INT AUTO_INCREMENT PRIMARY KEY,
-//                employee_id INT NOT NULL,
-//                plan_id INT NOT NULL,
-//                enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//
-//                UNIQUE KEY uq_employee_plan (employee_id, plan_id),
-//
-//                CONSTRAINT fk_employee_benefits_employee
-//                    FOREIGN KEY (employee_id) REFERENCES employees(id)
-//                    ON DELETE CASCADE,
-//
-//                CONSTRAINT fk_employee_benefits_plan
-//                    FOREIGN KEY (plan_id) REFERENCES benefit_plans(id)
-//                    ON DELETE CASCADE
-//           )
-//        """);
+        stmt.execute("""
+            CREATE TABLE employee_benefits (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                employee_id INT NOT NULL,
+                plan_id INT NOT NULL,
+                enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                UNIQUE KEY uq_employee_plan (employee_id, plan_id),
+
+                CONSTRAINT fk_employee_benefits_employee
+                    FOREIGN KEY (employee_id) REFERENCES employees(id)
+                    ON DELETE CASCADE,
+
+                CONSTRAINT fk_employee_benefits_plan
+                    FOREIGN KEY (plan_id) REFERENCES benefit_plans(id)
+                    ON DELETE CASCADE
+           )
+        """);
 
         // 6. JobOpenings, and JobOpeningStatuses Table
         stmt.execute("""
