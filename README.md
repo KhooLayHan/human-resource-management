@@ -45,7 +45,7 @@ keytool -genkeypair -alias bhel_payroll -keyalg RSA -keysize 2048 -storetype PKC
 cd ../../..
 ```
 
-### 2. Start the Database (Docker)
+### 3. Start the Database (Docker)
 We use Docker Compose to spin up a MySQL database instantly without manual installation.
 
 ```bash
@@ -56,7 +56,7 @@ docker compose up -d
 - **Database:** `hrm_db`
 - **User:** `user` / **Password:** `password123`
 
-### 3. Build the Project
+### 4. Build the Project
 Compile the code and run the tests. Note: The tests use **Testcontainers**, so Docker must be running.
 
 ```bash
