@@ -3,6 +3,7 @@ package org.bhel.hrm.server.services.impls;
 import org.bhel.hrm.common.dtos.BenefitPlanDTO;
 import org.bhel.hrm.server.daos.BenefitPlanDAO;
 import org.bhel.hrm.server.daos.EmployeeBenefitDAO;
+import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
 import org.bhel.hrm.server.domain.BenefitPlan;
 import org.bhel.hrm.server.services.BenefitsService;
 
@@ -12,7 +13,7 @@ public class BenefitsServiceImpl implements BenefitsService {
     private final BenefitPlanDAO benefitPlanDAO;
     private final EmployeeBenefitDAO employeeBenefitDAO;
 
-    public BenefitsServiceImpl(BenefitPlanDAO benefitPlanDAO, EmployeeBenefitDAO employeeBenefitDAO) {
+    public BenefitsServiceImpl(BenefitPlanDAO benefitPlanDAO, EmployeeBenefitDAO employeeBenefitDAO, EmployeeDAOImpl employeeDAO) {
         this.benefitPlanDAO = benefitPlanDAO;
         this.employeeBenefitDAO = employeeBenefitDAO;
     }

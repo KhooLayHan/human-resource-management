@@ -6,22 +6,14 @@ import org.bhel.hrm.common.error.ExceptionMappingConfig;
 import org.bhel.hrm.common.utils.CryptoUtils;
 import org.bhel.hrm.common.utils.GlobalExceptionHandler;
 import org.bhel.hrm.common.utils.SslContextFactory;
-import org.bhel.hrm.server.daos.EmployeeDAO;
-import org.bhel.hrm.server.daos.UserDAO;
-import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
-import org.bhel.hrm.server.daos.impls.UserDAOImpl;
-import org.bhel.hrm.server.services.DashboardService;
-import org.bhel.hrm.server.services.EmployeeService;
-import org.bhel.hrm.server.services.PayrollSocketClient;
-import org.bhel.hrm.server.services.UserService;
+import org.bhel.hrm.server.daos.*;
+import org.bhel.hrm.server.daos.impls.*;
+import org.bhel.hrm.server.services.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.bhel.hrm.server.services.impls.LeaveServiceImpl;
+import org.bhel.hrm.server.services.impls.BenefitsServiceImpl;
 
-/**
- * Responsible for creating and wiring together all the core
- * components, i.e. services, DAOs, managers, of the application.
- * It follows the Singleton pattern to ensure only one context exists.
- */
 public class ApplicationContext {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
     private static final ApplicationContext INSTANCE = new ApplicationContext();
@@ -35,7 +27,10 @@ public class ApplicationContext {
     private final GlobalExceptionHandler globalExceptionHandler;
 
     private final UserDAO userDAO;
-    private final EmployeeDAO employeeDAO;
+    private final EmployeeDAOImpl employeeDAO;
+
+    private final BenefitPlanDAOImpl benefitPlanDAO;
+    private final EmployeeBenefitDAOImpl employeeBenefitDAO;
 
     private final UserService userService;
     private final EmployeeService employeeService;
@@ -43,12 +38,12 @@ public class ApplicationContext {
 
     private final SslContextFactory sslContextFactory;
     private final CryptoUtils cryptoUtils;
-    private final PayrollSocketClient payrollSocketClient;
+    private PayrollSocketClient payrollSocketClient; // optional (null when payroll not implemented)
 
-    /**
-     * Private constructor to enforce the Singleton pattern.
-     * Initializes and wires all application components in the correct order.
-     */
+
+    private final LeaveService leaveService;
+    private final BenefitsService benefitsService;
+
     private ApplicationContext() {
         logger.info("Initializing Application Context...");
 
@@ -61,40 +56,56 @@ public class ApplicationContext {
 
         this.sslContextFactory = new SslContextFactory(configuration);
         this.cryptoUtils = new CryptoUtils(configuration);
-        this.payrollSocketClient = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
 
+// ✅ Payroll not implemented yet -> do NOT fail startup if SSL config missing
+        try {
+            this.payrollSocketClient = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
+            logger.info("PayrollSocketClient initialized successfully.");
+        } catch (Exception e) {
+            this.payrollSocketClient = null;
+            logger.warn("PayrollSocketClient disabled (not configured / not implemented yet): {}", e.getMessage());
+        }
+
+
+        // DAOs
         this.userDAO = new UserDAOImpl(databaseManager);
         this.employeeDAO = new EmployeeDAOImpl(databaseManager);
 
+
+        LeaveApplicationDAOImpl leaveApplicationDAO = new LeaveApplicationDAOImpl(databaseManager);
+        this.benefitPlanDAO = new BenefitPlanDAOImpl(databaseManager);
+        this.employeeBenefitDAO = new EmployeeBenefitDAOImpl(databaseManager);
+
+        // Seed (if dev)
+        seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
+
+        // Services
         this.userService = new UserService(databaseManager, userDAO, employeeDAO, payrollSocketClient);
         this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
         this.dashboardService = new DashboardService(userDAO, employeeDAO);
 
-        seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
+        this.leaveService = new LeaveServiceImpl(
+                leaveApplicationDAO,
+                employeeDAO
+        );
+
+        this.benefitsService = new BenefitsServiceImpl(
+                benefitPlanDAO,
+                employeeBenefitDAO,
+                employeeDAO
+        );
+
 
         logger.info("Application Context initialized successfully");
     }
 
-    /**
-     * Seeds the database with initial data if in development environment.
-     */
-    private void seedDatabase(
-        Configuration config,
-        DatabaseManager dbManager,
-        UserDAO userDAO,
-        EmployeeDAO employeeDAO
-    ) {
+    private void seedDatabase(Configuration config, DatabaseManager dbManager, UserDAO userDAO, EmployeeDAO employeeDAO) {
         if ("development".equalsIgnoreCase(config.getAppEnvironment())) {
             databaseSeeder = new DatabaseSeeder(dbManager, userDAO, employeeDAO);
             databaseSeeder.seedIfEmpty();
         }
     }
 
-    /**
-     * Retrieves the current context's instance.
-     *
-     * @return The single, global instance of the ApplicationContext.
-     */
     public static ApplicationContext get() {
         return INSTANCE;
     }
@@ -138,12 +149,12 @@ public class ApplicationContext {
     public EmployeeService getEmployeeService() {
         return employeeService;
     }
-  
+
     public DashboardService getDashboardService() {
         return dashboardService;
     }
-  
-  public SslContextFactory getSslContextFactory() {
+
+    public SslContextFactory getSslContextFactory() {
         return sslContextFactory;
     }
 
@@ -153,5 +164,13 @@ public class ApplicationContext {
 
     public PayrollSocketClient getPayrollSocketClient() {
         return payrollSocketClient;
+    }
+
+    public LeaveService getLeaveService() {
+        return leaveService;
+    }
+
+    public BenefitsService getBenefitsService() {
+        return benefitsService;
     }
 }

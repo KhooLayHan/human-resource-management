@@ -2,6 +2,7 @@ package org.bhel.hrm.server.services.impls;
 
 import org.bhel.hrm.common.dtos.LeaveApplicationDTO;
 import org.bhel.hrm.server.daos.LeaveApplicationDAO;
+import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
 import org.bhel.hrm.server.domain.LeaveApplication;
 import org.bhel.hrm.server.services.LeaveService;
 
@@ -12,7 +13,7 @@ public class LeaveServiceImpl implements LeaveService {
 
     private final LeaveApplicationDAO leaveDAO;
 
-    public LeaveServiceImpl(LeaveApplicationDAO leaveDAO) {
+    public LeaveServiceImpl(LeaveApplicationDAO leaveDAO, EmployeeDAOImpl employeeDAO) {
         this.leaveDAO = leaveDAO;
     }
 
