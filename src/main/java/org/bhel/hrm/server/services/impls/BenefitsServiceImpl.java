@@ -62,8 +62,18 @@ public class BenefitsServiceImpl implements BenefitsService {
         BenefitPlan plan = benefitPlanDAO.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("Benefit plan not found: " + planId));
 
+        // Duplicate enrollment validation (server-side)
+        boolean alreadyEnrolled = employeeBenefitDAO.findPlansForEmployee(employeeId).stream()
+                .anyMatch(id -> id == plan.getId());
+
+        if (alreadyEnrolled) {
+            throw new IllegalArgumentException(
+                    "Employee " + employeeId + " is already enrolled in benefit plan " + plan.getId());
+        }
+
         employeeBenefitDAO.enroll(employeeId, plan.getId());
     }
+
 
     private BenefitPlanDTO toDTO(BenefitPlan p) {
         return new BenefitPlanDTO(
