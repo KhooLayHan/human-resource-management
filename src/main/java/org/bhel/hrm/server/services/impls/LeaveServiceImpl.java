@@ -6,6 +6,7 @@ import org.bhel.hrm.server.daos.LeaveApplicationDAO;
 import org.bhel.hrm.server.domain.LeaveApplication;
 import org.bhel.hrm.server.services.LeaveService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class LeaveServiceImpl implements LeaveService {
@@ -20,33 +21,31 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     public void applyForLeave(LeaveApplicationDTO dto) {
-
         if (dto == null) {
-            throw new IllegalArgumentException("Leave application must not be null");
+            throw new IllegalArgumentException("LeaveApplicationDTO must not be null");
         }
 
         if (dto.employeeId() <= 0) {
-            throw new IllegalArgumentException("Invalid employee ID");
+            throw new IllegalArgumentException("Invalid employeeId: " + dto.employeeId());
         }
 
-        // validate employee exists
         employeeDAO.findById(dto.employeeId())
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Employee not found: " + dto.employeeId()));
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + dto.employeeId()));
 
-        if (dto.startDateTime() == null || dto.endDateTime() == null) {
-            throw new IllegalArgumentException("Start and end date/time are required");
+        LocalDateTime start = dto.startDateTime();
+        LocalDateTime end = dto.endDateTime();
+
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Start and End date/time must not be null");
         }
-
-        if (dto.startDateTime().isAfter(dto.endDateTime())) {
-            throw new IllegalArgumentException(
-                    "Start date/time must be before or equal to end date/time");
+        if (end.isBefore(start)) {
+            throw new IllegalArgumentException("End date/time cannot be before start date/time");
         }
 
         LeaveApplication leave = new LeaveApplication();
         leave.setEmployeeId(dto.employeeId());
-        leave.setStartDateTime(dto.startDateTime());
-        leave.setEndDateTime(dto.endDateTime());
+        leave.setStartDateTime(start);
+        leave.setEndDateTime(end);
         leave.setType(dto.type());
         leave.setStatus(LeaveApplicationDTO.LeaveStatus.PENDING);
         leave.setReason(dto.reason());
@@ -54,51 +53,46 @@ public class LeaveServiceImpl implements LeaveService {
         leaveDAO.save(leave);
     }
 
-
     @Override
     public List<LeaveApplicationDTO> getLeaveHistory(int employeeId) {
-        return leaveDAO.findByEmployeeId(employeeId)
-                .stream()
+        if (employeeId <= 0) {
+            throw new IllegalArgumentException("Invalid employeeId: " + employeeId);
+        }
+
+        return leaveDAO.findByEmployeeId(employeeId).stream()
                 .map(this::toDTO)
                 .toList();
     }
 
     @Override
     public List<LeaveApplicationDTO> getPendingLeaves() {
-        return leaveDAO.findPending()
-                .stream()
+        return leaveDAO.findPending().stream()
                 .map(this::toDTO)
                 .toList();
     }
 
     @Override
     public void decideLeave(int leaveId, boolean approve, int hrUserId, String decisionReason) {
-
+        if (leaveId <= 0) {
+            throw new IllegalArgumentException("Invalid leaveId: " + leaveId);
+        }
         if (hrUserId <= 0) {
-            throw new IllegalArgumentException("Invalid HR user ID");
+            throw new IllegalArgumentException("Invalid HR user ID: " + hrUserId);
         }
 
         Integer ownerUserId = leaveDAO.findOwnerUserIdByLeaveId(leaveId);
         if (ownerUserId == null) {
             throw new IllegalArgumentException("Leave not found: " + leaveId);
         }
-
-        //  Block HR approving/rejecting their own leave
         if (ownerUserId == hrUserId) {
             throw new IllegalArgumentException("You cannot approve/reject your own leave request.");
         }
 
-        final int STATUS_APPROVED = 2;
-        final int STATUS_REJECTED = 3;
-
-        int newStatusId = approve ? STATUS_APPROVED : STATUS_REJECTED;
-
-
+        int newStatusId = approve ? 2 : 3; // approved=2, rejected=3 (your seed)
         leaveDAO.updateStatus(leaveId, newStatusId, hrUserId, decisionReason);
     }
 
     private LeaveApplicationDTO toDTO(LeaveApplication leave) {
-
         return new LeaveApplicationDTO(
                 leave.getId(),
                 leave.getEmployeeId(),
