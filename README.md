@@ -38,7 +38,7 @@ cp .env.example .env
 cp src/main/resources/config.properties.example src/main/resources/config.properties
 cp src/main/resources/psw4j.properties.example src/main/resources/psw4j.properties
 ```
-# Generate the keystore file for certification
+### 2. Generate the keystore file for certification
 ```bash
 cd src/main/resources
 keytool -genkeypair -alias bhel_payroll -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore payroll_keystore.p12 -validity 3650 -storepass password123
