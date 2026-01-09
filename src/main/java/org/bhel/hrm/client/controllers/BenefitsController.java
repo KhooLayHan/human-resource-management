@@ -22,16 +22,24 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class BenefitsController {
 
     private static final Logger logger = LoggerFactory.getLogger(BenefitsController.class);
 
-    // Keep these as constants so checks are consistent and not duplicated
     private static final String STATUS_ENROLLED = "ENROLLED";
     private static final String STATUS_NOT_ENROLLED = "NOT ENROLLED";
     private static final String ENROLL_FAILED = "Enroll failed";
+
+    private static final ExecutorService FALLBACK_EXECUTOR =
+            Executors.newFixedThreadPool(2, r -> {
+                Thread t = new Thread(r, "BenefitsController-fallback");
+                t.setDaemon(true);
+                return t;
+            });
+
     // -------- FXML fields --------
     @FXML private Label statusLabel;
     @FXML private Label selectedPlanLabel;
@@ -54,19 +62,15 @@ public class BenefitsController {
     private UserDTO currentUser;
     private HRMService hrm;
 
-    // If your ViewManager always passes MainController, keep it to avoid “unused param” warning
     @SuppressWarnings("unused")
     private MainController mainController;
 
-    // cached employee id (resolved once)
     private int employeeId = -1;
 
     @FXML
     public void initialize() {
-        // Only UI wiring here — dependencies are null at this stage
         setupTableColumns();
 
-        // Enroll button should start disabled
         enrollButton.setDisable(true);
 
         plansTable.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
@@ -77,24 +81,19 @@ public class BenefitsController {
             }
 
             selectedPlanLabel.setText(selected.getPlanName() + " — " + selected.getProvider());
-
-            // Disable enroll if already enrolled
-            boolean alreadyEnrolled = STATUS_ENROLLED.equalsIgnoreCase(selected.status());
-            enrollButton.setDisable(alreadyEnrolled);
+            enrollButton.setDisable(isEnrolled(selected));
         });
     }
 
     private void setupTableColumns() {
-        // BenefitPlanRow exposes: getId(), getPlanName(), getProvider(), getCostPerMonth(), getDescription(), status()
-        colId.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getId()));
-        colName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPlanName()));
-        colProvider.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getProvider()));
-        colCost.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getCostPerMonth()));
-        colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().status()));
-        colDesc.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDescription()));
+        colId.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().getId()));
+        colName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getPlanName()));
+        colProvider.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getProvider()));
+        colCost.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(d.getValue().getCostPerMonth()));
+        colStatus.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().status()));
+        colDesc.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDescription()));
     }
 
-    // DI pattern (called by ViewManager)
     public void initDependencies(ServiceManager serviceManager,
                                  ExecutorService executorService,
                                  UserDTO currentUser,
@@ -109,8 +108,6 @@ public class BenefitsController {
         setStatus("Loading benefit plans...");
         refreshPlansAsync();
     }
-
-    // ---------- UI actions (hook these in FXML onAction) ----------
 
     @FXML
     private void handleRefreshPlans() {
@@ -132,7 +129,7 @@ public class BenefitsController {
                 ensureEmployeeId();
 
                 List<BenefitPlanDTO> allPlans = hrm.getAllBenefitPlans();
-                List<BenefitPlanDTO> myPlans  = hrm.getMyBenefitPlans(employeeId);
+                List<BenefitPlanDTO> myPlans = hrm.getMyBenefitPlans(employeeId);
 
                 Set<Integer> enrolledIds = myPlans.stream()
                         .map(BenefitPlanDTO::id)
@@ -159,19 +156,18 @@ public class BenefitsController {
                 showErrorAndStatus("Benefits Error", ex.getMessage(), "Failed to load plans");
             } catch (Exception ex) {
                 logger.error("Unexpected error while refreshing plans", ex);
-                showErrorAndStatus("Benefits Error", "Unexpected error: " + ex.getMessage(), "Failed to load plans");
+                showErrorAndStatus("Benefits Error",
+                        "Unexpected error: " + ex.getMessage(),
+                        "Failed to load plans");
             } finally {
                 setBusy(false);
             }
         });
     }
 
-
     private void enrollSelectedAsync() {
         BenefitPlanRow selected = plansTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            return;
-        }
+        if (selected == null) return;
 
         if (isEnrolled(selected)) {
             setStatus("Already enrolled in this plan.");
@@ -185,12 +181,9 @@ public class BenefitsController {
             try {
                 ensureEmployeeId();
 
-                int planId = selected.getId();
-                hrm.enrollInBenefitPlan(employeeId, planId);
+                hrm.enrollInBenefitPlan(employeeId, selected.getId());
 
                 onFx(() -> setStatus("Enrolled successfully. Refreshing..."));
-
-                // Reload so status column updates
                 refreshPlansAsync();
 
             } catch (RemoteException | HRMException ex) {
@@ -198,7 +191,9 @@ public class BenefitsController {
                 showErrorAndStatus("Enroll Failed", ex.getMessage(), ENROLL_FAILED);
             } catch (Exception ex) {
                 logger.error("Unexpected enroll error", ex);
-                showErrorAndStatus("Enroll Failed", "Unexpected error: " + ex.getMessage(), ENROLL_FAILED);
+                showErrorAndStatus("Enroll Failed",
+                        "Unexpected error: " + ex.getMessage(),
+                        ENROLL_FAILED);
             }
         });
     }
@@ -211,17 +206,14 @@ public class BenefitsController {
 
     private void ensureEmployeeId() throws RemoteException, HRMException {
         if (employeeId > 0) return;
-
         EmployeeDTO emp = hrm.getEmployeeByUserId(currentUser.id());
         employeeId = emp.id();
     }
 
     private void runAsync(Runnable job) {
-        if (executorService != null) {
-            executorService.submit(job);
-        } else {
-            new Thread(job).start();
-        }
+        ExecutorService exec =
+                executorService != null ? executorService : FALLBACK_EXECUTOR;
+        exec.submit(job);
     }
 
     private void onFx(Runnable uiWork) {
@@ -240,17 +232,14 @@ public class BenefitsController {
         });
     }
 
-
     private void setBusy(boolean busy) {
         refreshButton.setDisable(busy);
 
-        // When busy always disable enroll
         if (busy) {
             enrollButton.setDisable(true);
             return;
         }
 
-        // When not busy, enable/disable based on selection and enrollment
         BenefitPlanRow selected = plansTable.getSelectionModel().getSelectedItem();
         enrollButton.setDisable(selected == null || isEnrolled(selected));
     }
@@ -258,7 +247,4 @@ public class BenefitsController {
     private void setStatus(String msg) {
         statusLabel.setText(msg == null ? "" : msg);
     }
-
-
-
 }
