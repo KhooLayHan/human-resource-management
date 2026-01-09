@@ -271,9 +271,9 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
-           } finally {
-                if (dbManager.isTransactionActive())
-                    dbManager.rollbackTransaction();
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
         }
     }
 
@@ -286,9 +286,10 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             trainingService.deleteCourse(courseId);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
-            } finally {
-                if (dbManager.isTransactionActive())
-                      dbManager.rollbackTransaction();
+            throw new AssertionError("unreachable code");
+        } finally {
+            if (dbManager.isTransactionActive())
+                  dbManager.rollbackTransaction();
         }
     }
 
@@ -301,6 +302,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             trainingService.enrollEmployee(employeeId, courseId);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
         } finally {
             if (dbManager.isTransactionActive())
                 dbManager.rollbackTransaction();
@@ -318,6 +320,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             trainingService.enrollMultipleEmployees(courseId, employeeIds);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
         } finally {
             if (dbManager.isTransactionActive())
                 dbManager.rollbackTransaction();
