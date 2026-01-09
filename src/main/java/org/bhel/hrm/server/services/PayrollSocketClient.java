@@ -1,13 +1,29 @@
 package org.bhel.hrm.server.services;
 
-import org.bhel.hrm.common.utils.SimpleSecurity;
 import org.bhel.hrm.common.config.Configuration;
+import org.bhel.hrm.common.error.ErrorCode;
+import org.bhel.hrm.common.error.ErrorContext;
+import org.bhel.hrm.common.exceptions.CryptoException;
+import org.bhel.hrm.common.exceptions.NetworkException;
+import org.bhel.hrm.common.exceptions.SecurityException;
+import org.bhel.hrm.common.utils.CryptoUtils;
+import org.bhel.hrm.common.utils.SslContextFactory;
 import org.bhel.hrm.server.domain.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A client for sending secure messages to the Payroll System (PRS) via sockets.
@@ -15,50 +31,257 @@ import java.net.Socket;
 public class PayrollSocketClient {
     private static final Logger logger = LoggerFactory.getLogger(PayrollSocketClient.class);
 
+    private static final int SOCKET_TIMEOUT_MS = 30_000;
+    private static final int BASE_RETRY_DELAY_MS = 1_000;
+
     private final String host;
     private final int port;
+    private final SslContextFactory sslContextFactory;
+    private final CryptoUtils cryptoUtils;
+    private final SSLSocketFactory sslSocketFactory;
+    private final ExecutorService executorService;
 
-    public PayrollSocketClient(Configuration configuration) {
+    public PayrollSocketClient(
+        Configuration configuration,
+        SslContextFactory sslContextFactory,
+        CryptoUtils cryptoUtils
+    ) {
+        if (configuration == null || sslContextFactory == null || cryptoUtils == null)
+            throw new IllegalArgumentException("Dependencies cannot be null");
+
         this.host = configuration.getPayrollHost();
-
-        String portStr = configuration.getPayrollPort();
-        if (portStr == null || portStr.isBlank())
-            throw new IllegalStateException("Payroll port is not configured.");
+        this.port = configuration.getPayrollPort();
+        this.sslContextFactory = sslContextFactory;
+        this.cryptoUtils = cryptoUtils;
 
         try {
-            this.port = Integer.parseInt(portStr);
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new IllegalStateException("Invalid payroll port: " + portStr, e);
+            this.sslSocketFactory = sslContextFactory.createSslContext().getSocketFactory();
+        } catch (Exception e) {
+            throw new CryptoException("SSL initialization failed", e);
+        }
+
+        // Thread pool for async operations
+        this.executorService = Executors.newFixedThreadPool(5, r -> {
+            Thread t = new Thread(r, "PayrollClient-Worker");
+            t.setDaemon(true);
+            return t;
+        });
+    }
+
+    /**
+     * Notifies the PRS about a new employee.
+     *
+     * @param employee The newly registered employee.
+     */
+    public boolean notifyNewEmployee(Employee employee) {
+        final int MAX_ATTEMPTS = 2;
+
+        if (employee == null)
+            throw new IllegalArgumentException("Employee cannot be null");
+
+        ErrorContext context = ErrorContext.builder()
+            .operation("payroll.client.notify")
+            .addData("employeeId", employee.getId())
+            .addData("maxAttempts", MAX_ATTEMPTS)
+            .build();
+
+        String message = buildPayrollMessage(employee);
+        logger.info("Initiating payroll notification for employee ID: {}", employee.getId());
+
+        int attempts = 0;
+
+        do {
+            attempts++;
+
+            try {
+                boolean result = sendSecureMessage(message, context);
+
+                if (result) {
+                    logger.info("[errorId={}] Successfully notified PRS for Employee ID: {}",
+                            context.getErrorId(), employee.getId());
+                    return true;
+                }
+            } catch (SocketTimeoutException e) {
+                logger.warn("Connection timeout.", e);
+            } catch (IOException e) {
+                logger.warn("Network error: {}", e.getMessage());
+            } catch (Exception e) {
+                logger.error("Unexpected error", e);
+            }
+
+        } while (attempts < MAX_ATTEMPTS);
+
+        logger.error("Failed to notify PRS for Employee ID: {}", employee.getId());
+        return false;
+    }
+
+    /**
+     * Async notification that returns a Future of a new employee.
+     */
+    public CompletableFuture<Boolean> notifyNewEmployeeAsync(Employee employee) {
+        return CompletableFuture.supplyAsync(() -> notifyNewEmployee(employee), executorService);
+    }
+
+    /**
+     * Sends encrypted message and validates response.
+     */
+    private boolean sendSecureMessage(String message, ErrorContext context) throws IOException, SecurityException {
+        String encryptedPayload = cryptoUtils.encrypt(message);
+
+        try (SSLSocket socket = createSecureSocket()) {
+            try (
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                InputStreamReader inputReader = new InputStreamReader(socket.getInputStream());
+                BufferedReader reader = new BufferedReader(inputReader);
+            ) {
+                // Sends encrypted data
+                writer.println(encryptedPayload);
+                logger.debug("Encrypted payload send with {} bytes.", encryptedPayload.length());
+
+                // Waiting for acknowledgement
+                String response = reader.readLine();
+
+                if (response == null) {
+                    logger.warn("No response received from server.");
+                    throw new NetworkException(
+                        ErrorCode.NETWORK_NO_RESPONSE,
+                        "No response received from payroll server"
+                    );
+                }
+
+                return validateResponse(response, context);
+            }
         }
     }
 
     /**
-     * Notifies the PRS about a new employee registration.
-     * @param employee The newly registered employee.
+     * Creates and configure a secure SSL socket.
      */
-    public boolean notifyNewEmployee(Employee employee) {
-        String message = String.format("ACTION=NEW_HIRE;ID=%d;FIRST_NAME=%s;LAST_NAME=%s",
-            employee.getId(), employee.getFirstName(), employee.getLastName());
+    private SSLSocket createSecureSocket() throws IOException {
+        try {
+            SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(host, port);
 
-        String secureMessage = SimpleSecurity.encrypt(message);
-        logger.info("Sending new hire notification to PRS for employee ID: {}", employee.getId());
+            socket.setSoTimeout(SOCKET_TIMEOUT_MS);
 
-        try (
-            // Consider using SSLSocketFactory for SSL/TLS encrypted socket in the future.
-            // Known security limitation and planned for future enhancement
-            Socket socket = new Socket(host, port);
-            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
-        ) {
-            socket.setSoTimeout(5000); // 5 seconds read timeout
+            socket.setEnabledProtocols(SslContextFactory.getEnabledProtocols());
+            socket.setEnabledCipherSuites(SslContextFactory.getPreferredCipherSuites());
 
-            // Sends the single line of encrypted data
-            writer.println(secureMessage);
-            logger.info("Notification sent successfully");
+            socket.startHandshake(); // Ensure SSL handshake succeeds before sending data
+            logger.debug("SSL handshake completed successfully");
+
+            return socket;
+        } catch (IOException e) {
+            throw new NetworkException(
+                ErrorCode.NETWORK_CONNECTION_FAILED,
+                String.format("Failed to connect to %s:%d - %s", host, port, e.getMessage()),
+                e
+            );
+        }
+    }
+
+    /**
+     * Validates server response.
+     */
+    private boolean validateResponse(String response, ErrorContext context) throws SecurityException {
+        if (response.startsWith("ACK:SUCCESS")) {
+            logger.info("Server acknowledged: Success");
             return true;
-        } catch (Exception e) {
-            logger.error("Failed to send notification to PRS at {}:{}. Is the PayrollServer running?",
-                host, port, e);
+        } else if (response.startsWith("ERROR:")) {
+            String errorCode = response.substring(6);
+            logger.error("Server returned error: {}", errorCode);
+
+            // Map server error codes to client exceptions
+            if (errorCode.equals("DECRYPTION_FAILED")) {
+                throw new SecurityException(
+                    ErrorCode.SECURITY_DECRYPTION_FAILED,
+                    "Server failed to decrypt message - possible key mismatch"
+                );
+            } else if (errorCode.equals("TIMEOUT")) {
+                throw new NetworkException(
+                        ErrorCode.NETWORK_TIMEOUT,
+                        "Server processing timeout"
+                );
+            }
+            return false;
+        } else {
+            logger.warn("Unexpected server response: {} [{}]", response, context.getErrorId());
             return false;
         }
+    }
+
+    /**
+     * Builds formatted payroll message.
+     */
+    private String buildPayrollMessage(Employee employee) {
+        return String.format(
+            "ACTION=NEW_HIRE;ID=%d;FIRST_NAME=%s;LAST_NAME=%s;IC=%s;TIMESTAMP=%d",
+            employee.getId(),
+            sanitize(employee.getFirstName()),
+            sanitize(employee.getLastName()),
+            sanitize(employee.getIcPassport()),
+            Instant.now().toEpochMilli()
+        );
+    }
+
+    /**
+     * Sanitizes input to prevent injection attacks.
+     */
+    private String sanitize(String input) {
+        if (input == null)
+            return "";
+
+        return input.replaceAll("[;=\n\r]", "_");
+    }
+
+    /**
+     * Calculates exponential backoff delay.
+     */
+    private int calculateRetryDelay(int attempt) {
+        return BASE_RETRY_DELAY_MS * (int) Math.pow(2.0f, attempt - 1f);
+    }
+
+    /**
+     * Sleep helper that handles interruption.
+     */
+    private void sleep(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.warn("Sleep interrupted", e);
+        }
+    }
+
+    /**
+     * Tests connection to payroll server.
+     */
+    public boolean testConnection() {
+        logger.info("Testing connection to {}:{}", host, port);
+
+        try (SSLSocket socket = createSecureSocket()) {
+            logger.info("Connection test successful");
+            return true;
+        } catch (Exception e) {
+            logger.error("Connection test failed", e);
+            return false;
+        }
+    }
+
+    /**
+     * Gracefully shuts down the client.
+     */
+    public void shutdown() {
+        executorService.shutdown();
+
+        try {
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        logger.info("PayrollSocketClient has shut down.");
     }
 }

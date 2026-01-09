@@ -18,7 +18,8 @@ public sealed class HRMException extends Exception permits
     InvalidInputException,
     LeaveManagementException,
     ResourceNotFoundException,
-    UserNotFoundException {
+    UserNotFoundException,
+    SecurityException {
 
     private final ErrorCode errorCode;
     private final ErrorContext errorContext;

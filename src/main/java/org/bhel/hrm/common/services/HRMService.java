@@ -121,7 +121,12 @@ public interface HRMService extends Remote {
      * @param leaveApplicationDTO The DTO containing the details of the leave request.
      * @throws RemoteException if the application is invalid or a communication error occurs.
      */
-    void applyForLeave(LeaveApplicationDTO leaveApplicationDTO) throws RemoteException;
+    void applyForLeave(LeaveApplicationDTO leaveApplicationDTO)
+            throws RemoteException, HRMException;
+    List<LeaveApplicationDTO> getLeaveHistoryForEmployees(int employeeId)
+            throws RemoteException, HRMException;
+
+
 
     /**
      * Retrieves the leave history for a specific employee.
@@ -130,7 +135,7 @@ public interface HRMService extends Remote {
      * @return A List of the employee's LeaveApplicationDTOs.
      * @throws RemoteException if a communication-related error occurs.
      */
-    List<LeaveApplicationDTO> getLeaveHistoryForEmployees(int employeeId) throws RemoteException;
+
 
     // --- 4. Training Management (For Employees and HR) ---
 
@@ -185,7 +190,10 @@ public interface HRMService extends Remote {
      * @return A List of BenefitPlanDTOs.
      * @throws RemoteException if a communication-related error occurs.
      */
-    List<BenefitPlanDTO> getAllBenefitPlans() throws RemoteException;
+    List<BenefitPlanDTO> getAllBenefitPlans() throws RemoteException, HRMException;
+    List<BenefitPlanDTO> getMyBenefitPlans(int employeeId)
+            throws RemoteException, HRMException;
+
 
     /**
      * Enrolls an employee in a specific benefit plan.
@@ -194,5 +202,19 @@ public interface HRMService extends Remote {
      * @param planId The ID of the benefit plan to enroll in.
      * @throws RemoteException if enrollment fails or a communication error occurs.
      */
-    void enrollInBenefitPlan(int employeeId, int planId) throws RemoteException;
+    void enrollInBenefitPlan(int employeeId, int planId) throws RemoteException, HRMException;
+
+
+
+    List<LeaveApplicationDTO> getPendingLeaveRequests() throws RemoteException, HRMException;
+
+
+    void decideLeave(int leaveId, boolean approve, int hrUserId, String decisionReason)
+            throws RemoteException, HRMException;
+
+
+
+
 }
+
+

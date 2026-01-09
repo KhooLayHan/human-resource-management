@@ -1,69 +1,148 @@
 package org.bhel.hrm.payroll;
 
-import org.bhel.hrm.common.utils.SimpleSecurity;
 import org.bhel.hrm.common.config.Configuration;
+import org.bhel.hrm.common.error.ErrorContext;
+import org.bhel.hrm.common.utils.CryptoUtils;
+import org.bhel.hrm.common.utils.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A simple, single-threaded socket server to simulate a Payroll System (PRS).
- * It listens on a port, accepts one connection at a time, reads a single line of data,
- * prints it, and then waits for the next connection.
+ * A multithreaded TLS socket server to simulate a Payroll System (PRS).
+ * It listens on a port and handles multiple concurrent connections using a thread pool.
+ * Each connection receives encrypted payroll instructions via SSL/TLS.
  */
 public class PayrollServer {
     private static final Logger logger = LoggerFactory.getLogger(PayrollServer.class);
 
-    public static void main(String[] args) {
-        Configuration configuration = new Configuration();
-        String portStr = configuration.getPayrollPort();
-        if (portStr == null || portStr.isBlank()) {
-            logger.error("Payroll port is not configured. Set 'payroll.port' in config.properties.");
+    private static final int MAX_THREADS = 20;
+    private static final int QUEUE_SIZE = 50;
+
+    private final Configuration configuration;
+    private final SslContextFactory sslContextFactory;
+    private final CryptoUtils cryptoUtils;
+    private final ExecutorService executorService;
+    private final AtomicBoolean running;
+    private SSLServerSocket serverSocket;
+
+    public PayrollServer(
+        Configuration configuration,
+        SslContextFactory sslContextFactory,
+        CryptoUtils cryptoUtils
+    ) {
+        if (configuration == null || sslContextFactory == null || cryptoUtils == null)
+            throw new IllegalArgumentException("Dependencies cannot be null");
+
+        this.configuration = configuration;
+        this.sslContextFactory = sslContextFactory;
+        this.cryptoUtils = cryptoUtils;
+        this.running = new AtomicBoolean(false);
+
+        this.executorService = new ThreadPoolExecutor(
+            5,
+            MAX_THREADS,
+            60,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
+            new ThreadFactory() {
+                private final AtomicInteger counter = new AtomicInteger(0);
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "PayrollServer-Worker-" + counter.getAndIncrement());
+                    t.setDaemon(false);
+
+                    return t;
+                }
+            },
+            new ThreadPoolExecutor.CallerRunsPolicy()
+        );
+    }
+
+    public void start() {
+        if (running.getAcquire()) {
+            logger.warn("Server is already running...");
             return;
         }
 
-        int payrollPort;
+        int port = configuration.getPayrollPort();
+        running.setRelease(true);
+
         try {
-            payrollPort = Integer.parseInt(portStr);
-        } catch (NumberFormatException e) {
-            logger.error("Invalid payroll port: {}", portStr);
-            return;
+            SSLServerSocketFactory sslFactory = sslContextFactory.createSslContext().getServerSocketFactory();
+            serverSocket = (SSLServerSocket) sslFactory.createServerSocket(port);
+
+            // Configure SSL parameters
+            serverSocket.setEnabledCipherSuites(SslContextFactory.getPreferredCipherSuites());
+            serverSocket.setEnabledProtocols(SslContextFactory.getEnabledProtocols());
+
+            serverSocket.setSoTimeout(1_000); // Checks running flag every second
+
+            logger.info("Payroll System (PRS) Server started successfully on port {}", port);
+            if (logger.isInfoEnabled()) {
+                logger.info("Enabled protocols: {}",
+                    String.join(", ", SslContextFactory.getEnabledProtocols()));
+            }
+
+            acceptConnections();
+        } catch (SocketTimeoutException e) {
+          // Expected — allows for periodic checking of running flag
+        } catch (Exception e) {
+            logger.error("Failed to start server", e);
+            running.setRelease(false);
         }
+    }
 
-        logger.info("Payroll System (PRS) Server is starting on port {}", payrollPort);
+    private void acceptConnections() {
+        while (running.getAcquire()) {
+            try {
+                SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
+                executorService.submit(new PayrollClientHandler(clientSocket, cryptoUtils));
 
-        try (ServerSocket serverSocket = new ServerSocket(payrollPort)) {
-            // To keep the server running indefinitely
-            while (true) {
-                logger.info("Waiting for a connection from the HRM system...");
-
-                // Blocks until a client connects
-                try (Socket clientSocket = serverSocket.accept()) {
-                    logger.info("HRM System connected from: {}", clientSocket.getInetAddress());
-
-                    // Set up streams to read data from the client
-                    InputStreamReader inputReader =
-                        new InputStreamReader(clientSocket.getInputStream());
-                    BufferedReader reader = new BufferedReader(inputReader);
-
-                    // Reads one line of data as the secure message
-                    String receivedData = reader.readLine();
-                    if (receivedData == null) {
-                        logger.warn("Received empty payload from HRM system; closing connection.");
-                        continue;
-                    }
-                    logger.info("Received raw data: {}", receivedData);
-
-                    String decryptedData = SimpleSecurity.decrypt(receivedData);
-                    logger.debug("Decrypted payroll instruction: {}", decryptedData);
+                logger.info("Accepted connection from {}", clientSocket.getRemoteSocketAddress());
+            } catch (SocketTimeoutException e) {
+                // Normal timeout, continue checking running flag
+            } catch (IOException e) {
+                if (running.getAcquire()) {
+                    ErrorContext context = ErrorContext.forOperation("payroll.server.accept");
+                    logger.error("Error accepting connection. [{}]", context, e);
                 }
             }
-        } catch (Exception e) {
-            logger.error("Payroll server error: {}", e.getMessage(), e);
         }
+    }
+
+    public void shutdown() {
+        logger.info("Initiating shutdown...");
+        running.setRelease(false);
+
+        try {
+            if (serverSocket != null && !serverSocket.isClosed())
+                serverSocket.close();
+        } catch (IOException e) {
+            logger.debug("Error closing server socket.", e);
+        }
+
+        executorService.shutdown();
+
+        try {
+            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+                logger.warn("Executor did not terminate in time, forcing shutdown.");
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        logger.info("Server shutdown complete");
     }
 }

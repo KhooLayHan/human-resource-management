@@ -15,6 +15,9 @@ public class Configuration {
     private static final int DEFAULT_RMI_PORT = 1099;
     private static final String DEFAULT_SERVICE_NAME = "HRMService";
 
+    private static final String DEFAULT_PAYROLL_HOST = "localhost";
+    private static final int DEFAULT_PAYROLL_PORT = 12345;
+
     private final Properties properties;
 
     public Configuration() {
@@ -26,7 +29,10 @@ public class Configuration {
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(configFileName)) {
             if (input == null) {
-                logger.warn("Configuration file '{}' not found in classpath. Using defaults where applicable.", configFileName);
+                logger.warn(
+                    "Configuration file '{}' not found in classpath. Using defaults where applicable.",
+                    configFileName
+                );
                 throw new IOException("File " + configFileName + " is not found in classpath.");
             }
 
@@ -35,6 +41,15 @@ public class Configuration {
         } catch (IOException e) {
             throw new ConfigurationException("Failed to load configuration." + e.getMessage(), e);
         }
+    }
+
+    // Application Configuration
+    public String getAppEnvironment() {
+        return properties.getProperty("app.environment", "production");
+    }
+
+    public String getSecretKey() {
+        return properties.getProperty("app.secret.key");
     }
 
     // RMI Configuration
@@ -46,7 +61,7 @@ public class Configuration {
         String portStr = properties.getProperty("rmi.port");
 
         if (portStr == null || portStr.isBlank()) {
-            logger.warn("RMI port not configured, using default: {}", DEFAULT_RMI_PORT);
+            logger.warn("RMI port is not configured, using default: {}", DEFAULT_RMI_PORT);
             return DEFAULT_RMI_PORT;
         }
 
@@ -69,22 +84,41 @@ public class Configuration {
         return properties.getProperty("rmi.service.name", DEFAULT_SERVICE_NAME);
     }
 
-    // Application Configuration
-    public String getAppEnvironment() {
-        return properties.getProperty("app.environment", "production");
-    }
-
-    public String getSecretKey() {
-        return properties.getProperty("app.secret.key");
-    }
-
     // Payroll Configuration
     public String getPayrollHost() {
-        return properties.getProperty("payroll.host");
+        return properties.getProperty("payroll.host", DEFAULT_PAYROLL_HOST);
     }
 
-    public String getPayrollPort() {
-        return properties.getProperty("payroll.port");
+    public int getPayrollPort() {
+        String portStr = properties.getProperty("payroll.port");
+
+        if (portStr == null || portStr.isBlank()) {
+            logger.warn("Payroll port is not configured, using default: {}", DEFAULT_PAYROLL_PORT);
+            return DEFAULT_PAYROLL_PORT;
+        }
+
+        try {
+            int port = Integer.parseInt(portStr.trim());
+            if (port < 1 || port > 65_535)
+                throw new NumberFormatException("Port out of valid range (1-65535): " + port);
+
+            return port;
+        } catch (NumberFormatException e) {
+            logger.error("Invalid payroll port: {}. Configuration failed.", portStr);
+            throw new ConfigurationException(
+                String.format("Invalid Payroll port configuration: '%s'.", portStr),
+                e
+            );
+        }
+    }
+
+    // KeyStore Configuration
+    public String getKeystorePassword() {
+        return properties.getProperty("keystore.password");
+    }
+
+    public String getKeystorePath() {
+        return properties.getProperty("keystore.path");
     }
 
     // Database Configuration

@@ -32,7 +32,7 @@ public class ServerLauncher {
             logger.info("Server is running and waiting for client connections...");
 
             // Adds shutdown hook for graceful shutdown
-            addShutdownHook(registryManager);
+            addShutdownHook(registryManager, context);
        } catch (Exception e) {
             logger.error("Server exception: {}", e.toString());
             logger.error("A fatal error occurred during startup {}", e.getMessage(), e);
@@ -58,6 +58,10 @@ public class ServerLauncher {
             context.getUserService(),
             context.getTrainingService(),
             context.getDashboardService(),
+            context.getLeaveService(),
+            context.getBenefitsService(),
+            context.getBenefitPlanDAO(),
+            context.getEmployeeBenefitDAO(),
             context.getGlobalExceptionHandler()
         );
     }
@@ -67,11 +71,12 @@ public class ServerLauncher {
      *
      * @param registryManager The RMI registry manager
      */
-    private static void addShutdownHook(RMIRegistryManager registryManager) {
+    private static void addShutdownHook(RMIRegistryManager registryManager, ApplicationContext context) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Shutdown signal received, cleaning up...");
 
             try {
+                context.getPayrollSocketClient().shutdown();
                 registryManager.unbindService();
 
                 logger.info("Server shutdown complete.");

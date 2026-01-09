@@ -1,5 +1,6 @@
 package org.bhel.hrm.common.error;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.UUID;
  * Structured context information for errors.
  * Provides rich diagnostic information for logging, monitoring, and debugging.
  */
-public class ErrorContext {
+public class ErrorContext implements Serializable {
     private final String errorId;
     private final LocalDateTime timestamp;
     private final String operation;
@@ -53,7 +54,7 @@ public class ErrorContext {
     }
 
     public Map<String, Object> getAdditionalData() {
-        return new HashMap<>(additionalData);
+        return additionalData == null ? new HashMap<>() : new HashMap<>(additionalData);
     }
 
     public Object getAdditionalData(String key) {

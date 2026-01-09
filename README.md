@@ -35,11 +35,18 @@ cd human-resource-management
 
 # Create the configuration files from the template
 cp .env.example .env 
-cp src/main/resources/psw4j.properties.example src/main/resources/psw4j.properties
+cp src/main/resources/config.properties.example src/main/resources/config.properties
 cp src/main/resources/psw4j.properties.example src/main/resources/psw4j.properties
 ```
+### 2. Generate the keystore file for certification
+```bash
+cd src/main/resources
+keytool -genkeypair -alias bhel_payroll -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore payroll_keystore.p12 -validity 3650 -storepass password123
+cd ../../..
+```
+You can press Enter through the questions (First Name, Unit, etc.) or fill them in. Type 'yes' for the last confirmation question
 
-### 2. Start the Database (Docker)
+### 3. Start the Database (Docker)
 We use Docker Compose to spin up a MySQL database instantly without manual installation.
 
 ```bash
@@ -50,7 +57,7 @@ docker compose up -d
 - **Database:** `hrm_db`
 - **User:** `user` / **Password:** `password123`
 
-### 3. Build the Project
+### 4. Build the Project
 Compile the code and run the tests. Note: The tests use **Testcontainers**, so Docker must be running.
 
 ```bash

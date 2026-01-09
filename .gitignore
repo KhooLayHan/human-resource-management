@@ -252,4 +252,7 @@ config.properties
 psw4j.properties
 !*.properties.example
 .env
+
+# KeyStore files
+payroll_keystore.p12
 .idea

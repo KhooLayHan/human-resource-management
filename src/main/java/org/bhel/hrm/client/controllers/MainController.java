@@ -154,6 +154,7 @@ public class MainController {
             ViewType.PROFILE
         };
 
+
         for (ViewType view : menuOrder) {
             if (view.isAllowedForRole(currentUser.role())) {
                 addNavigationBtn(view);
@@ -550,4 +551,6 @@ public class MainController {
     public UserDTO getCurrentUser() {
         return currentUser;
     }
+
+
 }

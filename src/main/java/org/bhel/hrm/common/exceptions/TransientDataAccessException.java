@@ -2,7 +2,7 @@ package org.bhel.hrm.common.exceptions;
 
 import org.bhel.hrm.common.error.ErrorCode;
 
-public final class TransientDataAccessException extends DataAccessException {
+public sealed class TransientDataAccessException extends DataAccessException permits NetworkException {
     /**
      * Constructs a TransientDataAccessException with the specified detail message and cause.
      *
@@ -16,4 +16,6 @@ public final class TransientDataAccessException extends DataAccessException {
     public TransientDataAccessException(ErrorCode errorCode, String message, Throwable cause) {
         super(errorCode, message, cause);
     }
+
+
 }
