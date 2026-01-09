@@ -1,5 +1,5 @@
 package org.bhel.hrm.client.constants;
-// test
+
 public class FXMLPaths {
     private FXMLPaths() {
         throw new UnsupportedOperationException("FXMLPaths is a utility class and should not be instantiated.");
