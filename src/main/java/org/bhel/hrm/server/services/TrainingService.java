@@ -5,9 +5,9 @@ import org.bhel.hrm.common.dtos.TrainingEnrollmentDTO;
 import org.bhel.hrm.common.error.ErrorCode;
 import org.bhel.hrm.common.error.ErrorContext;
 import org.bhel.hrm.common.exceptions.EnrollmentException;
+import org.bhel.hrm.common.exceptions.HRMException;
 import org.bhel.hrm.common.exceptions.InvalidInputException;
 import org.bhel.hrm.common.exceptions.ResourceNotFoundException;
-import org.bhel.hrm.common.exceptions.HRMException;
 import org.bhel.hrm.server.config.DatabaseManager;
 import org.bhel.hrm.server.daos.TrainingCourseDAO;
 import org.bhel.hrm.server.daos.TrainingEnrollmentDAO;
@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +27,8 @@ public class TrainingService {
     private final DatabaseManager dbManager;
     private final TrainingCourseDAO trainingCourseDAO;
     private final TrainingEnrollmentDAO trainingEnrollmentDAO;
+
+    private static final String TRAINING_COURSE = "TrainingCourse";
 
     public TrainingService(DatabaseManager dbManager, TrainingCourseDAO courseDAO, TrainingEnrollmentDAO enrollmentDAO) {
         this.dbManager = dbManager;
@@ -39,12 +40,12 @@ public class TrainingService {
         List<TrainingCourse> courses = trainingCourseDAO.findAll();
         return courses.stream()
         .map(TrainingCourseMapper::mapToDto)
-                .collect(Collectors.toList());
+            .toList();
     }
 
     public TrainingCourseDTO getCourseById(int courseId) throws ResourceNotFoundException {
         TrainingCourse course = trainingCourseDAO.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, "TrainingCourse", courseId));
+            .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, TRAINING_COURSE, courseId));
         return TrainingCourseMapper.mapToDto(course);
     }
 
@@ -63,13 +64,14 @@ public class TrainingService {
                 .collect(Collectors.toList());
     }
 
-    public void createOrUpdateCourse(TrainingCourseDTO dto) throws Exception {
-        validateCourse(dto);
+    public void saveCourse(TrainingCourseDTO courseDto) throws SQLException, HRMException {
+        validateCourse(courseDto);
 
         dbManager.executeInTransaction(() -> {
             // Check if update or create based on ID
-            TrainingCourse domain = TrainingCourseMapper.toDomain(dto);
-            trainingCourseDAO.save(domain); // Save handles both insert and update in your DAO implementation
+            TrainingCourse domain = TrainingCourseMapper.toDomain(courseDto);
+            trainingCourseDAO.save(domain);
+            logger.info("Training course '{}' saved successfully.", courseDto.title());
         });
     }
 
@@ -77,7 +79,7 @@ public class TrainingService {
         dbManager.executeInTransaction(() -> {
             // 1. Validate Course Exists
             if (trainingCourseDAO.findById(courseId).isEmpty()) {
-                throw new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, "TrainingCourse", courseId);
+                throw new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, TRAINING_COURSE, courseId);
             }
 
             // 2. Check for Duplicate Enrollment
@@ -119,10 +121,10 @@ public class TrainingService {
 
     private void validateCourse(TrainingCourseDTO dto) throws InvalidInputException {
         ErrorContext title = ErrorContext.forUser(
-                "TrainingCourse", String.valueOf(dto.id())
+                TRAINING_COURSE, String.valueOf(dto.id())
         );
         ErrorContext durationInHours = ErrorContext.forUser(
-                "TrainingCourse", String.valueOf(dto.id())
+                TRAINING_COURSE, String.valueOf(dto.id())
         );
 
         if (dto.title() == null || dto.title().trim().isEmpty()) {
@@ -141,7 +143,7 @@ public class TrainingService {
         dbManager.executeInTransaction(() -> {
             // 1. Validate Course Exists
             if (trainingCourseDAO.findById(courseId).isEmpty()) {
-                throw new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, "TrainingCourse", courseId);
+                throw new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, TRAINING_COURSE, courseId);
             }
 
             int successCount = 0;
@@ -165,24 +167,15 @@ public class TrainingService {
         });
     }
 
-public void saveCourse(TrainingCourseDTO courseDTO) throws SQLException, HRMException {
-    validateCourse(courseDTO);
-
-    dbManager.executeInTransaction(() -> {
-        TrainingCourse domain = TrainingCourseMapper.toDomain(courseDTO);
-        trainingCourseDAO.save(domain);
-        logger.info("Training course '{}' saved successfully.", courseDTO.title());
-    });
-}
-public void deleteCourse(int courseId) throws SQLException, HRMException {
-    dbManager.executeInTransaction(() -> {
-        // Optional: Check if anyone is enrolled?
-        // For now, we rely on DB Cascade Delete or allow it.
-        if (trainingCourseDAO.findById(courseId).isEmpty()) {
-            throw new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, "TrainingCourse", courseId);
-        }
-        trainingCourseDAO.deleteById(courseId);
-        logger.info("Training course ID {} deleted.", courseId);
-    });
-}
+    public void deleteCourse(int courseId) throws SQLException, HRMException {
+        dbManager.executeInTransaction(() -> {
+            // Optional: Check if anyone is enrolled?
+            // For now, we rely on DB Cascade Delete or allow it.
+            if (trainingCourseDAO.findById(courseId).isEmpty()) {
+                throw new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, TRAINING_COURSE, courseId);
+            }
+            trainingCourseDAO.deleteById(courseId);
+            logger.info("Training course ID {} deleted.", courseId);
+        });
+    }
 }
