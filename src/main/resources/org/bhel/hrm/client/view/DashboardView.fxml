@@ -5,7 +5,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
-
 <ScrollPane fitToWidth="true" styleClass="dashboard-scroll-pane"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.bhel.hrm.client.controllers.DashboardController">
@@ -26,6 +25,8 @@
         <FlowPane fx:id="cardsContainer"
                   hgap="15" vgap="15"
                   prefWrapLength="1000">
+
+            <!-- Employee Cards -->
 
             <!-- Annual Leave Balance -->
             <HBox fx:id="cardAnnualLeave"
@@ -93,6 +94,8 @@
                 </VBox>
             </HBox>
 
+            <!-- HR Staff Cards -->
+
             <!-- Total Employees -->
             <HBox fx:id="cardTotalEmployees"
                   styleClass="stat-card"
@@ -115,13 +118,11 @@
                 </VBox>
             </HBox>
 
-            <!-- Pending Leave Approvals (CLICKABLE) -->
+            <!-- Pending Leave Approvals -->
             <HBox fx:id="cardPendingLeaves"
                   styleClass="stat-card"
                   spacing="12"
-                  alignment="CENTER_LEFT"
-                  style="-fx-cursor: hand;"
-                  onMouseClicked="#handleNavigateToLeaveApprovals">
+                  alignment="CENTER_LEFT">
                 <StackPane styleClass="icon-container, icon-orange">
                     <FontIcon iconLiteral="mdi2f-file-document-alert"
                               iconSize="32"
@@ -318,7 +319,7 @@
                             text="Manage Leave Requests"
                             maxWidth="Infinity"
                             styleClass="button-secondary"
-                            onAction="#handleNavigateToLeaveApprovals">
+                            onAction="#handleNavigateToLeaveManagement">
                         <graphic>
                             <FontIcon iconLiteral="mdi2c-clipboard-check"
                                       iconSize="16"/>
