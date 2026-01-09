@@ -32,7 +32,7 @@ public class BenefitsServiceImpl implements BenefitsService {
 
     @Override
     public List<BenefitPlanDTO> getMyBenefitPlans(int employeeId) {
-        // ✅ Validate employee exists
+        // Validate employee exists
         employeeDAO.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
@@ -47,11 +47,11 @@ public class BenefitsServiceImpl implements BenefitsService {
 
     @Override
     public void enrollInBenefitPlan(int employeeId, int planId) {
-        // ✅ Validate employee exists
+        // Validate employee exists
         employeeDAO.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        // ✅ Validate plan exists
+        // Validate plan exists
         BenefitPlan plan = benefitPlanDAO.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("Benefit plan not found: " + planId));
 

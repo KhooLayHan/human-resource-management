@@ -26,7 +26,7 @@ public class FXMLPaths {
     public static final String RECRUITMENT = BASE + "RecruitmentView" + EXTENSION;
     public static final String TRAINING_ADMIN = BASE + "TrainingAdminView" + EXTENSION;
 
-    // ✅ NEW: HR Leave Approval
+    // NEW: HR Leave Approval
     public static final String LEAVE_APPROVAL = BASE + "LeaveApprovalView" + EXTENSION;
 
     // Dialogs

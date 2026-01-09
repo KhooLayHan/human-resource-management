@@ -48,7 +48,7 @@ public class ApplicationContext {
     private final SslContextFactory sslContextFactory;
     private final CryptoUtils cryptoUtils;
 
-    // ✅ make payroll optional for now
+    // make payroll optional for now
     private final PayrollSocketClient payrollSocketClient;
 
     private ApplicationContext() {
@@ -66,7 +66,7 @@ public class ApplicationContext {
         this.sslContextFactory = new SslContextFactory(configuration);
         this.cryptoUtils = new CryptoUtils(configuration);
 
-        // ✅ payroll is not implemented yet → do NOT crash startup
+        // payroll is not implemented yet → do NOT crash startup
         PayrollSocketClient payrollTmp = null;
         try {
             // If you later add a config flag like payroll.enabled=false, check it here.
@@ -91,7 +91,7 @@ public class ApplicationContext {
         this.employeeBenefitDAO = new EmployeeBenefitDAOImpl(databaseManager);
 
         // ---- Services ----
-        // ✅ UserService must tolerate payrollSocketClient being null (see note below)
+        // UserService must tolerate payrollSocketClient being null (see note below)
         this.userService = new UserService(databaseManager, userDAO, employeeDAO, payrollSocketClient);
         this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
         this.dashboardService = new DashboardService(userDAO, employeeDAO);

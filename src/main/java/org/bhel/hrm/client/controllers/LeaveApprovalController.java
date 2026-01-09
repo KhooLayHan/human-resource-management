@@ -98,7 +98,7 @@ public class LeaveApprovalController {
             }
         };
 
-        // ✅ fallback if executor isn't injected
+        // fallback if executor isn't injected
         if (executorService != null) {
             executorService.submit(job);
         } else {

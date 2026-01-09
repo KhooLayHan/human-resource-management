@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutorService;
 public class LeaveController {
     private static final Logger logger = LoggerFactory.getLogger(LeaveController.class);
 
-    // -------- FXML fields (must match fx:id in LeaveView.fxml) --------
+    // -------- FXML fields --------
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
     @FXML private ComboBox<LeaveApplicationDTO.LeaveType> leaveTypeCombo;
@@ -43,24 +43,19 @@ public class LeaveController {
 
     private ExecutorService executorService;
     private UserDTO currentUser;
-
     private HRMService hrm;
     private int employeeId = -1;
 
     // -------- JavaFX lifecycle --------
     @FXML
     public void initialize() {
-        logger.debug("LeaveController.initialize() ran");
-        // table columns
-        colId.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().id()));
-        colStart.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().startDateTime()));
-        colEnd.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().endDateTime()));
-        colType.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().type()));
-        colStatus.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().status()));
-        colReason.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().reason()));
+        colId.setCellValueFactory(d -> new javafx.beans.property.SimpleObjectProperty<>(d.getValue().id()));
+        colStart.setCellValueFactory(d -> new javafx.beans.property.SimpleObjectProperty<>(d.getValue().startDateTime()));
+        colEnd.setCellValueFactory(d -> new javafx.beans.property.SimpleObjectProperty<>(d.getValue().endDateTime()));
+        colType.setCellValueFactory(d -> new javafx.beans.property.SimpleObjectProperty<>(d.getValue().type()));
+        colStatus.setCellValueFactory(d -> new javafx.beans.property.SimpleObjectProperty<>(d.getValue().status()));
+        colReason.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().reason()));
 
-
-        // pretty date rendering for LocalDateTime
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         colStart.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(LocalDateTime item, boolean empty) {
@@ -75,32 +70,26 @@ public class LeaveController {
             }
         });
 
-        // combo values
         leaveTypeCombo.setItems(FXCollections.observableArrayList(LeaveApplicationDTO.LeaveType.values()));
         leaveTypeCombo.getSelectionModel().select(LeaveApplicationDTO.LeaveType.ANNUAL);
 
-        // buttons
         applyButton.setOnAction(e -> onApply());
         refreshButton.setOnAction(e -> refreshHistoryAsync());
     }
 
-    // -------- called by ViewManager DI --------
+    // -------- Dependency injection --------
     public void initDependencies(ServiceManager serviceManager,
                                  ExecutorService executorService,
                                  UserDTO currentUser) {
-        logger.debug("LeaveController.initDependencies() ran");
-        // -------- injected dependencies --------
         this.executorService = executorService;
         this.currentUser = currentUser;
-
         this.hrm = serviceManager.getHrmService();
 
-        // Resolve employeeId and load history
         setStatus("Loading leave history...");
         refreshHistoryAsync();
     }
 
-    // -------- actions --------
+    // -------- Actions --------
     private void onApply() {
         if (employeeId <= 0) {
             showError("Employee ID not loaded yet. Please try again.");
@@ -127,9 +116,9 @@ public class LeaveController {
 
         String reason = reasonField.getText();
 
-        // Using start-of-day; adjust if your UI later adds time selection
+        // FIX: include full end date
         LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = endDate.atStartOfDay();
+        LocalDateTime end   = endDate.plusDays(1).atStartOfDay();
 
         LeaveApplicationDTO dto = new LeaveApplicationDTO(
                 0,
@@ -153,7 +142,7 @@ public class LeaveController {
                     clearForm();
                 });
 
-                refreshHistoryAsync(); // refreshHistoryAsync will setBusy(false) when done
+                refreshHistoryAsync();
 
             } catch (RemoteException | HRMException ex) {
                 logger.error("applyForLeave failed", ex);
@@ -163,7 +152,6 @@ public class LeaveController {
                 });
             }
         });
-
     }
 
     private void refreshHistoryAsync() {
@@ -171,34 +159,34 @@ public class LeaveController {
 
         executorService.submit(() -> {
             try {
-                // Resolve employeeId once (needs server method getEmployeeByUserId)
                 if (employeeId <= 0) {
                     EmployeeDTO emp = hrm.getEmployeeByUserId(currentUser.id());
-                    // Most projects use EmployeeDTO.id() as employeeId
-                    this.employeeId = emp.id();
+                    employeeId = emp.id();
                 }
 
-                List<LeaveApplicationDTO> history = hrm.getLeaveHistoryForEmployees(employeeId);
+                List<LeaveApplicationDTO> history =
+                        hrm.getLeaveHistoryForEmployees(employeeId);
 
                 Platform.runLater(() -> {
                     leaveHistoryTable.setItems(FXCollections.observableArrayList(history));
                     setStatus("Loaded " + history.size() + " leave records.");
                 });
             } catch (RemoteException | HRMException ex) {
-
                 logger.error("refreshHistory failed", ex);
-                Platform.runLater(() -> showError("Failed to load leave history: " + ex.getMessage()));
+                Platform.runLater(() ->
+                        showError("Failed to load leave history: " + ex.getMessage()));
             } finally {
                 Platform.runLater(() -> setBusy(false));
             }
         });
     }
 
-    // -------- helpers --------
+    // -------- Helpers --------
     private void clearForm() {
         startDatePicker.setValue(null);
         endDatePicker.setValue(null);
-        leaveTypeCombo.getSelectionModel().select(LeaveApplicationDTO.LeaveType.ANNUAL);
+        leaveTypeCombo.getSelectionModel()
+                .select(LeaveApplicationDTO.LeaveType.ANNUAL);
         reasonField.clear();
     }
 

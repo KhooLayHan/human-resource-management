@@ -86,7 +86,7 @@ public class BenefitPlanDAOImpl extends AbstractDAO<BenefitPlan> implements Bene
 
     @Override
     public long count() {
-        // ✅ no duplicated boilerplate anymore
+        // no duplicated boilerplate anymore
         return countFromTable(TABLE_NAME);
     }
 

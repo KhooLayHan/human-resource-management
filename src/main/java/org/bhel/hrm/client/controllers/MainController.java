@@ -145,7 +145,7 @@ public class MainController {
                 ViewType.EMPLOYEE_MANAGEMENT,
                 ViewType.RECRUITMENT,
                 ViewType.TRAINING_ADMIN,
-                ViewType.LEAVE_APPROVALS,   // ✅ add this
+                ViewType.LEAVE_APPROVALS,   // add this
                 ViewType.LEAVE,
                 ViewType.BENEFITS,
                 ViewType.TRAINING_CATALOG,
