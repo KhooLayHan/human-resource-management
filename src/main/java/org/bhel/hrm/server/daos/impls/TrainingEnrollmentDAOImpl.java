@@ -60,6 +60,10 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
 
     @Override
     public void deleteById(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("id must not be null");
+        }
+
         String sql = "DELETE FROM training_enrollments WHERE id = ?";
         executeUpdate(sql, stmt -> stmt.setInt(1, id));
     }
@@ -87,17 +91,17 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
         stmt.setInt(1, enrollment.getEmployeeId());
         stmt.setInt(2, enrollment.getCourseId());
 
-        int statusId;
         if (enrollment.getStatus() == null) {
-            statusId = 1; // Default
+            stmt.setNull(3, Types.INTEGER);
         } else {
-        switch (enrollment.getStatus()) {
-            case ENROLLED -> statusId = 1;
-            case COMPLETED -> statusId = 2;
-            case CANCELLED -> statusId = 3;
-            case FAILED -> statusId = 4;
-        }
-    }
+            +            int statusId = switch (enrollment.getStatus()) {
+                +                case ENROLLED -> 1;
+                +                case COMPLETED -> 2;
+                +                case CANCELLED -> 3;
+                +                case FAILED -> 4;
+                +            };
+            +            stmt.setInt(3, statusId);
+            +        }
         stmt.setInt(3, statusId);
 
         if (enrollment.getEnrollmentDate() != null) {

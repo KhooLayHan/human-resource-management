@@ -289,7 +289,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             throw new AssertionError("unreachable code");
         } finally {
             if (dbManager.isTransactionActive())
-                  dbManager.rollbackTransaction();
+                dbManager.rollbackTransaction();
         }
     }
 

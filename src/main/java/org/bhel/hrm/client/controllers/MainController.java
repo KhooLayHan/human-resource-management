@@ -349,7 +349,7 @@ public class MainController {
     private void loadTrainingCatalogView() {
         logger.info("Loading Training Catalog View...");
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/bhel/hrm/client/view/TrainingCatalogView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.TRAINING_CATALOG));
             javafx.scene.Parent view = loader.load();
 
             TrainingCatalogController controller = loader.getController();
@@ -367,7 +367,7 @@ public class MainController {
     private void loadTrainingAdminView() {
         logger.info("Loading Training Admin View...");
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/bhel/hrm/client/view/TrainingAdminView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(FXMLPaths.TRAINING_ADMIN));
             javafx.scene.Parent view = loader.load();
 
             TrainingAdminController controller = loader.getController();

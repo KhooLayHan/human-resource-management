@@ -132,9 +132,6 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
         }
     }
 
-    // Now, update your save() method to look like this.
-    // It uses setSaveParameters for the INSERT logic to keep it clean.
-
     @Override
     public void deleteById(Integer id) {
         String sql = "DELETE FROM training_courses WHERE id = ?";

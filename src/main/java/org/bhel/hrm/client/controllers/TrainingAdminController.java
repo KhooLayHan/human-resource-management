@@ -249,7 +249,7 @@ public class TrainingAdminController implements Initializable {
 
         try {
             var dialog = ViewManager.loadDialog(
-                    "/org/bhel/hrm/client/view/dialogs/EmployeeSelectionView.fxml",
+                FXMLPaths.Dialogs.EMPLOYEE_SELECTION,
                     "Assign Employees",
                     (Stage) courseTable.getScene().getWindow()
             );

@@ -38,6 +38,8 @@ public class FXMLPaths {
 
         public static final String EMPLOYEE_FORM = DIALOG + "EmployeeFormView" + EXTENSION;
 
+        public static final String EMPLOYEE_SELECTION = DIALOG + "EmployeeSelectionView" + EXTENSION;
+
         public static final String JOB_OPENING_FORM = DIALOG + "JobOpeningForm" + EXTENSION;
 
         public static final String APPLICANT_STATUS_VIEW = DIALOG + "ApplicantStatusView" + EXTENSION;
