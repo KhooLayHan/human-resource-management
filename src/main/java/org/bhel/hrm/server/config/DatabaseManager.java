@@ -387,11 +387,16 @@ public final class DatabaseManager {
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 title VARCHAR(255) NOT NULL,
                 description TEXT,
-                department_id VARCHAR(255),
+                department_id TINYINT UNSIGNED NOT NULL,
                 status_id TINYINT UNSIGNED NOT NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+                CONSTRAINT fk_job_openings_department_id
+                    FOREIGN KEY (department_id) REFERENCES departments(id)
+                    ON UPDATE CASCADE
+                    ON DELETE RESTRICT,        
+        
                 CONSTRAINT fk_job_openings_status_id
                     FOREIGN KEY (status_id) REFERENCES job_opening_statuses(id)
                     ON UPDATE CASCADE

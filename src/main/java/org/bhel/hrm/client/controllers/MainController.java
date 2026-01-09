@@ -378,6 +378,7 @@ public class MainController {
             currentViewLabel.setText("Training Admin");
         } catch (IOException e) {
             logger.error("Failed to load training admin view", e);
+            DialogManager.showErrorDialog("View Load Error", "Could not load the Training Admin view.");
         }
     }
     /**
