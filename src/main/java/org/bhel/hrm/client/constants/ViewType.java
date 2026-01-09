@@ -22,7 +22,7 @@ public enum ViewType {
     BENEFITS("Benefits", FXMLPaths.BENEFITS, EnumSet.allOf(UserDTO.Role.class)),
     TRAINING_CATALOG("Training Catalog", FXMLPaths.TRAINING_CATALOG, EnumSet.allOf(UserDTO.Role.class)),
 
-    // HR Staff
+
 // HR Staff
     LEAVE_APPROVALS("Leave Approvals", FXMLPaths.LEAVE_APPROVAL, EnumSet.of(UserDTO.Role.HR_STAFF)),
 
