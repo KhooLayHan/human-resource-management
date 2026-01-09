@@ -39,9 +39,6 @@ public class BenefitPlanDAOImpl extends AbstractDAO<BenefitPlan> implements Bene
     private static final String DELETE_BY_ID_SQL =
             "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
 
-    private static final String COUNT_SQL =
-            "SELECT COUNT(*) AS total FROM " + TABLE_NAME;
-
     private static final String INSERT_SQL = """
         INSERT INTO %s
             (plan_name, provider, description, cost_per_month)
@@ -76,7 +73,6 @@ public class BenefitPlanDAOImpl extends AbstractDAO<BenefitPlan> implements Bene
 
     @Override
     public void save(BenefitPlan entity) {
-        // Keep your existing "id == 0 means new" convention
         if (entity.getId() == 0) {
             insert(entity);
         } else {
@@ -91,28 +87,14 @@ public class BenefitPlanDAOImpl extends AbstractDAO<BenefitPlan> implements Bene
 
     @Override
     public long count() {
-        // Keeping it here (since you asked for this file only)
-        // If Sonar still complains, best move is to lift this into AbstractDAO once.
-        Connection conn = null;
-        try {
-            conn = dbManager.getConnection();
-            try (PreparedStatement stmt = conn.prepareStatement(COUNT_SQL);
-                 ResultSet rs = stmt.executeQuery()) {
-
-                return rs.next() ? rs.getLong("total") : 0L;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error counting benefit plans", e);
-        } finally {
-            dbManager.releaseConnection(conn);
-        }
+        // ✅ no duplicated boilerplate anymore
+        return countFromTable(TABLE_NAME);
     }
 
     // ---------------- BenefitPlanDAO custom methods ----------------
 
     @Override
     public List<BenefitPlan> findByProvider(String provider) {
-        // Same “shape” as other findByX methods -> extracted helper reduces duplication
         return findByStringFieldOrdered(WHERE_PROVIDER, provider);
     }
 
@@ -127,33 +109,16 @@ public class BenefitPlanDAOImpl extends AbstractDAO<BenefitPlan> implements Bene
 
     @Override
     protected void insert(BenefitPlan entity) {
-        Connection conn = null;
-        try {
-            conn = dbManager.getConnection();
+        int newId = executeInsertReturningId(
+                INSERT_SQL,
+                stmt -> setSaveParameters(stmt, entity),
+                "Inserting benefit plan failed, no rows affected.",
+                "Inserting benefit plan failed, no ID obtained.",
+                "Error inserting benefit plan"
+        );
 
-            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
-                setSaveParameters(stmt, entity);
-
-                int affectedRows = stmt.executeUpdate();
-                logger.info("Executed insert: {}", stmt);
-
-                if (affectedRows == 0) {
-                    throw new DataAccessException("Inserting benefit plan failed, no rows affected.", null);
-                }
-
-                try (ResultSet keys = stmt.getGeneratedKeys()) {
-                    if (keys.next()) {
-                        entity.setId(keys.getInt(1));
-                    } else {
-                        throw new DataAccessException("Inserting benefit plan failed, no ID obtained.", null);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error inserting benefit plan", e);
-        } finally {
-            dbManager.releaseConnection(conn);
-        }
+        entity.setId(newId);
+        logger.info("Inserted benefit plan id={}", newId);
     }
 
     @Override
@@ -180,10 +145,6 @@ public class BenefitPlanDAOImpl extends AbstractDAO<BenefitPlan> implements Bene
 
     // ---------------- Helpers (duplication reducers) ----------------
 
-    /**
-     * Shared “find by string field + order by name” shape.
-     * This reduces copy/paste between methods and (often) between DAOs.
-     */
     private List<BenefitPlan> findByStringFieldOrdered(String whereClauseWithPlaceholder, String value) {
         String sql = SELECT_ALL + whereClauseWithPlaceholder + ORDER_BY_PLAN_NAME_ASC;
         return findMany(sql,
