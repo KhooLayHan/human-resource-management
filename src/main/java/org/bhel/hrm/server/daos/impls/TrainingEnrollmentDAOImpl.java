@@ -108,14 +108,15 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
     }
 
     private static TrainingEnrollmentDTO.Status mapStatus(Integer statusId) {
-        if (statusId == null) return TrainingEnrollmentDTO.Status.FAILED ;
+        if (statusId == null)
+            throw new IllegalStateException("training_enrollments.status_id is NULL");
 
         return switch (statusId) {
             case 1 -> TrainingEnrollmentDTO.Status.ENROLLED;
             case 2 -> TrainingEnrollmentDTO.Status.COMPLETED;
             case 3 -> TrainingEnrollmentDTO.Status.CANCELLED;
             case 4 -> TrainingEnrollmentDTO.Status.FAILED;
-            default -> TrainingEnrollmentDTO.Status.FAILED;
+            default -> throw new IllegalArgumentException("Unknown training_enrollments.status_id=" + statusId);
         };
     }
 
@@ -171,18 +172,5 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
             setSaveParameters(stmt, enrollment);
             stmt.setInt(5, enrollment.getId());
         });
-    }
-
-    private static TrainingEnrollmentDTO.Status mapRole(Integer statusId) {
-        if (statusId == null)
-            throw new IllegalStateException("users.status_id is NULL");
-
-        return switch (statusId) {
-            case 1 -> TrainingEnrollmentDTO.Status.ENROLLED;
-            case 2 -> TrainingEnrollmentDTO.Status.COMPLETED;
-            case 3 -> TrainingEnrollmentDTO.Status.CANCELLED;
-            case 4 -> TrainingEnrollmentDTO.Status.FAILED;
-            default -> throw new IllegalArgumentException("Unknown users.status_id=" + statusId);
-        };
     }
 }

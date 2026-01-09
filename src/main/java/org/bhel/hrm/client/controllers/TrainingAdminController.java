@@ -221,8 +221,8 @@ public class TrainingAdminController implements Initializable {
             List<TrainingCourseDTO> filteredList = allCourses.stream()
                     .filter(c ->
                             c.title().toLowerCase().contains(lowerQuery) ||
-                                    c.department().toString().toLowerCase().contains(lowerQuery) ||
-                                    (c.description() != null && c.description().toLowerCase().contains(lowerQuery))
+                            (c.department() != null && c.department().toString().toLowerCase().contains(lowerQuery)) ||
+                            (c.description() != null && c.description().toLowerCase().contains(lowerQuery))
                     )
                     .toList();
 
