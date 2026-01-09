@@ -38,7 +38,7 @@ public final class TrainingCourseMapper {
 
     }
 
-    public static List<TrainingCourseDTO> toDtoList(List<TrainingCourse> all) {
+    public static List<TrainingCourseDTO> mapToDtoList(List<TrainingCourse> all) {
         if (all == null) {
             return List.of();
         }

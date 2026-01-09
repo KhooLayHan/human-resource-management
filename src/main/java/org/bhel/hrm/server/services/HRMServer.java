@@ -264,13 +264,13 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         ErrorContext context = ErrorContext.forOperation(
                 "saveTrainingCourse");
         try {
-            trainingService.createOrUpdateCourse(courseDTO);
+            trainingService.saveCourse(courseDTO);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
            } finally {
                 if (dbManager.isTransactionActive())
-                        dbManager.rollbackTransaction();
+                    dbManager.rollbackTransaction();
         }
     }
 
