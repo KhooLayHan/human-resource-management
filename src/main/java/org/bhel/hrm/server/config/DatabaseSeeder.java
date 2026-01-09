@@ -60,7 +60,7 @@ public class DatabaseSeeder {
             dbManager.beginTransaction();
 
             seedUsersAndEmployees();
-            seedTrainingCourses();
+//            seedTrainingCourses();
             seedEnrollments();
 
             dbManager.commitTransaction();
