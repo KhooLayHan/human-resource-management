@@ -264,7 +264,8 @@ public class TrainingAdminController implements Initializable {
             dialog.stage().showAndWait();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to open employee selection dialog", e);
+            DialogManager.showErrorDialog("UI Error", "Could not open employee selection dialog.");
         }
     }
 

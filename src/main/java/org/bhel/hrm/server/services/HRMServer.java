@@ -262,11 +262,12 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     public void saveTrainingCourse(TrainingCourseDTO courseDTO) throws RemoteException, HRMException {
         logger.info("RMI Call: saveTrainingCourse for '{}'", courseDTO.title());
         ErrorContext context = ErrorContext.forOperation(
-                "TrainingCourseDTO");
+                "saveTrainingCourse");
         try {
             trainingService.createOrUpdateCourse(courseDTO);
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable code");
         } finally {
             if (dbManager.isTransactionActive())
                 dbManager.rollbackTransaction();

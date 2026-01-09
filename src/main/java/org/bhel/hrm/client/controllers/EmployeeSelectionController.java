@@ -65,6 +65,7 @@ public class EmployeeSelectionController {
 
         // Search filter
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (filteredEmployees == null) return;
             filteredEmployees.setPredicate(emp -> {
                 if (newVal == null || newVal.isEmpty()) return true;
                 String lower = newVal.toLowerCase();
@@ -93,7 +94,11 @@ public class EmployeeSelectionController {
             employeeListView.setPlaceholder(new Label("Failed to load employees"));
        });
 
-        executorService.submit(task);
+        if (executorService != null) {
+            executorService.submit(task);
+        } else {
+            new Thread(task).start();
+        }
     }
 
     @FXML
@@ -122,7 +127,11 @@ public class EmployeeSelectionController {
 
         task.setOnFailed(e -> DialogManager.showErrorDialog("Error", task.getException().getMessage()));
 
-        executorService.submit(task);
+        if (executorService != null) {
+            executorService.submit(task);
+        } else {
+            new Thread(task).start();
+        }
     }
 
     @FXML
