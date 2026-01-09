@@ -227,7 +227,7 @@ public class TrainingAdminController implements Initializable {
                                     c.department().toString().toLowerCase().contains(lowerQuery) ||
                                     (c.description() != null && c.description().toLowerCase().contains(lowerQuery))
                     )
-                    .collect(Collectors.toList());
+                    .toList();
 
             courseTable.setItems(FXCollections.observableArrayList(filteredList));
         }

@@ -48,7 +48,6 @@ public class TrainingCourseFormController {
         // Allow manual numeric input for spinner
         durationSpinner.setEditable(true);
 
-        logger.info("jfefjsfjs;");
     }
 
     public void setDependencies(HRMService service, ExecutorService executor) {
@@ -105,22 +104,22 @@ public class TrainingCourseFormController {
             }
         };
 
-        saveTask.setOnSucceeded(e -> {
+        saveTask.setOnSucceeded(e ->
             Platform.runLater(() -> {
                 DialogManager.showInfoDialog("Success", "Course saved successfully.");
                 isSaved = true;
                 dialogStage.close();
-            });
-        });
+            })
+        );
 
-        saveTask.setOnFailed(e -> {
+        saveTask.setOnFailed(e ->
             Platform.runLater(() -> {
                 setFormDisabled(false); // Re-enable UI on failure
                 Throwable error = saveTask.getException();
                 logger.error("Failed to save training course", error);
                 DialogManager.showErrorDialog("Save Error", error.getMessage());
-            });
-        });
+            })
+        );
 
         if (executorService != null) {
             executorService.submit(saveTask);
@@ -172,7 +171,7 @@ public class TrainingCourseFormController {
 
         if (courseToEdit == null) {
             // New Course: check if any field is populated
-            return !currentTitle.isEmpty() || currentDept != null || !currentDesc.isEmpty();
+            return !currentTitle.isEmpty() || currentDept != null || currentDuration != 8 || !currentDesc.isEmpty();
         } else {
             // Edit Course: check if any field differs from original
             return !currentTitle.equals(courseToEdit.title()) ||

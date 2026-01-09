@@ -12,7 +12,6 @@ public class TrainingEnrollment {
     private int courseId;
     private LocalDateTime enrollmentDate;
     private TrainingEnrollmentDTO.Status status;
-    // Getters and Setters...
 
     public TrainingEnrollment(int id, int employeeId, int courseId, LocalDateTime enrollmentDate, TrainingEnrollmentDTO.Status status) {
         this.id = id;
@@ -34,12 +33,6 @@ public class TrainingEnrollment {
         this.enrollmentDate = dateTime;
         this.status = status;
     }
-
-//    public TrainingEnrollment(int employeeId, int courseId, TrainingEnrollmentDTO.Status status) {
-//        this.employeeId = employeeId;
-//        this.courseId = courseId;
-//        this.status = status;
-//    }
 
     public int getId() {
         return id;

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implements TrainingCourseDAO {
-    private static final Logger logger = LoggerFactory.getLogger(TrainingCourseDAOImpl.class);
 
     // This mapper tells Java how to convert a row from the DB table into a TrainingCourse object
     private final RowMapper<TrainingCourse> rowMapper = rs -> new TrainingCourse(

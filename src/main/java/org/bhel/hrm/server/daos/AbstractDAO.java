@@ -87,8 +87,6 @@ public abstract class AbstractDAO<T> {
                     while (result.next())
                         results.add(mapper.mapRow(result));
                 }
-
-//                logger.info("{}", stmt);
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error executing query: " + sql, e);

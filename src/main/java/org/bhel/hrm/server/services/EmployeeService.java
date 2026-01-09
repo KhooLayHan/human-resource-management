@@ -73,9 +73,9 @@ public class EmployeeService {
     }
 
     /**
-     * Retrieves a single employee by their ID.
+     * Retrieves a single employee by their user ID.
      *
-     * @param userId The ID of the user to fetch; must be positive
+     * @param userId The user ID of the employee to fetch; must be positive
      * @return The {@link EmployeeDTO} for the found employee; never null
      * @throws ResourceNotFoundException If no employee with the given ID is found
      */
