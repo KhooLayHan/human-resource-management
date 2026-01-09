@@ -20,6 +20,29 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     public void applyForLeave(LeaveApplicationDTO dto) {
+
+        if (dto == null) {
+            throw new IllegalArgumentException("Leave application must not be null");
+        }
+
+        if (dto.employeeId() <= 0) {
+            throw new IllegalArgumentException("Invalid employee ID");
+        }
+
+        // validate employee exists
+        employeeDAO.findById(dto.employeeId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Employee not found: " + dto.employeeId()));
+
+        if (dto.startDateTime() == null || dto.endDateTime() == null) {
+            throw new IllegalArgumentException("Start and end date/time are required");
+        }
+
+        if (dto.startDateTime().isAfter(dto.endDateTime())) {
+            throw new IllegalArgumentException(
+                    "Start date/time must be before or equal to end date/time");
+        }
+
         LeaveApplication leave = new LeaveApplication();
         leave.setEmployeeId(dto.employeeId());
         leave.setStartDateTime(dto.startDateTime());
@@ -28,9 +51,9 @@ public class LeaveServiceImpl implements LeaveService {
         leave.setStatus(LeaveApplicationDTO.LeaveStatus.PENDING);
         leave.setReason(dto.reason());
 
-        // correct DAO name
         leaveDAO.save(leave);
     }
+
 
     @Override
     public List<LeaveApplicationDTO> getLeaveHistory(int employeeId) {
