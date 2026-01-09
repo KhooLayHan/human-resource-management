@@ -89,7 +89,7 @@ public class DashboardController {
     @FXML
     public void initialize() {
         if (currentUser == null || serviceManager == null) {
-            logger.warn("Dependencies not initialized. Skipping dashboard load.");
+//            logger.warn("Dependencies not initialized. Skipping dashboard load.");
             return;
         }
 

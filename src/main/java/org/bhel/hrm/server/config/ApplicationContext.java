@@ -167,10 +167,6 @@ public class ApplicationContext {
     public PayrollSocketClient getPayrollSocketClient() {
         return payrollSocketClient; // may be null in dev
     }
-  
-    public EmployeeService getEmployeeService() {
-        return employeeService;
-    }
 
     public TrainingCourseDAO getTrainingCourseDAO() {
         return trainingCourseDAO;
@@ -184,7 +180,4 @@ public class ApplicationContext {
         return trainingService;
     }
 
-    public DashboardService getDashboardService() {
-        return dashboardService;
-    }
 }

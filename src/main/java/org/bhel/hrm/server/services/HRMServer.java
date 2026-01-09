@@ -23,6 +23,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             DatabaseManager dbManager,
             EmployeeService employeeService,
             UserService userService,
+            TrainingService trainingService,
             DashboardService dashboardService,
             LeaveService leaveService,
             BenefitsService benefitsService,
@@ -51,8 +52,8 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         LeaveService leaveService,
         BenefitsService benefitsService,
         BenefitPlanDAO benefitPlanDAO,
-        EmployeeBenefitDAO employeeBenefitDAO
-        GlobalExceptionHandler exceptionHandler,
+        EmployeeBenefitDAO employeeBenefitDAO,
+        GlobalExceptionHandler exceptionHandler
     ) throws RemoteException {
         this.dbManager = databaseManager;
         this.employeeService = employeeService;
@@ -60,6 +61,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         this.trainingService = trainingService;
         this.dashboardService = dashboardService;
         this.leaveService = leaveService;
+        this.benefitsService = benefitsService;
         this.benefitPlanDAO = benefitPlanDAO;
         this.employeeBenefitDAO = employeeBenefitDAO;
         this.exceptionHandler = exceptionHandler;
@@ -69,6 +71,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
       this.dbManager = deps.dbManager();
       this.employeeService = deps.employeeService();
       this.userService = deps.userService();
+    this.trainingService = deps.trainingService;
       this.dashboardService = deps.dashboardService();
       this.leaveService = deps.leaveService();
       this.benefitsService = deps.benefitsService();
@@ -307,13 +310,16 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException, HRMException {
         logger.debug("RMI Call: getAllTrainingCourses()");
         ErrorContext context = ErrorContext.forOperation(
-            "getAllTrainingCourses");
+                "getAllTrainingCourses");
 
         try {
             return trainingService.getAllCourses();
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
+        }
+    }
+
     public List<LeaveApplicationDTO> getPendingLeaveRequests()
             throws RemoteException, HRMException {
 
@@ -382,6 +388,9 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         } finally {
             if (dbManager.isTransactionActive())
                 dbManager.rollbackTransaction();
+        }
+    }
+
     public void decideLeave(int leaveId, boolean approve, int hrUserId, String decisionReason)
             throws RemoteException, HRMException {
 
@@ -396,15 +405,15 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         }
     }
 
-    @Override
-    public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException {
-        throw new UnsupportedOperationException("Training not implemented yet");
-    }
+//    @Override
+//    public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException {
+//        throw new UnsupportedOperationException("Training not implemented yet");
+//    }
 
-    @Override
-    public void enrollInTraining(int employeeId, int courseId) throws RemoteException {
-        throw new UnsupportedOperationException("Training not implemented yet");
-    }
+//    @Override
+//    public void enrollInTraining(int employeeId, int courseId) throws RemoteException {
+//        throw new UnsupportedOperationException("Training not implemented yet");
+//    }
 
     @Override
     public List<JobOpeningDTO> getAllJobOpenings() throws RemoteException {
