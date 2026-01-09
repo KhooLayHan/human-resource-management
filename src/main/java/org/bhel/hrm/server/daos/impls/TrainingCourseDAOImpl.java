@@ -116,11 +116,10 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
         stmt.setString(2, course.getDescription());
         stmt.setInt(3, course.getDurationInHours());
 
-
-        int department;
         if (course.getDepartment() == null) {
-            department = 5; // Default fallback if null
+            stmt.setNull(4, Types.INTEGER);
         } else {
+            int department;
             switch (course.getDepartment()) {
                 case TrainingCourseDTO.Department.IT -> department = 1;
                 case TrainingCourseDTO.Department.HR -> department = 2;
@@ -128,9 +127,9 @@ public class TrainingCourseDAOImpl extends AbstractDAO<TrainingCourse> implement
                 case TrainingCourseDTO.Department.OPERATIONS -> department = 4;
                 default -> department = 5;
             }
-        }
 
-        stmt.setInt(4, department);
+            stmt.setInt(4, department);
+        }
     }
 
     // Now, update your save() method to look like this.

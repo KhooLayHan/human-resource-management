@@ -52,16 +52,20 @@ public class TrainingService {
 
     public List<TrainingEnrollmentDTO> getEnrollmentsByEmployee(int employeeId) {
         List<TrainingEnrollment> enrollments = trainingEnrollmentDAO.findByEmployeeId(employeeId);
-        // Note: You'll need a TrainingEnrollmentMapper. Assuming one exists or mapping manually here:
+
         return enrollments.stream()
-                .map(e -> new TrainingEnrollmentDTO(
-                        e.getId(),
-                        e.getEmployeeId(),
-                        e.getCourseId(),
-                        e.getStatus(),
-                        e.getEnrollmentDate()
-                        ))
-                .collect(Collectors.toList());
+            .map(this::toDto)
+            .collect(Collectors.toList());
+    }
+
+    private TrainingEnrollmentDTO toDto(TrainingEnrollment e) {
+        return new TrainingEnrollmentDTO(
+            e.getId(),
+            e.getEmployeeId(),
+            e.getCourseId(),
+            e.getStatus(),
+            e.getEnrollmentDate()
+        );
     }
 
     public void saveCourse(TrainingCourseDTO courseDto) throws SQLException, HRMException {
@@ -110,6 +114,11 @@ public class TrainingService {
 
     public void updateEnrollmentStatus(int enrollmentId, TrainingEnrollmentDTO.Status newStatus) throws SQLException, HRMException {
         dbManager.executeInTransaction(() -> {
+            if (newStatus == null) {
+                throw new InvalidInputException("Enrollment status is required",
+                    ErrorContext.forUser("TrainingEnrollment", String.valueOf(enrollmentId)));
+            }
+
             TrainingEnrollment enrollment = trainingEnrollmentDAO.findById(enrollmentId)
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.TRAINING_ENROLLMENT_NOT_FOUND, "TrainingEnrollment", enrollmentId));
 
@@ -146,13 +155,14 @@ public class TrainingService {
                 throw new ResourceNotFoundException(ErrorCode.TRAINING_COURSE_NOT_FOUND, TRAINING_COURSE, courseId);
             }
 
+            var alreadyEnrolledEmployeeIds = trainingEnrollmentDAO.findByCourseId(courseId).stream()
+                .filter(e -> e.getStatus() == TrainingEnrollmentDTO.Status.ENROLLED)
+                .map(TrainingEnrollment::getEmployeeId)
+                .collect(java.util.stream.Collectors.toSet());
+
             int successCount = 0;
             for (Integer empId : employeeIds) {
-                // 2. Check for Duplicate Enrollment (Skipping if exists)
-                boolean alreadyEnrolled = trainingEnrollmentDAO.findByEmployeeId(empId).stream()
-                        .anyMatch(e -> e.getCourseId() == courseId);
-
-                if (!alreadyEnrolled) {
+                if (!alreadyEnrolledEmployeeIds.contains(empId)) {
                     TrainingEnrollment enrollment = new TrainingEnrollment(
                             empId,
                             courseId,

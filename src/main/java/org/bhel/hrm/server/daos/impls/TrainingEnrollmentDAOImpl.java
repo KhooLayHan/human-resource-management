@@ -15,16 +15,17 @@ public class TrainingEnrollmentDAOImpl extends AbstractDAO<TrainingEnrollment> i
 
     private ExceptionMappingConfig config;
 
-    private final RowMapper<TrainingEnrollment> rowMapper = rs -> new TrainingEnrollment(
-        rs.getInt("id"),
-        rs.getInt("employee_id"),
-        rs.getInt("course_id"),
+    private final RowMapper<TrainingEnrollment> rowMapper = rs -> {
+        Timestamp enrollmentTs = rs.getTimestamp("enrollment_date");
 
-        rs.getDate("enrollment_date") != null
-            ? rs.getDate("enrollment_date").toLocalDate().atStartOfDay()
-            : null,
-        mapStatus(rs.getObject("status_id", Integer.class))
-    );
+        return new TrainingEnrollment(
+            rs.getInt("id"),
+            rs.getInt("employee_id"),
+            rs.getInt("course_id"),
+            enrollmentTs != null ? enrollmentTs.toLocalDateTime() : null,
+            mapStatus(rs.getObject("status_id", Integer.class))
+        );
+    };
 
     public TrainingEnrollmentDAOImpl(DatabaseManager dbManager) {
         super(dbManager);

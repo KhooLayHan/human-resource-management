@@ -140,10 +140,7 @@ public class TrainingAdminController implements Initializable {
     private void showCourseFormDialog(TrainingCourseDTO course) {
         try {
             String title = (course == null) ? "Add Course" : "Edit Course";
-
-            // IMPROVEMENT: Use the constant if you added it to FXMLPaths.Dialogs
-            // Otherwise use the string path: "/org/bhel/hrm/client/view/dialogs/TrainingCourseFormView.fxml"
-            String fxmlPath = "/org/bhel/hrm/client/view/dialogs/TrainingCourseFormView.fxml";
+            String fxmlPath = FXMLPaths.Dialogs.TRAINING_COURSE_FORM;
 
             var dialog = ViewManager.loadDialog(
                     fxmlPath,
