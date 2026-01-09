@@ -75,16 +75,15 @@ public class LeaveApprovalController {
         this.currentUser = currentUser;
         this.hrm = serviceManager.getHrmService();
 
+        // Set initial state ONCE, then load
+        setBusy(true);
         setStatus("Loading pending requests...");
         loadPendingAsync();
-        setBusy(true);
-        setStatus("Initializing...");
     }
 
-    private void loadPendingAsync() {
-        setBusy(true);
 
-        Runnable job = () -> {
+    private void loadPendingAsync() {
+        executorService.submit(() -> {
             try {
                 List<LeaveApplicationDTO> pending = hrm.getPendingLeaveRequests();
                 Platform.runLater(() -> {
@@ -96,15 +95,9 @@ public class LeaveApprovalController {
             } finally {
                 Platform.runLater(() -> setBusy(false));
             }
-        };
-
-        // ✅ fallback if executor isn't injected
-        if (executorService != null) {
-            executorService.submit(job);
-        } else {
-            new Thread(job, "leave-approval-loader").start();
-        }
+        });
     }
+
 
 
     private void decideAsync(boolean approve) {
