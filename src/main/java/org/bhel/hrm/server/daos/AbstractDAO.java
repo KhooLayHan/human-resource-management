@@ -5,10 +5,7 @@ import org.bhel.hrm.common.exceptions.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -148,4 +145,66 @@ public abstract class AbstractDAO<T> {
      * @throws SQLException if a database access error occurs.
      */
     protected abstract void setSaveParameters(PreparedStatement stmt, T entity) throws SQLException;
+
+    // In AbstractDAO<T>
+    protected long countFromTable(String tableName) {
+        String sql = "SELECT COUNT(*) AS total FROM " + tableName;
+        return queryForLong(sql, "total", "Error counting rows in " + tableName);
+    }
+
+    protected long queryForLong(String sql, String column, String errorMessage) {
+        Connection conn = null;
+        try {
+            conn = dbManager.getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getLong(column) : 0L;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(errorMessage, e);
+        } finally {
+            dbManager.releaseConnection(conn);
+        }
+    }
+
+    /**
+     * Executes an INSERT and returns the generated key as int.
+     * Throws DataAccessException if no rows affected or no key returned.
+     */
+    protected int executeInsertReturningId(String sql,
+                                           SqlConsumer<PreparedStatement> binder,
+                                           String noRowsMessage,
+                                           String noIdMessage,
+                                           String errorMessage) {
+        Connection conn = null;
+        try {
+            conn = dbManager.getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                binder.accept(stmt);
+
+                int affectedRows = stmt.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new DataAccessException(noRowsMessage, null);
+                }
+
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        return keys.getInt(1);
+                    }
+                    throw new DataAccessException(noIdMessage, null);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(errorMessage, e);
+        } finally {
+            dbManager.releaseConnection(conn);
+        }
+    }
+
+    /** Small functional interface so we can pass lambdas that throw SQLException */
+    @FunctionalInterface
+    protected interface SqlConsumer<P> {
+        void accept(P p) throws SQLException;
+    }
+
 }
