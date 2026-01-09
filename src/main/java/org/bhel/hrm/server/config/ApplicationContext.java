@@ -52,7 +52,6 @@ public class ApplicationContext {
     private final BenefitPlanDAO benefitPlanDAO;
     private final EmployeeBenefitDAO employeeBenefitDAO;
 
-    // -------- Services --------
     private final UserService userService;
     private final EmployeeService employeeService;
     private final TrainingService trainingService;
@@ -61,17 +60,14 @@ public class ApplicationContext {
     private final LeaveService leaveService;
     private final BenefitsService benefitsService;
 
-    // -------- Other core components --------
     private final SslContextFactory sslContextFactory;
     private final CryptoUtils cryptoUtils;
 
-    // make payroll optional for now
     private final PayrollSocketClient payrollSocketClient;
 
     private ApplicationContext() {
         logger.info("Initializing Application Context...");
 
-        // ---- config + error handling ----
         this.configuration = new Configuration();
         this.errorMessageProvider = new ErrorMessageProvider();
         this.exceptionMappingConfig = new ExceptionMappingConfig();
@@ -79,25 +75,9 @@ public class ApplicationContext {
         this.databaseManager = new DatabaseManager(configuration);
         this.globalExceptionHandler = new GlobalExceptionHandler(exceptionMappingConfig, errorMessageProvider);
 
-        // ---- security ----
         this.sslContextFactory = new SslContextFactory(configuration);
         this.cryptoUtils = new CryptoUtils(configuration);
-
-
-        PayrollSocketClient payrollTmp = null;
-        try {
-
-            String ks = System.getProperty("keystore.path");
-            if (ks != null && !ks.isBlank()) {
-                payrollTmp = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
-                logger.info("PayrollSocketClient initialized (keystore.path provided).");
-            } else {
-                logger.warn("PayrollSocketClient disabled: keystore.path not set.");
-            }
-        } catch (Exception ex) {
-            logger.warn("PayrollSocketClient disabled due to init error: {}", ex.getMessage());
-        }
-        this.payrollSocketClient = payrollTmp;
+        this.payrollSocketClient = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
 
         // ---- DAOs ----
         this.userDAO = new UserDAOImpl(databaseManager);
