@@ -71,7 +71,7 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
       this.dbManager = deps.dbManager();
       this.employeeService = deps.employeeService();
       this.userService = deps.userService();
-    this.trainingService = deps.trainingService;
+    this.trainingService = deps.trainingService();
       this.dashboardService = deps.dashboardService();
       this.leaveService = deps.leaveService();
       this.benefitsService = deps.benefitsService();

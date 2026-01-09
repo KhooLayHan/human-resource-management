@@ -146,7 +146,7 @@ public class MainController {
         // Define the order you want them to appear
         ViewType[] menuOrder = {
             ViewType.EMPLOYEE_MANAGEMENT,
-            ViewType.RECRUITMENT,
+//            ViewType.RECRUITMENT,
 //            ViewType.TRAINING_ADMIN,
             ViewType.LEAVE,
             ViewType.BENEFITS,

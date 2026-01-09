@@ -366,6 +366,25 @@ public final class DatabaseManager {
             )
         """);
 
+//        stmt.execute("""
+//            CREATE TABLE employee_benefits (
+//                id INT AUTO_INCREMENT PRIMARY KEY,
+//                employee_id INT NOT NULL,
+//                plan_id INT NOT NULL,
+//                enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//
+//                UNIQUE KEY uq_employee_plan (employee_id, plan_id),
+//
+//                CONSTRAINT fk_employee_benefits_employee
+//                    FOREIGN KEY (employee_id) REFERENCES employees(id)
+//                    ON DELETE CASCADE,
+//
+//                CONSTRAINT fk_employee_benefits_plan
+//                    FOREIGN KEY (plan_id) REFERENCES benefit_plans(id)
+//                    ON DELETE CASCADE
+//           )
+//        """);
+
         // 6. JobOpenings, and JobOpeningStatuses Table
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS job_opening_statuses (
@@ -387,7 +406,7 @@ public final class DatabaseManager {
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 title VARCHAR(255) NOT NULL,
                 description TEXT,
-                department_id VARCHAR(255),
+                department_id TINYINT UNSIGNED NOT NULL,
                 status_id TINYINT UNSIGNED NOT NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -395,6 +414,11 @@ public final class DatabaseManager {
                 CONSTRAINT fk_job_openings_status_id
                     FOREIGN KEY (status_id) REFERENCES job_opening_statuses(id)
                     ON UPDATE CASCADE
+                    ON DELETE RESTRICT,
+
+                CONSTRAINT fk_job_openings_department_id
+                    FOREIGN KEY (department_id) REFERENCES departments(id)
+                    ON UPDATE CASCADE 
                     ON DELETE RESTRICT
             )
         """);
