@@ -53,12 +53,15 @@ public class ServerLauncher {
         logger.info("Application is starting in [{}] environment.", env);
 
         return new HRMServer(
-            context.getDatabaseManager(),
-            context.getEmployeeService(),
-            context.getUserService(),
-            context.getDashboardService(),
-            context.getGlobalExceptionHandler()
+                context.getDatabaseManager(),
+                context.getEmployeeService(),
+                context.getUserService(),
+                context.getDashboardService(),
+                context.getLeaveService(),
+                context.getBenefitsService(),
+                context.getGlobalExceptionHandler()
         );
+
     }
 
     /**

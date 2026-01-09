@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<ScrollPane fitToWidth="true"
+            styleClass="dashboard-scroll-pane"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.bhel.hrm.client.controllers.LeaveApprovalController">
+
+    <VBox spacing="25">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header -->
+        <VBox spacing="5">
+            <Label text="Leave Approvals" styleClass="page-title"/>
+            <Label fx:id="statusLabel" text="" styleClass="mini-stat"/>
+        </VBox>
+
+        <GridPane hgap="20" vgap="20">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="70" hgrow="ALWAYS"/>
+                <ColumnConstraints percentWidth="30" hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <!-- Pending Requests Table -->
+            <VBox styleClass="chart-card"
+                  GridPane.rowIndex="0" GridPane.columnIndex="0">
+
+                <Label text="Pending Leave Requests" styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2c-clipboard-text-clock"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+
+                <VBox spacing="12" styleClass="vbox-padding">
+                    <TableView fx:id="pendingTable" prefHeight="520">
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="colEmployeeId" text="Employee ID" prefWidth="110"/>
+                            <TableColumn fx:id="colStart" text="Start" prefWidth="160"/>
+                            <TableColumn fx:id="colEnd" text="End" prefWidth="160"/>
+                            <TableColumn fx:id="colType" text="Type" prefWidth="110"/>
+                            <TableColumn fx:id="colReason" text="Reason" prefWidth="260"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </VBox>
+
+            <!-- Actions -->
+            <VBox styleClass="chart-card"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1">
+
+                <Label text="Actions" styleClass="section-title">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2f-flash"
+                                  iconSize="18"
+                                  iconColor="#7f8c8d"/>
+                    </graphic>
+                </Label>
+
+                <VBox spacing="12" styleClass="vbox-padding">
+
+                    <Button fx:id="refreshButton"
+                            text="Refresh Pending"
+                            maxWidth="Infinity"
+                            styleClass="button-secondary">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2r-refresh" iconSize="16"/>
+                        </graphic>
+                    </Button>
+
+                    <Separator/>
+
+                    <Label text="Selected Request"
+                           styleClass="section-title"/>
+
+                    <Label fx:id="selectedLabel"
+                           text="(none)"
+                           wrapText="true"/>
+
+                    <Label text="Decision Note (optional)"
+                           styleClass="mini-stat"
+                           wrapText="true"/>
+
+                    <TextArea fx:id="decisionNoteArea"
+                              promptText="Optional note for approve/reject"
+                              prefRowCount="4"/>
+
+                    <HBox spacing="10">
+                        <Button fx:id="approveButton"
+                                text="Approve"
+                                maxWidth="Infinity"
+                                HBox.hgrow="ALWAYS"
+                                disable="true"
+                                styleClass="button-secondary">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2c-check-circle-outline" iconSize="16"/>
+                            </graphic>
+                        </Button>
+
+                        <Button fx:id="rejectButton"
+                                text="Reject"
+                                maxWidth="Infinity"
+                                HBox.hgrow="ALWAYS"
+                                disable="true"
+                                styleClass="button-secondary">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2c-close-circle-outline" iconSize="16"/>
+                            </graphic>
+                        </Button>
+                    </HBox>
+
+                </VBox>
+            </VBox>
+        </GridPane>
+    </VBox>
+</ScrollPane>
