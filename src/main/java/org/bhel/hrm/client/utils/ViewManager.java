@@ -122,8 +122,8 @@ public class ViewManager {
                     leaveController.initDependencies(
                             serviceManager,
                             executorService,
-                            currentUser,
-                            mainController
+                            currentUser
+
                     );
 
             case BenefitsController benefitsController ->
@@ -137,8 +137,8 @@ public class ViewManager {
                     leaveApprovalController.initDependencies(
                             serviceManager,
                             executorService,
-                            currentUser,
-                            mainController
+                            currentUser
+
                     );
 
             default ->

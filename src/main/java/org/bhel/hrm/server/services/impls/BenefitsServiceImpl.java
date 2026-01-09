@@ -3,6 +3,7 @@ package org.bhel.hrm.server.services.impls;
 import org.bhel.hrm.common.dtos.BenefitPlanDTO;
 import org.bhel.hrm.server.daos.BenefitPlanDAO;
 import org.bhel.hrm.server.daos.EmployeeBenefitDAO;
+import org.bhel.hrm.server.daos.EmployeeDAO;
 import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
 import org.bhel.hrm.server.domain.BenefitPlan;
 import org.bhel.hrm.server.services.BenefitsService;
@@ -12,10 +13,12 @@ import java.util.List;
 public class BenefitsServiceImpl implements BenefitsService {
     private final BenefitPlanDAO benefitPlanDAO;
     private final EmployeeBenefitDAO employeeBenefitDAO;
+    private final EmployeeDAO employeeDAO;
 
-    public BenefitsServiceImpl(BenefitPlanDAO benefitPlanDAO, EmployeeBenefitDAO employeeBenefitDAO, EmployeeDAOImpl employeeDAO) {
+    public BenefitsServiceImpl(BenefitPlanDAO benefitPlanDAO, EmployeeBenefitDAO employeeBenefitDAO, EmployeeDAO employeeDAO) {
         this.benefitPlanDAO = benefitPlanDAO;
         this.employeeBenefitDAO = employeeBenefitDAO;
+        this.employeeDAO = employeeDAO;
     }
 
     @Override
@@ -49,15 +52,22 @@ public class BenefitsServiceImpl implements BenefitsService {
 
     @Override
     public void enrollInBenefitPlan(int employeeId, int planId) {
-        // Validate plan exists
-        BenefitPlan plan = benefitPlanDAO.findById(planId)
-                .orElseThrow(() -> new IllegalArgumentException("Benefit plan not found: " + planId));
 
-        // Optionally: validate employee exists via EmployeeDAO
-        // employeeDAO.findById(employeeId) ...
+        // ✅ Validate employee exists
+        employeeDAO.findById(employeeId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Employee not found: " + employeeId)
+                );
+
+        // ✅ Validate plan exists
+        BenefitPlan plan = benefitPlanDAO.findById(planId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Benefit plan not found: " + planId)
+                );
 
         employeeBenefitDAO.enroll(employeeId, plan.getId());
     }
+
 
 
 

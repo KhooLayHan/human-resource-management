@@ -50,7 +50,7 @@ public class LeaveController {
     // -------- JavaFX lifecycle --------
     @FXML
     public void initialize() {
-        System.out.println("✅ LeaveController.initialize() ran");
+        logger.debug("LeaveController.initialize() ran");
         // table columns
         colId.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().id()));
         colStart.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().startDateTime()));
@@ -87,9 +87,8 @@ public class LeaveController {
     // -------- called by ViewManager DI --------
     public void initDependencies(ServiceManager serviceManager,
                                  ExecutorService executorService,
-                                 UserDTO currentUser,
-                                 MainController mainController) {
-        System.out.println("✅ LeaveController.initDependencies() ran");
+                                 UserDTO currentUser) {
+        logger.debug("LeaveController.initDependencies() ran");
         // -------- injected dependencies --------
         this.executorService = executorService;
         this.currentUser = currentUser;

@@ -70,8 +70,7 @@ public class LeaveApprovalController {
 
     public void initDependencies(ServiceManager serviceManager,
                                  ExecutorService executorService,
-                                 UserDTO currentUser,
-                                 MainController mainController) {
+                                 UserDTO currentUser) {
         this.executorService = executorService;
         this.currentUser = currentUser;
         this.hrm = serviceManager.getHrmService();

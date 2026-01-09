@@ -1,6 +1,5 @@
 package org.bhel.hrm.server.daos.impls;
 
-import org.bhel.hrm.common.exceptions.DataAccessException;
 import org.bhel.hrm.server.config.DatabaseManager;
 import org.bhel.hrm.server.daos.AbstractDAO;
 import org.bhel.hrm.server.daos.BenefitPlanDAO;
@@ -37,7 +36,7 @@ public class BenefitPlanDAOImpl extends AbstractDAO<BenefitPlan> implements Bene
     private static final String WHERE_PLAN_NAME = " WHERE plan_name = ?";
 
     private static final String DELETE_BY_ID_SQL =
-            "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
+            "DELETE FROM " + TABLE_NAME + WHERE_ID;
 
     private static final String INSERT_SQL = """
         INSERT INTO %s

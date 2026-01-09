@@ -7,12 +7,16 @@ import org.bhel.hrm.common.utils.CryptoUtils;
 import org.bhel.hrm.common.utils.GlobalExceptionHandler;
 import org.bhel.hrm.common.utils.SslContextFactory;
 import org.bhel.hrm.server.daos.*;
-import org.bhel.hrm.server.daos.impls.*;
+import org.bhel.hrm.server.daos.impls.BenefitPlanDAOImpl;
+import org.bhel.hrm.server.daos.impls.EmployeeBenefitDAOImpl;
+import org.bhel.hrm.server.daos.impls.EmployeeDAOImpl;
+import org.bhel.hrm.server.daos.impls.LeaveApplicationDAOImpl;
+import org.bhel.hrm.server.daos.impls.UserDAOImpl;
 import org.bhel.hrm.server.services.*;
+import org.bhel.hrm.server.services.impls.BenefitsServiceImpl;
+import org.bhel.hrm.server.services.impls.LeaveServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bhel.hrm.server.services.impls.LeaveServiceImpl;
-import org.bhel.hrm.server.services.impls.BenefitsServiceImpl;
 
 public class ApplicationContext {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationContext.class);
@@ -26,27 +30,31 @@ public class ApplicationContext {
     private final ExceptionMappingConfig exceptionMappingConfig;
     private final GlobalExceptionHandler globalExceptionHandler;
 
+    // -------- DAOs --------
     private final UserDAO userDAO;
-    private final EmployeeDAOImpl employeeDAO;
+    private final EmployeeDAO employeeDAO;
+    private final LeaveApplicationDAO leaveApplicationDAO;
+    private final BenefitPlanDAO benefitPlanDAO;
+    private final EmployeeBenefitDAO employeeBenefitDAO;
 
-    private final BenefitPlanDAOImpl benefitPlanDAO;
-    private final EmployeeBenefitDAOImpl employeeBenefitDAO;
-
+    // -------- Services --------
     private final UserService userService;
     private final EmployeeService employeeService;
     private final DashboardService dashboardService;
-
-    private final SslContextFactory sslContextFactory;
-    private final CryptoUtils cryptoUtils;
-    private PayrollSocketClient payrollSocketClient; // optional (null when payroll not implemented)
-
-
     private final LeaveService leaveService;
     private final BenefitsService benefitsService;
+
+    // -------- Other core components --------
+    private final SslContextFactory sslContextFactory;
+    private final CryptoUtils cryptoUtils;
+
+    // ✅ make payroll optional for now
+    private final PayrollSocketClient payrollSocketClient;
 
     private ApplicationContext() {
         logger.info("Initializing Application Context...");
 
+        // ---- config + error handling ----
         this.configuration = new Configuration();
         this.errorMessageProvider = new ErrorMessageProvider();
         this.exceptionMappingConfig = new ExceptionMappingConfig();
@@ -54,52 +62,55 @@ public class ApplicationContext {
         this.databaseManager = new DatabaseManager(configuration);
         this.globalExceptionHandler = new GlobalExceptionHandler(exceptionMappingConfig, errorMessageProvider);
 
+        // ---- security ----
         this.sslContextFactory = new SslContextFactory(configuration);
         this.cryptoUtils = new CryptoUtils(configuration);
 
-// ✅ Payroll not implemented yet -> do NOT fail startup if SSL config missing
+        // ✅ payroll is not implemented yet → do NOT crash startup
+        PayrollSocketClient payrollTmp = null;
         try {
-            this.payrollSocketClient = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
-            logger.info("PayrollSocketClient initialized successfully.");
-        } catch (Exception e) {
-            this.payrollSocketClient = null;
-            logger.warn("PayrollSocketClient disabled (not configured / not implemented yet): {}", e.getMessage());
+            // If you later add a config flag like payroll.enabled=false, check it here.
+            // For now: only create payroll client if keystore.path exists & is not blank.
+            String ks = System.getProperty("keystore.path");
+            if (ks != null && !ks.isBlank()) {
+                payrollTmp = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);
+                logger.info("PayrollSocketClient initialized (keystore.path provided).");
+            } else {
+                logger.warn("PayrollSocketClient disabled: keystore.path not set.");
+            }
+        } catch (Exception ex) {
+            logger.warn("PayrollSocketClient disabled due to init error: {}", ex.getMessage());
         }
+        this.payrollSocketClient = payrollTmp;
 
-
-        // DAOs
+        // ---- DAOs ----
         this.userDAO = new UserDAOImpl(databaseManager);
         this.employeeDAO = new EmployeeDAOImpl(databaseManager);
-
-
-        LeaveApplicationDAOImpl leaveApplicationDAO = new LeaveApplicationDAOImpl(databaseManager);
+        this.leaveApplicationDAO = new LeaveApplicationDAOImpl(databaseManager);
         this.benefitPlanDAO = new BenefitPlanDAOImpl(databaseManager);
         this.employeeBenefitDAO = new EmployeeBenefitDAOImpl(databaseManager);
 
-        // Seed (if dev)
-        seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
-
-        // Services
+        // ---- Services ----
+        // ✅ UserService must tolerate payrollSocketClient being null (see note below)
         this.userService = new UserService(databaseManager, userDAO, employeeDAO, payrollSocketClient);
         this.employeeService = new EmployeeService(databaseManager, employeeDAO, userDAO);
         this.dashboardService = new DashboardService(userDAO, employeeDAO);
 
-        this.leaveService = new LeaveServiceImpl(
-                leaveApplicationDAO,
-                employeeDAO
-        );
+        this.leaveService = new LeaveServiceImpl(leaveApplicationDAO, employeeDAO);
+        this.benefitsService = new BenefitsServiceImpl(benefitPlanDAO, employeeBenefitDAO, employeeDAO);
 
-        this.benefitsService = new BenefitsServiceImpl(
-                benefitPlanDAO,
-                employeeBenefitDAO,
-                employeeDAO
-        );
-
+        // ---- Seed DB (dev only) ----
+        seedDatabase(configuration, databaseManager, userDAO, employeeDAO);
 
         logger.info("Application Context initialized successfully");
     }
 
-    private void seedDatabase(Configuration config, DatabaseManager dbManager, UserDAO userDAO, EmployeeDAO employeeDAO) {
+    private void seedDatabase(
+            Configuration config,
+            DatabaseManager dbManager,
+            UserDAO userDAO,
+            EmployeeDAO employeeDAO
+    ) {
         if ("development".equalsIgnoreCase(config.getAppEnvironment())) {
             databaseSeeder = new DatabaseSeeder(dbManager, userDAO, employeeDAO);
             databaseSeeder.seedIfEmpty();
@@ -110,67 +121,31 @@ public class ApplicationContext {
         return INSTANCE;
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
-    }
+    // -------- Getters --------
 
-    public DatabaseManager getDatabaseManager() {
-        return databaseManager;
-    }
+    public Configuration getConfiguration() { return configuration; }
+    public DatabaseManager getDatabaseManager() { return databaseManager; }
+    public DatabaseSeeder getDatabaseSeeder() { return databaseSeeder; }
+    public ErrorMessageProvider getErrorMessageProvider() { return errorMessageProvider; }
+    public ExceptionMappingConfig getExceptionMappingConfig() { return exceptionMappingConfig; }
+    public GlobalExceptionHandler getGlobalExceptionHandler() { return globalExceptionHandler; }
 
-    public DatabaseSeeder getDatabaseSeeder() {
-        return databaseSeeder;
-    }
+    public UserDAO getUserDAO() { return userDAO; }
+    public EmployeeDAO getEmployeeDAO() { return employeeDAO; }
+    public LeaveApplicationDAO getLeaveApplicationDAO() { return leaveApplicationDAO; }
+    public BenefitPlanDAO getBenefitPlanDAO() { return benefitPlanDAO; }
+    public EmployeeBenefitDAO getEmployeeBenefitDAO() { return employeeBenefitDAO; }
 
-    public ErrorMessageProvider getErrorMessageProvider() {
-        return errorMessageProvider;
-    }
+    public UserService getUserService() { return userService; }
+    public EmployeeService getEmployeeService() { return employeeService; }
+    public DashboardService getDashboardService() { return dashboardService; }
+    public LeaveService getLeaveService() { return leaveService; }
+    public BenefitsService getBenefitsService() { return benefitsService; }
 
-    public ExceptionMappingConfig getExceptionMappingConfig() {
-        return exceptionMappingConfig;
-    }
-
-    public GlobalExceptionHandler getGlobalExceptionHandler() {
-        return globalExceptionHandler;
-    }
-
-    public UserDAO getUserDAO() {
-        return userDAO;
-    }
-
-    public EmployeeDAO getEmployeeDAO() {
-        return employeeDAO;
-    }
-
-    public UserService getUserService() {
-        return userService;
-    }
-
-    public EmployeeService getEmployeeService() {
-        return employeeService;
-    }
-
-    public DashboardService getDashboardService() {
-        return dashboardService;
-    }
-
-    public SslContextFactory getSslContextFactory() {
-        return sslContextFactory;
-    }
-
-    public CryptoUtils getCryptoUtils() {
-        return cryptoUtils;
-    }
+    public SslContextFactory getSslContextFactory() { return sslContextFactory; }
+    public CryptoUtils getCryptoUtils() { return cryptoUtils; }
 
     public PayrollSocketClient getPayrollSocketClient() {
-        return payrollSocketClient;
-    }
-
-    public LeaveService getLeaveService() {
-        return leaveService;
-    }
-
-    public BenefitsService getBenefitsService() {
-        return benefitsService;
+        return payrollSocketClient; // may be null in dev
     }
 }
