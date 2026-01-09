@@ -88,10 +88,32 @@ public class LeaveServiceImpl implements LeaveService {
             throw new IllegalArgumentException("You cannot approve/reject your own leave request.");
         }
 
-        final int STATUS_APPROVED = 2;
-        final int STATUS_REJECTED = 3;
+    private static final int STATUS_PENDING = 1;
+    private static final int STATUS_APPROVED = 2;
+    private static final int STATUS_REJECTED = 3;
+
+    @Override
+    public void decideLeave(int leaveId, boolean approve, int hrUserId, String decisionReason) {
+
+        if (hrUserId <= 0) {
+            throw new IllegalArgumentException("Invalid HR user ID");
+        }
+
+        Integer ownerUserId = leaveDAO.findOwnerUserIdByLeaveId(leaveId);
+        if (ownerUserId == null) {
+            throw new IllegalArgumentException("Leave not found: " + leaveId);
+        }
+
+        //  Block HR approving/rejecting their own leave
+        if (ownerUserId == hrUserId) {
+            throw new IllegalArgumentException("You cannot approve/reject your own leave request.");
+        }
 
         int newStatusId = approve ? STATUS_APPROVED : STATUS_REJECTED;
+
+
+        leaveDAO.updateStatus(leaveId, newStatusId, hrUserId, decisionReason);
+    }
 
 
         leaveDAO.updateStatus(leaveId, newStatusId, hrUserId, decisionReason);
