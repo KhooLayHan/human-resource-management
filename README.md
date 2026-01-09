@@ -44,6 +44,7 @@ cd src/main/resources
 keytool -genkeypair -alias bhel_payroll -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore payroll_keystore.p12 -validity 3650 -storepass password123
 cd ../../..
 ```
+You can press Enter through the questions (First Name, Unit, etc.) or fill them in. Type 'yes' for the last confirmation question
 
 ### 3. Start the Database (Docker)
 We use Docker Compose to spin up a MySQL database instantly without manual installation.
