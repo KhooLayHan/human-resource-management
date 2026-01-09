@@ -23,10 +23,21 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
         mapRole(result.getObject("role_id", Integer.class))
     );
 
+    /**
+     * Create a UserDAOImpl backed by the given DatabaseManager.
+     *
+     * @param dbManager the DatabaseManager used to obtain database connections for DAO operations
+     */
     public UserDAOImpl(DatabaseManager dbManager) {
         super(dbManager);
     }
 
+    /**
+     * Retrieve a user by its database identifier.
+     *
+     * @param id the user's database id
+     * @return an Optional containing the User with the given id, or empty if no matching user exists
+     */
     @Override
     public Optional<User> findById(Integer id) {
         String sql = """
@@ -44,6 +55,11 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
         return findOne(sql, stmt -> stmt.setInt(1, id), rowMapper);
     }
 
+    /**
+     * Retrieve all users from the database ordered by username ascending.
+     *
+     * @return a list of User objects for every row in the users table ordered by username ascending; an empty list if no users exist.
+     */
     @Override
     public List<User> findAll() {
         String sql = """
@@ -61,6 +77,11 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
         return findMany(sql, stmt -> {}, rowMapper);
     }
 
+    /**
+     * Persist the given User to the database, inserting when the user's id is zero and updating otherwise.
+     *
+     * @param user the User to persist; its id will be populated after insertion
+     */
     @Override
     public void save(User user) {
         if (user.getId() == 0)
@@ -69,6 +90,14 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
             update(user);
     }
 
+    /**
+     * Persist the provided User as a new database row and update the User's id with the generated key.
+     *
+     * After a successful insert, the user's id field is set to the newly generated primary key.
+     * On database error the method logs the exception and does not propagate it; the user's id will remain unchanged.
+     *
+     * @param user the User to insert; its id will be updated with the generated key after a successful insert
+     */
     @Override
     protected void insert(User user) {
         String sql = """
@@ -106,6 +135,11 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
         }
     }
 
+    /**
+     * Update the persisted database record for the given user using its id as the identifier.
+     *
+     * @param user the user whose username, password hash, and role should be written to the database; its `id` determines which row to update
+     */
     @Override
     protected void update(User user) {
         String sql = """
@@ -125,6 +159,13 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
         });
     }
 
+    /**
+     * Populate the given PreparedStatement's parameters with the user's username, password hash, and role id.
+     *
+     * @param stmt the PreparedStatement where parameter indexes 1..3 will be set to username, password_hash, and role_id respectively
+     * @param user the user whose values will be bound; role is mapped to `1` for `HR_STAFF` and `2` for other roles
+     * @throws SQLException if an error occurs while setting statement parameters
+     */
     @Override
     protected void setSaveParameters(PreparedStatement stmt, User user) throws SQLException {
         stmt.setString(1, user.getUsername());
@@ -132,6 +173,13 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
         stmt.setInt(3, user.getRole() == UserDTO.Role.HR_STAFF ? 1 : 2);
     }
 
+    /**
+     * Delete the user with the specified id from the database.
+     *
+     * If no user matches the given id, the statement completes without affecting any rows.
+     *
+     * @param id the identifier of the user to delete
+     */
     @Override
     public void deleteById(Integer id) {
         String sql = """
@@ -144,6 +192,11 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
         executeUpdate(sql, stmt -> stmt.setInt(1, id));
     }
 
+    /**
+     * Get the total number of users in the database.
+     *
+     * @return the total number of users; `0` if none are found or if a database error occurs
+     */
     @Override
     public long count() {
         String sql = """
@@ -169,6 +222,12 @@ public class UserDAOImpl extends AbstractDAO<User> implements UserDAO {
         return 0;
     }
 
+    /**
+     * Retrieve the user with the given username.
+     *
+     * @param username the username to match
+     * @return an Optional containing the matching User, or empty if no user has that username
+     */
     @Override
     public Optional<User> findByUsername(String username) {
         String sql = """
