@@ -268,9 +268,9 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable code");
-           } finally {
-                if (dbManager.isTransactionActive())
-                        dbManager.rollbackTransaction();
+        } finally {
+            if (dbManager.isTransactionActive())
+                dbManager.rollbackTransaction();
         }
     }
 
