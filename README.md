@@ -35,8 +35,14 @@ cd human-resource-management
 
 # Create the configuration files from the template
 cp .env.example .env 
+cp src/main/resources/config.properties.example src/main/resources/config.properties
 cp src/main/resources/psw4j.properties.example src/main/resources/psw4j.properties
-cp src/main/resources/psw4j.properties.example src/main/resources/psw4j.properties
+```
+# Generate the keystore file for certification
+```bash
+cd src/main/resources
+keytool -genkeypair -alias bhel_payroll -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore payroll_keystore.p12 -validity 3650 -storepass password123
+cd ../../..
 ```
 
 ### 2. Start the Database (Docker)
