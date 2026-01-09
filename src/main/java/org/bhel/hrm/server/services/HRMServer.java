@@ -153,17 +153,8 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
 
         ErrorContext context = ErrorContext.forUser("getMyBenefitPlans", String.valueOf(employeeId));
         try {
-            return employeeBenefitDAO.findPlansForEmployee(employeeId).stream()
-                    .map(benefitPlanDAO::findById)
-                    .flatMap(Optional::stream)
-                    .map(p -> new BenefitPlanDTO(
-                            p.getId(),
-                            p.getPlanName(),
-                            p.getProvider(),
-                            p.getDescription(),
-                            p.getCostPerMonth()
-                    ))
-                    .toList();
+            return benefitsService.getMyBenefitPlans(employeeId);
+
         } catch (Exception e) {
             exceptionHandler.handle(e, context);
             throw new AssertionError("unreachable");
