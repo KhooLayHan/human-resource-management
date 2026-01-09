@@ -14,27 +14,13 @@ import org.slf4j.LoggerFactory;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
-import java.util.Optional;
 
 public class HRMServer extends UnicastRemoteObject implements HRMService {
 
     private static final Logger logger = LoggerFactory.getLogger(HRMServer.class);
 
-    private final transient DatabaseManager dbManager;
-    private final transient EmployeeService employeeService;
-    private final transient UserService userService;
-    private final transient DashboardService dashboardService;
-    private final transient LeaveService leaveService;
-    private final transient BenefitsService benefitsService;
-
-    // Needed only because getMyBenefitPlans() uses DAOs directly:
-    private final transient BenefitPlanDAO benefitPlanDAO;
-    private final transient EmployeeBenefitDAO employeeBenefitDAO;
-
-    private final transient GlobalExceptionHandler exceptionHandler;
-
-    public HRMServer(
-            DatabaseManager databaseManager,
+    public record Deps(
+            DatabaseManager dbManager,
             EmployeeService employeeService,
             UserService userService,
             DashboardService dashboardService,
@@ -43,18 +29,31 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             BenefitPlanDAO benefitPlanDAO,
             EmployeeBenefitDAO employeeBenefitDAO,
             GlobalExceptionHandler exceptionHandler
-    ) throws RemoteException {
-        this.dbManager = databaseManager;
-        this.employeeService = employeeService;
-        this.userService = userService;
-        this.dashboardService = dashboardService;
-        this.leaveService = leaveService;
-        this.benefitsService = benefitsService;
-        this.benefitPlanDAO = benefitPlanDAO;
-        this.employeeBenefitDAO = employeeBenefitDAO;
-        this.exceptionHandler = exceptionHandler;
-    }
+    ) {}
 
+    private final transient DatabaseManager dbManager;
+    private final transient EmployeeService employeeService;
+    private final transient UserService userService;
+    private final transient DashboardService dashboardService;
+    private final transient LeaveService leaveService;
+    private final transient BenefitsService benefitsService;
+
+    private final transient BenefitPlanDAO benefitPlanDAO;
+    private final transient EmployeeBenefitDAO employeeBenefitDAO;
+
+    private final transient GlobalExceptionHandler exceptionHandler;
+
+    public HRMServer(Deps deps) throws RemoteException {
+        this.dbManager = deps.dbManager();
+        this.employeeService = deps.employeeService();
+        this.userService = deps.userService();
+        this.dashboardService = deps.dashboardService();
+        this.leaveService = deps.leaveService();
+        this.benefitsService = deps.benefitsService();
+        this.benefitPlanDAO = deps.benefitPlanDAO();
+        this.employeeBenefitDAO = deps.employeeBenefitDAO();
+        this.exceptionHandler = deps.exceptionHandler();
+    }
 
     @Override
     public UserDTO authenticateUser(String username, String password)
@@ -136,50 +135,6 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     }
 
     @Override
-    public List<BenefitPlanDTO> getAllBenefitPlans()
-            throws RemoteException, HRMException {
-
-        try {
-            return benefitsService.getAllBenefitPlans();
-        } catch (Exception e) {
-            exceptionHandler.handle(e, "getAllBenefitPlans");
-            throw new AssertionError("unreachable");
-        }
-    }
-
-    @Override
-    public List<BenefitPlanDTO> getMyBenefitPlans(int employeeId)
-            throws RemoteException, HRMException {
-
-        ErrorContext context = ErrorContext.forUser("getMyBenefitPlans", String.valueOf(employeeId));
-        try {
-            return benefitsService.getMyBenefitPlans(employeeId);
-
-        } catch (Exception e) {
-            exceptionHandler.handle(e, context);
-            throw new AssertionError("unreachable");
-        } finally {
-            if (dbManager.isTransactionActive()) dbManager.rollbackTransaction();
-        }
-    }
-
-    @Override
-    public void enrollInBenefitPlan(int employeeId, int planId)
-            throws RemoteException, HRMException {
-
-        ErrorContext context = ErrorContext.forUser("enrollInBenefitPlan", employeeId + ":" + planId);
-        try {
-            benefitsService.enrollInBenefitPlan(employeeId, planId);
-        } catch (Exception e) {
-            exceptionHandler.handle(e, context);
-            throw new AssertionError("unreachable");
-        } finally {
-            if (dbManager.isTransactionActive()) dbManager.rollbackTransaction();
-        }
-    }
-
-
-    @Override
     public void updateEmployeeProfile(EmployeeDTO employeeDTO)
             throws RemoteException, HRMException {
 
@@ -224,7 +179,6 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         }
     }
 
-
     @Override
     public DashboardDTO generateDashboard(int userId)
             throws RemoteException, HRMException {
@@ -238,6 +192,47 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         }
     }
 
+    @Override
+    public List<BenefitPlanDTO> getAllBenefitPlans()
+            throws RemoteException, HRMException {
+
+        try {
+            return benefitsService.getAllBenefitPlans();
+        } catch (Exception e) {
+            exceptionHandler.handle(e, "getAllBenefitPlans");
+            throw new AssertionError("unreachable");
+        }
+    }
+
+    @Override
+    public List<BenefitPlanDTO> getMyBenefitPlans(int employeeId)
+            throws RemoteException, HRMException {
+
+        ErrorContext context = ErrorContext.forUser("getMyBenefitPlans", String.valueOf(employeeId));
+        try {
+            return benefitsService.getMyBenefitPlans(employeeId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable");
+        } finally {
+            if (dbManager.isTransactionActive()) dbManager.rollbackTransaction();
+        }
+    }
+
+    @Override
+    public void enrollInBenefitPlan(int employeeId, int planId)
+            throws RemoteException, HRMException {
+
+        ErrorContext context = ErrorContext.forUser("enrollInBenefitPlan", employeeId + ":" + planId);
+        try {
+            benefitsService.enrollInBenefitPlan(employeeId, planId);
+        } catch (Exception e) {
+            exceptionHandler.handle(e, context);
+            throw new AssertionError("unreachable");
+        } finally {
+            if (dbManager.isTransactionActive()) dbManager.rollbackTransaction();
+        }
+    }
 
     @Override
     public void applyForLeave(LeaveApplicationDTO leaveApplicationDTO)
@@ -281,7 +276,6 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
         }
     }
 
-
     @Override
     public void decideLeave(int leaveId, boolean approve, int hrUserId, String decisionReason)
             throws RemoteException, HRMException {
@@ -296,7 +290,6 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
             if (dbManager.isTransactionActive()) dbManager.rollbackTransaction();
         }
     }
-
 
     @Override
     public List<TrainingCourseDTO> getAllTrainingCourses() throws RemoteException {
@@ -317,5 +310,4 @@ public class HRMServer extends UnicastRemoteObject implements HRMService {
     public List<ApplicantDTO> getApplicantsForJob(int jobOpeningId) throws RemoteException {
         throw new UnsupportedOperationException("Recruitment not implemented yet");
     }
-
 }

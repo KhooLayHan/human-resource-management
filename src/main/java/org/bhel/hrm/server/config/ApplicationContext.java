@@ -66,11 +66,10 @@ public class ApplicationContext {
         this.sslContextFactory = new SslContextFactory(configuration);
         this.cryptoUtils = new CryptoUtils(configuration);
 
-        // payroll is not implemented yet → do NOT crash startup
+
         PayrollSocketClient payrollTmp = null;
         try {
-            // If you later add a config flag like payroll.enabled=false, check it here.
-            // For now: only create payroll client if keystore.path exists & is not blank.
+
             String ks = System.getProperty("keystore.path");
             if (ks != null && !ks.isBlank()) {
                 payrollTmp = new PayrollSocketClient(configuration, sslContextFactory, cryptoUtils);

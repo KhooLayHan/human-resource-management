@@ -1,6 +1,9 @@
 package org.bhel.hrm.server.services.impls;
 
 import org.bhel.hrm.common.dtos.BenefitPlanDTO;
+import org.bhel.hrm.common.error.ErrorCode;
+import org.bhel.hrm.common.exceptions.HRMException;
+import org.bhel.hrm.common.exceptions.ResourceNotFoundException;
 import org.bhel.hrm.server.daos.BenefitPlanDAO;
 import org.bhel.hrm.server.daos.EmployeeBenefitDAO;
 import org.bhel.hrm.server.daos.EmployeeDAO;
@@ -36,16 +39,24 @@ public class BenefitsServiceImpl implements BenefitsService {
     }
 
     @Override
-    public List<BenefitPlanDTO> getMyBenefitPlans(int employeeId) {
+    public List<BenefitPlanDTO> getMyBenefitPlans(int employeeId)
+            throws HRMException {
+
         employeeDAO.findById(employeeId)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCode.EMPLOYEE_NOT_FOUND,
+                        "Employee ID",
+                        employeeId
+                ));
 
         return employeeBenefitDAO.findPlansForEmployee(employeeId).stream()
                 .map(planId -> {
                     Optional<BenefitPlan> opt = benefitPlanDAO.findById(planId);
                     if (opt.isEmpty()) {
-                        logger.warn("Orphaned benefit enrollment detected: employeeId={}, planId={} not found in benefit_plans",
-                                employeeId, planId);
+                        logger.warn(
+                                "Orphaned benefit enrollment detected: employeeId={}, planId={} not found in benefit_plans",
+                                employeeId, planId
+                        );
                     }
                     return opt;
                 })
@@ -53,6 +64,7 @@ public class BenefitsServiceImpl implements BenefitsService {
                 .map(this::toDTO)
                 .toList();
     }
+
 
     @Override
     public void enrollInBenefitPlan(int employeeId, int planId) {

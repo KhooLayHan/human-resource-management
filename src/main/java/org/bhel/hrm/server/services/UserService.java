@@ -79,6 +79,7 @@ public class UserService {
         SQLException,
         HRMException
     {
+
         final Employee newEmployee = new Employee();
 
         dbManager.executeInTransaction(() -> {

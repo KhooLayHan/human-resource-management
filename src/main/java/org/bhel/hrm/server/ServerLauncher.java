@@ -52,7 +52,7 @@ public class ServerLauncher {
         String env = context.getConfiguration().getAppEnvironment();
         logger.info("Application is starting in [{}] environment.", env);
 
-        return new HRMServer(
+        return new HRMServer(new HRMServer.Deps(
                 context.getDatabaseManager(),
                 context.getEmployeeService(),
                 context.getUserService(),
@@ -62,7 +62,7 @@ public class ServerLauncher {
                 context.getBenefitPlanDAO(),
                 context.getEmployeeBenefitDAO(),
                 context.getGlobalExceptionHandler()
-        );
+        ));
     }
 
 
